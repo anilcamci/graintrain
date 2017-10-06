@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>GrainTrain</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="js/three.min.js"></script>
+    <script src="js/SoundTrajectory.js"></script>
+    <script src="js/simplify.js"></script>
+    <script src="js/granulator.js"></script>
+    <script src="js/OrthographicTrackballControls.js"></script>
+  </head>
+
+  <body>
+    <div id = "globalContainer">
+
+      <button onclick="changeBackground('00ff12')" class="mode-selector" style="background-color:#00ff12">EDIT</button>
+      <button onclick="changeBackground('ffc300')" class="mode-selector" style="left:50%; background-color:#ffc300;">PLAY</button>
+
+      <label for="audio-file" class="custom-file-upload">ADD</label>
+      <input type="file" id="audio-file"/>
+      <button class="custom-file-upload" style="left:200px;">DELETE</button>
+
+    <script>
+
+      var auido;
+      var data;
+      var trajectories = [];
+
+      var container, controls, camara, scene, renderer;
+      var raycaster, mouse, pointer;
+      var trajectory;
+
+      var visibleObjects = [];
+      var rayObjects = [];
+      var intersected, intersectedWave;
+      var previouslyIntersected = [];
+      var draggedObjectIndex = null;
+
+      var highlightRange = 4;
+      var zoomLevel = 1;
+
+      var mousePressed = false;
+      var isDrawingTrajectory = false;
+
+      var fileInput = document.getElementById('audio-file');
+
+      var editMode = false;
+      var deleteMode = false;
+      var waveToDrag;
+
+      var mouseOffsetX;
+      var mouseOffsetY;
+      var pointerOffsetY;
+
+      init();
+      render();
+
+      function changeBackground(color) {
+        var color = '#' + color;
+        document.body.style.background = color;
+        renderer.setClearColor(color);
+      }
+
+      function init() {
+
+        container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+        camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 100000 );
+        camera.position.set(0, 0, 2000);
+
+        controls = new THREE.OrthographicTrackballControls( camera );
+        controls.rotateSpeed = 0.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 0.3;
+        controls.keys = [ 65, 83, 68 ];
+
+				scene = new THREE.Scene();
+        scene.add(camera);
+
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector3();
+        pointer = new THREE.Vector3();
+
+        var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
+        var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+        floor = new THREE.Mesh( geometry, material );
+        trajectory.setScene(scene);
+
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setClearColor(0xf0f0f0);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        container.addEventListener( 'mousedown', onMouseDown, false );
+        container.addEventListener( 'mouseup', onMouseUp, false );
+        container.addEventListener( 'mousemove', onMouseMove, false );
+        document.body.addEventListener( 'keydown', onKeyDown, false);
+        document.body.addEventListener( 'keyup', onKeyUp, false);
+        window.addEventListener( 'resize', onWindowResize, false );
+
+        // container.addEventListener( 'mousewheel', onMouseScroll, false );
+
+        fileInput.addEventListener("change", function() {
+          var reader = new FileReader();
+          reader.onload = function(ev) {
+            context.decodeAudioData(ev.target.result, function(buffer) {
+              buffers.push(buffer);
+              data = buffer.getChannelData(0);
+            });
+          };
+          reader.readAsArrayBuffer(this.files[0]);
+        }, false);
+
+        animate();
+      }
+
+      function drawWave(path){
+
+        var wave = new THREE.Object3D();
+        var rayWave = new THREE.Object3D();
+
+        var span = 5;
+        var ampScalar = 50;
+        var depth = 0;
+        var numberOfNodes = path.getLength() / 10 * Math.sqrt(camera.zoom);
+
+        var step = Math.ceil( data.length / numberOfNodes );
+
+        for( var i = 0; i < numberOfNodes-1; i++ ){
+          var min = 1.0;
+          var max = -1.0;
+
+          for( j=0; j < step; j++) {
+            var datum = data[(i*step)+j];
+            if (datum < min){
+              min = datum;
+            }
+            else if(datum > max){
+              max = datum;
+            }
+          }
+
+          var height = Math.max(5, (max-min)*ampScalar);
+
+          var boxGeometry = new THREE.BoxBufferGeometry( depth, height, span );
+          var boxMaterial = new THREE.MeshBasicMaterial({color: 0x00ccff});
+          var block = new THREE.Mesh( boxGeometry, boxMaterial );
+          block.index = i;
+          block.parentIndex = visibleObjects.length;
+          block.name = [i, visibleObjects.length];
+          block.position.copy(path.getPointAt(i * 1/numberOfNodes));
+          block.lookAt(path.getPointAt((i +1) * 1/numberOfNodes));
+          wave.add( block );
+
+          var rayGeometry = new THREE.BoxBufferGeometry( depth, height * 1.5, span * 2);
+          var rayMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity:0});
+          var rayBlock = new THREE.Mesh( rayGeometry, rayMaterial );
+          rayBlock.index = i;
+          rayBlock.parentIndex = rayObjects.length;
+          rayBlock.name = [i, rayObjects.length];
+          rayBlock.position.copy(path.getPointAt(i * 1/numberOfNodes));
+          rayBlock.lookAt(path.getPointAt((i +1) * 1/numberOfNodes));
+          rayWave.add( rayBlock );
+        }
+
+        scene.add(wave);
+        scene.add(rayWave);
+        visibleObjects.push( wave );
+        rayObjects.push( rayWave );
+      }
+
+      function onMouseDown(event){
+
+        document.getElementById('globalContainer').style.pointerEvents = 'none';
+
+        mousePressed = true;
+        getMousePosition(event);
+        if( isDrawingTrajectory ) trajectory.beginAt(mouse);
+
+        if( deleteMode ){
+          scene.remove(visibleObjects[draggedObjectIndex]);
+          visibleObjects.splice(draggedObjectIndex, 1);
+          scene.remove(rayObjects[draggedObjectIndex]);
+          rayObjects.splice(draggedObjectIndex, 1);
+        }
+      }
+
+      function onMouseUp(event){
+
+        document.getElementById('globalContainer').style.pointerEvents = 'auto';
+
+        mousePressed = false;
+
+        if(isDrawingTrajectory){
+          var obj = trajectory.createObject();
+          trajectories.push(obj.spline);
+          drawWave(obj.spline);
+
+          if(visibleObjects.length > buffers.length){
+            buffers.push(buffers[buffers.length - 1]);
+          }
+        }
+      }
+
+      function onMouseMove(event){
+
+        getMousePosition(event);
+
+        if( mousePressed && isDrawingTrajectory) trajectory.addPoint(mouse);
+
+        var intersects = raycaster.intersectObjects( rayObjects, true );
+
+        if(intersects.length > 0 && draggedObjectIndex == null){
+          draggedObjectIndex = intersects[0].object.parentIndex;
+        }
+
+        if( editMode ){
+          const dx = mouse.x - mouseOffsetX;
+          const dy = mouse.y - mouseOffsetY;
+          mouseOffsetX = mouse.x;
+          mouseOffsetY = mouse.y;
+          visibleObjects[draggedObjectIndex].position.x += dx;
+          visibleObjects[draggedObjectIndex].position.y += dy;
+          rayObjects[draggedObjectIndex].position.x += dx;
+          rayObjects[draggedObjectIndex].position.y += dy;
+        }else{
+          if( !deleteMode ) draggedObjectIndex = null;
+
+          // Reset previously painted interactions
+          for(var j = 0; j < previouslyIntersected.length; j++){
+
+            for( var i = -highlightRange; i < highlightRange + 1; i++){
+              var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
+              visibleObjects[previouslyIntersected[j].parentIndex].children[previousID].material.color.setHex( 0x00ccff );
+              visibleObjects[previouslyIntersected[j].parentIndex].children[previousID].scale.z = 1;
+            }
+          }
+
+          // Paint the newly interacted objects
+          for(var l = 0; l < intersects.length; l++){
+
+            intersected = intersects[l].object;
+            intersectedWave = intersects[l].object.parentIndex;
+
+            for( var i = -highlightRange; i < highlightRange + 1; i++){
+              var gradient = (highlightRange - Math.abs(i))/7;
+              var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
+              visibleObjects[intersectedWave].children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
+              visibleObjects[intersectedWave].children[ID].scale.z = 1.2 + gradient;
+            }
+
+            previouslyIntersected[l] = intersected;
+
+            var g = new grain(intersected.name);
+          }
+
+          intersectes = [];
+        }
+      }
+
+      function getMousePosition(event) {
+
+        pointer.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+
+        raycaster.setFromCamera( pointer, camera );
+
+        // if( isDrawingTrajectory || editMode){
+          var intersects = raycaster.intersectObject( floor );
+          if(intersects.length > 0) {
+              mouse = intersects[0].point;
+          }
+        // }
+      }
+
+      function setMouseOffset() {
+        mouseOffsetX = mouse.x;
+        mouseOffsetY = mouse.y;
+      }
+
+      function onMouseScroll(event){
+
+        if(camera.zoom > 0.5 && camera.zoom < 2.0){
+          scene.children = [];
+          visibleObjects = [];
+          rayObjects = [];
+          for(var i in trajectories) drawWave(trajectories[i]);
+        }
+      }
+
+      function onWindowResize(){
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      function animate() {
+        controls.update();
+        requestAnimationFrame( animate );
+        render();
+      }
+
+      function render() {
+
+        renderer.render(scene, camera);
+      }
+
+      function onKeyDown(e) {
+
+        var key = e.keyCode || e.which;
+
+        switch(key) {
+          case 65: isDrawingTrajectory = true; break; // A
+          case 69: editMode = true; setMouseOffset(); break; // E
+          case 68: deleteMode = true; break; // D
+        }
+      }
+
+      function onKeyUp(e) {
+
+        var key = e.keyCode || e.which;
+        switch(key) {
+          case 65: isDrawingTrajectory = false; break; // A
+          case 69: editMode = false; break; // E
+          case 68: deleteMode = false; break; // D
+        }
+      }
+
+    </script>
+    </div>
+  </body>
+</html>
