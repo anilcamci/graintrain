@@ -15,12 +15,12 @@
   <body>
     <div id = "globalContainer">
 
-      <button onclick="changeBackground('00ff12')" class="mode-selector" style="background-color:#00ff12">EDIT</button>
-      <button onclick="changeBackground('ffc300')" class="mode-selector" style="left:50%; background-color:#ffc300;">PLAY</button>
+      <button onclick="toggleEditMode()" class="mode-selector" style="background-color:#00ff12">EDIT</button>
+      <button onclick="togglePlayMode()" class="mode-selector" style="left:50%; background-color:#ffc300;">PLAY</button>
 
-      <label for="audio-file" class="custom-file-upload">ADD</label>
+      <label for="audio-file" class="custom-file-upload" onclick="toggleAdding()">ADD</label>
       <input type="file" id="audio-file"/>
-      <button class="custom-file-upload" style="left:200px;">DELETE</button>
+      <button class="custom-file-upload" style="left:200px;" onclick="toggleDeleting()">DELETE</button>
 
     <script>
 
@@ -57,10 +57,26 @@
       init();
       render();
 
-      function changeBackground(color) {
-        var color = '#' + color;
+      function toggleEditMode() {
+        var color = '#' + '00ff12';
         document.body.style.background = color;
         renderer.setClearColor(color);
+      }
+
+      function togglePlayMode() {
+        var color = '#' + 'ffc300';
+        document.body.style.background = color;
+        renderer.setClearColor(color);
+      }
+
+      function toggleAdding(){
+        toggleEditMode();
+        isDrawingTrajectory = !isDrawingTrajectory;
+      }
+
+      function toggleDeleting(){
+        toggleEditMode();
+        deleteMode = true;
       }
 
       function init() {
@@ -207,6 +223,9 @@
           if(visibleObjects.length > buffers.length){
             buffers.push(buffers[buffers.length - 1]);
           }
+
+          togglePlayMode();
+          isDrawingTrajectory = false;
         }
       }
 
