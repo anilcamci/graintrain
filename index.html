@@ -118,6 +118,8 @@
         container.addEventListener( 'mousedown', onMouseDown, false );
         container.addEventListener( 'mouseup', onMouseUp, false );
         container.addEventListener( 'mousemove', onMouseMove, false );
+        container.addEventListener( 'touchsart'. onTouchStart, false);
+        container.addEventListener( 'touchmove'. onTouchMove, false);
         document.body.addEventListener( 'keydown', onKeyDown, false);
         document.body.addEventListener( 'keyup', onKeyUp, false);
         window.addEventListener( 'resize', onWindowResize, false );
@@ -193,6 +195,10 @@
         rayObjects.push( rayWave );
       }
 
+      function onTouchStart(event){
+          onMouseDown(event);
+      }
+
       function onMouseDown(event){
 
         document.getElementById('globalContainer').style.pointerEvents = 'none';
@@ -227,6 +233,10 @@
           togglePlayMode();
           isDrawingTrajectory = false;
         }
+      }
+
+      function onTouchMove(event){
+        onMouseMove(event);
       }
 
       function onMouseMove(event){
