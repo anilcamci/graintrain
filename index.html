@@ -187,7 +187,6 @@
         }
 
         scene.add(wave);
-        console.log(wave);
         scene.add(rayWave);
         visibleObjects.push( wave );
         rayObjects.push( rayWave );
@@ -287,7 +286,6 @@
             for( var i = -highlightRange; i < highlightRange + 1; i++){
               var gradient = (highlightRange - Math.abs(i))/7;
               var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
-              console.log(intersectedWave);
 
               visibleObjects[intersectedWave].children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
               visibleObjects[intersectedWave].children[ID].scale.z = 1.2 + gradient;
