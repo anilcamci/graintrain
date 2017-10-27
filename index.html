@@ -12,15 +12,17 @@
     <script src="js/OrthographicTrackballControls.js"></script>
   </head>
 
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   <body>
     <div id = "globalContainer">
 
-      <button onclick="toggleEditMode()" class="mode-selector" style="background-color:#00ff12">EDIT</button>
-      <button onclick="togglePlayMode()" class="mode-selector" style="left:50%; background-color:#ffc300;">PLAY</button>
+      <input type="file" id="audio-file">
+      <label for="audio-file" class="button" style="left:25%;" onclick="toggleAdding()">+</label>
 
-      <label for="audio-file" class="custom-file-upload" onclick="toggleAdding()">ADD</label>
-      <input type="file" id="audio-file"/>
-      <button class="custom-file-upload" style="left:200px;" onclick="toggleDeleting()">DELETE</button>
+      <button class="button" style="left:50%;" onclick="toggleEditMode()"><i class="material-icons">mode_edit</i></button>
+
+      <button class="button" style="left:75%;" onclick="toggleDeleting()">–</button>
 
     <script>
 
@@ -63,20 +65,15 @@
         renderer.setClearColor(color);
       }
 
-      function togglePlayMode() {
-        var color = '#' + 'ffc300';
-        document.body.style.background = color;
-        renderer.setClearColor(color);
-      }
-
       function toggleAdding(){
         toggleEditMode();
+        deleteMode = false;
         isDrawingTrajectory = !isDrawingTrajectory;
       }
 
       function toggleDeleting(){
         toggleEditMode();
-        deleteMode = true;
+        deleteMode = !deleteMode;
       }
 
       function init() {
@@ -190,13 +187,14 @@
         }
 
         scene.add(wave);
+        console.log(wave);
         scene.add(rayWave);
         visibleObjects.push( wave );
         rayObjects.push( rayWave );
       }
 
       function onTouchStart(event){
-          togglePlayMode();
+
           onMouseDown(event);
       }
 
@@ -209,10 +207,16 @@
         if( isDrawingTrajectory ) trajectory.beginAt(mouse);
 
         if( deleteMode ){
-          scene.remove(visibleObjects[draggedObjectIndex]);
-          visibleObjects.splice(draggedObjectIndex, 1);
-          scene.remove(rayObjects[draggedObjectIndex]);
-          rayObjects.splice(draggedObjectIndex, 1);
+          scene.remove(visibleObjects[intersectedWave]);
+          visibleObjects.splice(intersectedWave, 1);
+          scene.remove(rayObjects[intersectedWave]);
+          rayObjects.splice(intersectedWave, 1);
+          buffers.splice(intersectedWave, 1);
+          previouslyIntersected = [];
+
+          for(var i = 0; i < visibleObjects.length; i++){
+
+          }
         }
       }
 
@@ -231,7 +235,6 @@
             buffers.push(buffers[buffers.length - 1]);
           }
 
-          togglePlayMode();
           isDrawingTrajectory = false;
         }
       }
@@ -262,7 +265,8 @@
           rayObjects[draggedObjectIndex].position.x += dx;
           rayObjects[draggedObjectIndex].position.y += dy;
         }else{
-          if( !deleteMode ) draggedObjectIndex = null;
+          // if( !deleteMode ) draggedObjectIndex = null;
+          draggedObjectIndex = null;
 
           // Reset previously painted interactions
           for(var j = 0; j < previouslyIntersected.length; j++){
@@ -283,6 +287,8 @@
             for( var i = -highlightRange; i < highlightRange + 1; i++){
               var gradient = (highlightRange - Math.abs(i))/7;
               var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
+              console.log(intersectedWave);
+
               visibleObjects[intersectedWave].children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
               visibleObjects[intersectedWave].children[ID].scale.z = 1.2 + gradient;
             }
@@ -348,9 +354,7 @@
         var key = e.keyCode || e.which;
 
         switch(key) {
-          case 65: isDrawingTrajectory = true; break; // A
           case 69: editMode = true; setMouseOffset(); break; // E
-          case 68: deleteMode = true; break; // D
         }
       }
 
@@ -358,9 +362,7 @@
 
         var key = e.keyCode || e.which;
         switch(key) {
-          case 65: isDrawingTrajectory = false; break; // A
           case 69: editMode = false; break; // E
-          case 68: deleteMode = false; break; // D
         }
       }
 
