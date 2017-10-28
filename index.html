@@ -42,7 +42,7 @@
       var zoomLevel = 1;
 
       var mousePressed = false;
-      var isDrawingTrajectory = false;
+      var addMode = false;
 
       var fileInput = document.getElementById('audio-file');
 
@@ -66,7 +66,7 @@
       function toggleAdding(){
         toggleEditMode();
         deleteMode = false;
-        isDrawingTrajectory = !isDrawingTrajectory;
+        addMode = !addMode;
       }
 
       function toggleDeleting(){
@@ -178,23 +178,27 @@
 
       function onTouchStart(event){
 
-          onMouseDown(event);
+        if ( event.touches.length === 1 ) {
+          event.preventDefault();
           var color = '#' + '000000';
           document.body.style.background = color;
+        }
       }
 
       function onMouseDown(event){
+
+        var color = '#' + '000000';
+        document.body.style.background = color;
 
         document.getElementById('globalContainer').style.pointerEvents = 'none';
 
         mousePressed = true;
         getMousePosition(event);
-        if( isDrawingTrajectory ) trajectory.beginAt(mouse);
+        if( addMode ) trajectory.beginAt(mouse);
 
         if( deleteMode ){
           scene.remove(intersected.parent);
           previouslyIntersected = [];
-
         }
       }
 
@@ -204,12 +208,12 @@
 
         mousePressed = false;
 
-        if(isDrawingTrajectory){
+        if(addMode){
           var obj = trajectory.createObject();
           trajectories.push(obj.spline);
           drawWave(obj.spline);
 
-          isDrawingTrajectory = false;
+          addMode = false;
         }
       }
 
@@ -221,7 +225,7 @@
 
         getMousePosition(event);
 
-        if( mousePressed && isDrawingTrajectory) trajectory.addPoint(mouse);
+        if( mousePressed && addMode) trajectory.addPoint(mouse);
 
         var intersects = raycaster.intersectObjects(scene.children, true);
 
@@ -278,7 +282,7 @@
 
         raycaster.setFromCamera( pointer, camera );
 
-        // if( isDrawingTrajectory || editMode){
+        // if( addMode || editMode){
           var intersects = raycaster.intersectObject( floor );
           if(intersects.length > 0) {
               mouse = intersects[0].point;
