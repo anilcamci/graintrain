@@ -215,9 +215,15 @@
 
       function onTouchMove(event){
         if ( event.touches.length === 1 ) {
+
+          var touch = event.touches[0];
           event.preventDefault();
           var color = '#' + '000000';
           renderer.setClearColor(color);
+
+          var touchCoordinates = new THREE.Vector2(touch.clientX, touch.clientY);
+
+          if(addMode) trajectory.addPoint(touchCoordinates);
         }
       }
 
