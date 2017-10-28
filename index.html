@@ -186,9 +186,6 @@
 
       function onMouseDown(event){
 
-        var color = '#' + '000000';
-        document.body.style.background = color;
-
         document.getElementById('globalContainer').style.pointerEvents = 'none';
 
         mousePressed = true;
@@ -220,7 +217,7 @@
         if ( event.touches.length === 1 ) {
           event.preventDefault();
           var color = '#' + '000000';
-          document.body.style.background = color;
+          renderer.setClearColor(color);
         }
       }
 
