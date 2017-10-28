@@ -16,14 +16,14 @@ var reverb = 0.0;
 var trans = 1;
 var amp = 0.3
 
-function grain(name) {
+function grain(intersectedBlock) {
 
 	var that = this; //for scope issues
 	this.now = context.currentTime; //update the time value
 	//create the source
 	this.source = context.createBufferSource();
 	this.source.playbackRate.value = this.source.playbackRate.value * trans;
-	this.source.buffer = buffers[intersectedWave];
+	this.source.buffer = intersectedBlock.parent.buffer;
 
 	//create the gain for enveloping
 	this.gain = context.createGain();
@@ -31,8 +31,8 @@ function grain(name) {
 	this.gain.connect(master);
 
 	//update the position and calcuate the offset
-	this.posX = name[0];
-	this.offset = this.posX * (buffers[name[1]].duration / visibleObjects[name[1]].children.length); //pixels to seconds
+	this.posX = intersectedBlock.index;
+	this.offset = this.posX * (this.source.buffer.duration / intersectedBlock.parent.children.length); //pixels to seconds
 
 	this.amp = amp;
 
@@ -78,7 +78,7 @@ function voice(id, bufferIndex){
 	this.touchid = id; //the id of the touch event
 }
 
-voice.prototype.playmouse = function(name){
+voice.prototype.playmouse = function(intersectedBlock){
 
 	this.grains = [];
 	this.grainscount = 0;
@@ -86,7 +86,7 @@ voice.prototype.playmouse = function(name){
 
 	this.play = function(){
 		//create new grain
-		var g = new grain(name);
+		var g = new grain(intersectedBlock);
 
 		//push to the array
 		that.grains[that.graincount] = g;
