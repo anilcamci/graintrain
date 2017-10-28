@@ -218,7 +218,11 @@
       }
 
       function onTouchMove(event){
-        onMouseMove(event);
+        if ( event.touches.length === 1 ) {
+          event.preventDefault();
+          var color = '#' + '000000';
+          document.body.style.background = color;
+        }
       }
 
       function onMouseMove(event){
