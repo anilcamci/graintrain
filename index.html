@@ -59,8 +59,7 @@
 
       function toggleEditMode() {
         var color = '#' + '00ff12';
-        document.body.style.background = color;
-        renderer.setClearColor(color);
+        // renderer.setClearColor(color);
       }
 
       function toggleAdding(){
@@ -181,7 +180,7 @@
         if ( event.touches.length === 1 ) {
           event.preventDefault();
           var color = '#' + '000000';
-          document.body.style.background = color;
+          renderer.setClearColor(color);
         }
       }
 
