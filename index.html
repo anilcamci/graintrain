@@ -12,15 +12,17 @@
     <script src="js/OrthographicTrackballControls.js"></script>
   </head>
 
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   <body>
     <div id = "globalContainer">
 
-      <button onclick="toggleEditMode()" class="mode-selector" style="background-color:#00ff12">EDIT</button>
-      <button onclick="togglePlayMode()" class="mode-selector" style="left:50%; background-color:#ffc300;">PLAY</button>
+      <input type="file" id="audio-file">
+      <label for="audio-file" class="button" style="left:25%;" onclick="toggleAdding()">+</label>
 
-      <label for="audio-file" class="custom-file-upload" onclick="toggleAdding()">ADD</label>
-      <input type="file" id="audio-file"/>
-      <button class="custom-file-upload" style="left:200px;" onclick="toggleDeleting()">DELETE</button>
+      <button class="button" style="left:50%;" onclick="toggleEditMode()"><i class="material-icons">mode_edit</i></button>
+
+      <button class="button" style="left:75%;" onclick="toggleDeleting()">–</button>
 
     <script>
 
@@ -32,11 +34,9 @@
       var raycaster, mouse, pointer;
       var trajectory;
 
-      var visibleObjects = [];
-      var rayObjects = [];
       var intersected, intersectedWave;
       var previouslyIntersected = [];
-      var draggedObjectIndex = null;
+      var draggedObject = null;
 
       var highlightRange = 4;
       var zoomLevel = 1;
@@ -63,20 +63,15 @@
         renderer.setClearColor(color);
       }
 
-      function togglePlayMode() {
-        var color = '#' + 'ffc300';
-        document.body.style.background = color;
-        renderer.setClearColor(color);
-      }
-
       function toggleAdding(){
         toggleEditMode();
+        deleteMode = false;
         isDrawingTrajectory = !isDrawingTrajectory;
       }
 
       function toggleDeleting(){
         toggleEditMode();
-        deleteMode = true;
+        deleteMode = !deleteMode;
       }
 
       function init() {
@@ -172,31 +167,17 @@
           var boxMaterial = new THREE.MeshBasicMaterial({color: 0x00ccff});
           var block = new THREE.Mesh( boxGeometry, boxMaterial );
           block.index = i;
-          block.parentIndex = visibleObjects.length;
-          block.name = [i, visibleObjects.length];
           block.position.copy(path.getPointAt(i * 1/numberOfNodes));
           block.lookAt(path.getPointAt((i +1) * 1/numberOfNodes));
           wave.add( block );
-
-          var rayGeometry = new THREE.BoxBufferGeometry( depth, height * 1.5, span * 2);
-          var rayMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity:0});
-          var rayBlock = new THREE.Mesh( rayGeometry, rayMaterial );
-          rayBlock.index = i;
-          rayBlock.parentIndex = rayObjects.length;
-          rayBlock.name = [i, rayObjects.length];
-          rayBlock.position.copy(path.getPointAt(i * 1/numberOfNodes));
-          rayBlock.lookAt(path.getPointAt((i +1) * 1/numberOfNodes));
-          rayWave.add( rayBlock );
         }
 
+        wave.buffer = buffers[buffers.length-1];
         scene.add(wave);
-        scene.add(rayWave);
-        visibleObjects.push( wave );
-        rayObjects.push( rayWave );
       }
 
       function onTouchStart(event){
-          togglePlayMode();
+
           onMouseDown(event);
       }
 
@@ -209,10 +190,9 @@
         if( isDrawingTrajectory ) trajectory.beginAt(mouse);
 
         if( deleteMode ){
-          scene.remove(visibleObjects[draggedObjectIndex]);
-          visibleObjects.splice(draggedObjectIndex, 1);
-          scene.remove(rayObjects[draggedObjectIndex]);
-          rayObjects.splice(draggedObjectIndex, 1);
+          scene.remove(intersected.parent);
+          previouslyIntersected = [];
+
         }
       }
 
@@ -227,11 +207,6 @@
           trajectories.push(obj.spline);
           drawWave(obj.spline);
 
-          if(visibleObjects.length > buffers.length){
-            buffers.push(buffers[buffers.length - 1]);
-          }
-
-          togglePlayMode();
           isDrawingTrajectory = false;
         }
       }
@@ -246,10 +221,10 @@
 
         if( mousePressed && isDrawingTrajectory) trajectory.addPoint(mouse);
 
-        var intersects = raycaster.intersectObjects( rayObjects, true );
+        var intersects = raycaster.intersectObjects(scene.children, true);
 
         if(intersects.length > 0 && draggedObjectIndex == null){
-          draggedObjectIndex = intersects[0].object.parentIndex;
+          draggedObject = intersects[0].object.parent;
         }
 
         if( editMode ){
@@ -257,20 +232,19 @@
           const dy = mouse.y - mouseOffsetY;
           mouseOffsetX = mouse.x;
           mouseOffsetY = mouse.y;
-          visibleObjects[draggedObjectIndex].position.x += dx;
-          visibleObjects[draggedObjectIndex].position.y += dy;
-          rayObjects[draggedObjectIndex].position.x += dx;
-          rayObjects[draggedObjectIndex].position.y += dy;
+          draggedObject.position.x += dx;
+          draggedObject.position.y += dy;
         }else{
-          if( !deleteMode ) draggedObjectIndex = null;
+          // if( !deleteMode ) draggedObjectIndex = null;
+          draggedObjectIndex = null;
 
           // Reset previously painted interactions
           for(var j = 0; j < previouslyIntersected.length; j++){
 
             for( var i = -highlightRange; i < highlightRange + 1; i++){
               var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
-              visibleObjects[previouslyIntersected[j].parentIndex].children[previousID].material.color.setHex( 0x00ccff );
-              visibleObjects[previouslyIntersected[j].parentIndex].children[previousID].scale.z = 1;
+              previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
+              previouslyIntersected[j].parent.children[previousID].scale.z = 1;
             }
           }
 
@@ -283,13 +257,13 @@
             for( var i = -highlightRange; i < highlightRange + 1; i++){
               var gradient = (highlightRange - Math.abs(i))/7;
               var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
-              visibleObjects[intersectedWave].children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
-              visibleObjects[intersectedWave].children[ID].scale.z = 1.2 + gradient;
+              intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
+              intersected.parent.children[ID].scale.z = 1.2 + gradient;
             }
 
             previouslyIntersected[l] = intersected;
 
-            var g = new grain(intersected.name);
+            var g = new grain(intersected);
           }
 
           intersectes = [];
@@ -319,8 +293,6 @@
 
         if(camera.zoom > 0.5 && camera.zoom < 2.0){
           scene.children = [];
-          visibleObjects = [];
-          rayObjects = [];
           for(var i in trajectories) drawWave(trajectories[i]);
         }
       }
@@ -348,9 +320,7 @@
         var key = e.keyCode || e.which;
 
         switch(key) {
-          case 65: isDrawingTrajectory = true; break; // A
           case 69: editMode = true; setMouseOffset(); break; // E
-          case 68: deleteMode = true; break; // D
         }
       }
 
@@ -358,9 +328,7 @@
 
         var key = e.keyCode || e.which;
         switch(key) {
-          case 65: isDrawingTrajectory = false; break; // A
           case 69: editMode = false; break; // E
-          case 68: deleteMode = false; break; // D
         }
       }
 
