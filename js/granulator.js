@@ -13,7 +13,7 @@ var release = 0.40;
 var density = 1.0;
 var spread = 0.2;
 var trans = 1;
-var amp = 0.5;
+var amp = 1;
 
 function grain(intersectedBlock) {
 
