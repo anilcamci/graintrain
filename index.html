@@ -246,7 +246,7 @@
              mouseOffsetY = mouse.y;
              draggedObject.position.x += dx;
              draggedObject.position.y += dy;
-           }else{
+           }else if(!addMode){
              // if( !deleteMode ) draggedObjectIndex = null;
              draggedObjectIndex = null;
 
