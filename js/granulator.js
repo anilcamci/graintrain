@@ -12,9 +12,8 @@ var attack = 0.40;
 var release = 0.40;
 var density = 1.0;
 var spread = 0.2;
-var reverb = 0.0;
 var trans = 1;
-var amp = 0.3
+var amp = 0.5;
 
 function grain(intersectedBlock) {
 
