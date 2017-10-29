@@ -34,7 +34,7 @@ function grain(intersectedBlock) {
 	this.posX = intersectedBlock.index;
 	this.offset = this.posX * (this.source.buffer.duration / intersectedBlock.parent.children.length); //pixels to seconds
 	this.amp = amp;
-
+	console.log(this.offset);
 	//parameters
 	this.attack = attack * 0.4;
 	this.release = release * 0.5;
@@ -52,7 +52,7 @@ function grain(intersectedBlock) {
 	this.gain.gain.linearRampToValueAtTime(0,this.now + (this.attack +  this.release) );
 
 	//garbage collection
-	// this.source.stop(this.now + this.attack + this.release + 0.1);
+	this.source.stop(this.now + this.attack + this.release + 0.1);
 	var tms = (this.attack + this.release) * 1000; //calculate the time in miliseconds
 	setTimeout(function(){
 		that.gain.disconnect();
