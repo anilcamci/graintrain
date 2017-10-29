@@ -234,17 +234,12 @@
           }
 
           if(addMode){
+            trajectory.addPoint(mouse);
+          }
 
-             trajectory.addPoint(mouse);
-           }
+          var intersects = raycaster.intersectObjects(scene.children, true);
 
-           var intersects = raycaster.intersectObjects(scene.children, true);
-
-           if(intersects.length > 0 && draggedObjectIndex == null){
-             draggedObject = intersects[0].object.parent;
-           }
-
-           if( editMode ){
+          if( editMode ){
              const dx = mouse.x - mouseOffsetX;
              const dy = mouse.y - mouseOffsetY;
              mouseOffsetX = mouse.x;
@@ -265,7 +260,6 @@
                }
              }
 
-             // Paint the newly interacted objects
              for(var l = 0; l < intersects.length; l++){
 
                intersected = intersects[l].object;
@@ -293,7 +287,6 @@
           var obj = trajectory.createObject();
           trajectories.push(obj.spline);
           drawWave(obj.spline);
-
           addMode = false;
         }
       }
