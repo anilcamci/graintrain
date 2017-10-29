@@ -122,15 +122,22 @@
         // container.addEventListener( 'mousewheel', onMouseScroll, false );
 
         fileInput.addEventListener("change", function() {
-          var reader = new FileReader();
-          reader.onload = function(ev) {
-            context.decodeAudioData(ev.target.result, function(buffer) {
+          var request = new XMLHttpRequest();
+          request.open('GET','audio/chirps.wav',true);
+          request.responseType = "arraybuffer";
+          request.onload = function(){
+            context.decodeAudioData(request.response,function(b){
+              buffer = b;
               buffers.push(buffer);
               data = buffer.getChannelData(0);
+            },function(){
+              console.log('loading failed')
             });
           };
-          reader.readAsArrayBuffer(this.files[0]);
+          request.send();
         }, false);
+
+
 
         animate();
       }
