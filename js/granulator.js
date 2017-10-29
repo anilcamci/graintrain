@@ -34,7 +34,6 @@ function grain(intersectedBlock) {
 	this.posX = intersectedBlock.index;
 	this.offset = this.posX * (this.source.buffer.duration / intersectedBlock.parent.children.length); //pixels to seconds
 	this.amp = amp;
-	console.log(this.offset);
 	//parameters
 	this.attack = attack * 0.4;
 	this.release = release * 0.5;
