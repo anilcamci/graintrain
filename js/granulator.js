@@ -35,7 +35,7 @@ function grain(intersectedBlock) {
 	this.amp = amp;
 	//parameters
 	this.attack = attack * 0.4;
-	this.release = release * 0.5;
+	this.release = release * 1.5;
 
 	if(this.release < 0){
 		this.release = 0.1; // 0 - release causes mute for some reason
@@ -51,8 +51,8 @@ function grain(intersectedBlock) {
 
 	//garbage collection
 	this.source.stop(this.now + this.attack + this.release + 0.1);
-	var tms = (this.attack + this.release) * 1000; //calculate the time in miliseconds
-	setTimeout(function(){
-		that.gain.disconnect();
-	},tms + 200);
+	// var tms = (this.attack + this.release) * 1000; //calculate the time in miliseconds
+	// setTimeout(function(){
+	// 	that.gain.disconnect();
+	// },tms + 200);
 }
