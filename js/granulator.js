@@ -1,8 +1,6 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 var context = new AudioContext();
 
-var buffers = []; //global variables for sample files
-
 //master gain node
 var master = context.createGain();
 master.connect(context.destination);
@@ -13,9 +11,11 @@ var release = 0.40;
 var density = 1.0;
 var spread = 0.2;
 var trans = 1;
-var amp = 1;
+var amp = 0.5;
 
 function grain(intersectedBlock) {
+
+	console.log("counter");
 
 	var that = this; //for scope issues
 	this.now = context.currentTime; //update the time value

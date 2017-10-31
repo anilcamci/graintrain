@@ -34,43 +34,43 @@
       var raycaster, mouse, pointer;
       var trajectory;
 
-      var intersected, intersectedWave;
+      var intersected;
       var previouslyIntersected = [];
       var draggedObject = null;
 
       var highlightRange = 4;
-      var zoomLevel = 1;
-
-      var mousePressed = false;
-      var addMode = false;
 
       var fileInput = document.getElementById('audio-file');
 
       var editMode = false;
       var deleteMode = false;
-      var waveToDrag;
+      var addMode = false;
 
       var mouseOffsetX;
       var mouseOffsetY;
-      var pointerOffsetY;
+      var mousePressed = false;
+
+      var currentBuffer;
 
       init();
       render();
 
       function toggleEditMode() {
-        var color = '#' + '00ff12';
-        // renderer.setClearColor(color);
+        editMode = !editMode;
+        deleteMode = false;
+        addMode = false
       }
 
       function toggleAdding(){
-        toggleEditMode();
-        deleteMode = false;
         addMode = !addMode;
+        deleteMode = false;
+        editMode = false;
       }
 
       function toggleDeleting(){
-        toggleEditMode();
         deleteMode = !deleteMode;
+        addMode = false;
+        editMode = false;
       }
 
       function init() {
@@ -123,7 +123,7 @@
           var reader = new FileReader();
           reader.onload = function(ev) {
             context.decodeAudioData(ev.target.result, function(buffer) {
-              buffers.push(buffer);
+              currentBuffer = buffer;
               data = buffer.getChannelData(0);
             });
           };
@@ -170,17 +170,8 @@
           wave.add( block );
         }
 
-        wave.buffer = buffers[buffers.length-1];
+        wave.buffer = currentBuffer;
         scene.add(wave);
-      }
-
-      function onTouchStart(event){
-
-        if ( event.touches.length === 1 ) {
-          event.preventDefault();
-          var color = '#' + 'EE0000';
-          renderer.setClearColor(color);
-        }
       }
 
       function onMouseDown(event){
@@ -190,6 +181,8 @@
         mousePressed = true;
         getMousePosition(event);
         if( addMode ) trajectory.beginAt(mouse);
+
+        if( editMode && intersected){ draggedObject = intersected.parent; setMouseOffset();}
 
         if( deleteMode ){
           scene.remove(intersected.parent);
@@ -207,84 +200,6 @@
           var obj = trajectory.createObject();
           trajectories.push(obj.spline);
           drawWave(obj.spline);
-
-          addMode = false;
-        }
-      }
-
-      function onTouchMove(event){
-
-        if ( event.touches.length === 1 ) {
-
-          var touch = event.touches[0];
-          event.preventDefault();
-          // var color = '#' + '222222';
-          // renderer.setClearColor(color);
-
-          pointer.set((touch.clientX / window.innerWidth) * 2 - 1, - (touch.clientY / window.innerHeight) * 2 + 1);
-
-          raycaster.setFromCamera( pointer, camera );
-
-          // if( addMode || editMode){
-          var intersects = raycaster.intersectObject( floor );
-          if(intersects.length > 0) {
-              mouse = intersects[0].point;
-          }
-
-          if(addMode){
-            trajectory.addPoint(mouse);
-          }
-
-          var intersects = raycaster.intersectObjects(scene.children, true);
-
-          if( editMode ){
-             const dx = mouse.x - mouseOffsetX;
-             const dy = mouse.y - mouseOffsetY;
-             mouseOffsetX = mouse.x;
-             mouseOffsetY = mouse.y;
-             draggedObject.position.x += dx;
-             draggedObject.position.y += dy;
-           }else if(!addMode){
-             // if( !deleteMode ) draggedObjectIndex = null;
-             draggedObjectIndex = null;
-
-             // Reset previously painted interactions
-             for(var j = 0; j < previouslyIntersected.length; j++){
-
-               for( var i = -highlightRange; i < highlightRange + 1; i++){
-                 var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
-                 previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
-                 previouslyIntersected[j].parent.children[previousID].scale.z = 1;
-               }
-             }
-
-             for(var l = 0; l < intersects.length; l++){
-
-               intersected = intersects[l].object;
-               intersectedWave = intersects[l].object.parentIndex;
-
-               for( var i = -highlightRange; i < highlightRange + 1; i++){
-                 var gradient = (highlightRange - Math.abs(i))/7;
-                 var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
-                 intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
-                 intersected.parent.children[ID].scale.z = 1.2 + gradient;
-               }
-
-               previouslyIntersected[l] = intersected;
-
-               var g = new grain(intersected);
-             }
-
-             intersectes = [];
-           }
-        }
-      }
-
-      function onTouchEnd(event){
-        if(addMode){
-          var obj = trajectory.createObject();
-          trajectories.push(obj.spline);
-          drawWave(obj.spline);
           addMode = false;
         }
       }
@@ -297,19 +212,15 @@
 
         var intersects = raycaster.intersectObjects(scene.children, true);
 
-        if(intersects.length > 0 && draggedObjectIndex == null){
-          draggedObject = intersects[0].object.parent;
-        }
-
-        if( editMode ){
+        if( editMode && mousePressed){
           const dx = mouse.x - mouseOffsetX;
           const dy = mouse.y - mouseOffsetY;
           mouseOffsetX = mouse.x;
           mouseOffsetY = mouse.y;
           draggedObject.position.x += dx;
           draggedObject.position.y += dy;
-        }else{
-          // if( !deleteMode ) draggedObjectIndex = null;
+        }else if(!addMode){
+
           draggedObjectIndex = null;
 
           // Reset previously painted interactions
@@ -326,7 +237,6 @@
           for(var l = 0; l < intersects.length; l++){
 
             intersected = intersects[l].object;
-            intersectedWave = intersects[l].object.parentIndex;
 
             for( var i = -highlightRange; i < highlightRange + 1; i++){
               var gradient = (highlightRange - Math.abs(i))/7;
@@ -368,6 +278,89 @@
         if(camera.zoom > 0.5 && camera.zoom < 2.0){
           scene.children = [];
           for(var i in trajectories) drawWave(trajectories[i]);
+        }
+      }
+
+
+      function onTouchStart(event){
+
+        if ( event.touches.length === 1 ) {
+          event.preventDefault();
+          var color = '#' + 'EE0000';
+          renderer.setClearColor(color);
+        }
+      }
+
+      function onTouchMove(event){
+
+        if ( event.touches.length === 1 ) {
+
+          var touch = event.touches[0];
+          event.preventDefault();
+
+          pointer.set((touch.clientX / window.innerWidth) * 2 - 1, - (touch.clientY / window.innerHeight) * 2 + 1);
+
+          raycaster.setFromCamera( pointer, camera );
+
+          var intersects = raycaster.intersectObject( floor );
+          if(intersects.length > 0) {
+              mouse = intersects[0].point;
+          }
+
+          if(addMode){
+            trajectory.addPoint(mouse);
+          }
+
+          var intersects = raycaster.intersectObjects(scene.children, true);
+
+          if( editMode ){
+             const dx = mouse.x - mouseOffsetX;
+             const dy = mouse.y - mouseOffsetY;
+             mouseOffsetX = mouse.x;
+             mouseOffsetY = mouse.y;
+             draggedObject.position.x += dx;
+             draggedObject.position.y += dy;
+           }else if(!addMode){
+
+             draggedObjectIndex = null;
+
+             // Reset previously painted interactions
+             for(var j = 0; j < previouslyIntersected.length; j++){
+
+               for( var i = -highlightRange; i < highlightRange + 1; i++){
+                 var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
+                 previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
+                 previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+               }
+             }
+
+             for(var l = 0; l < intersects.length; l++){
+
+               intersected = intersects[l].object;
+
+               for( var i = -highlightRange; i < highlightRange + 1; i++){
+                 var gradient = (highlightRange - Math.abs(i))/7;
+                 var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
+                 intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
+                 intersected.parent.children[ID].scale.z = 1.2 + gradient;
+               }
+
+               previouslyIntersected[l] = intersected;
+
+               var g = new grain(intersected);
+             }
+
+             intersectes = [];
+           }
+        }
+      }
+
+      function onTouchEnd(event){
+        if(addMode){
+          var obj = trajectory.createObject();
+          trajectories.push(obj.spline);
+          drawWave(obj.spline);
+          addMode = false;
         }
       }
 
