@@ -15,8 +15,6 @@ var amp = 0.5;
 
 function grain(intersectedBlock) {
 
-	console.log("counter");
-
 	var that = this; //for scope issues
 	this.now = context.currentTime; //update the time value
 	//create the source
@@ -51,8 +49,8 @@ function grain(intersectedBlock) {
 
 	//garbage collection
 	this.source.stop(this.now + this.attack + this.release + 0.1);
-	// var tms = (this.attack + this.release) * 1000; //calculate the time in miliseconds
-	// setTimeout(function(){
-	// 	that.gain.disconnect();
-	// },tms + 200);
+	var tms = (this.attack + this.release) * 1000; //calculate the time in miliseconds
+	setTimeout(function(){
+		that.gain.disconnect();
+	},tms + 200);
 }
