@@ -1,10 +1,9 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 let context = new AudioContext();
 
-//master gain node
 let master = context.createGain();
+master.connect(context.destination);
 
-//control initial settings
 let attack = 0.40;
 let release = 0.40;
 let density = 1.0;
@@ -13,6 +12,8 @@ let trans = 1;
 let amp = 0.3;
 
 function grain(intersectedBlock) {
+
+	console.log(context.destination);
 
 	this.now = context.currentTime;
 
