@@ -1,17 +1,17 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
-var context = new AudioContext();
+let context = new AudioContext();
 
 //master gain node
-var master = context.createGain();
+let master = context.createGain();
 master.connect(context.destination);
 
 //control initial settings
-var attack = 0.40;
-var release = 0.40;
-var density = 1.0;
-var spread = 0.2;
-var trans = 1;
-var amp = 0.3;
+let attack = 0.40;
+let release = 0.40;
+let density = 1.0;
+let spread = 0.2;
+let trans = 1;
+let amp = 0.3;
 
 function grain(intersectedBlock) {
 
@@ -44,7 +44,7 @@ function grain(intersectedBlock) {
 	this.gain.gain.linearRampToValueAtTime(0,this.now + (this.attack +  this.release) );
 
 	this.source.stop(this.now + this.attack + this.release + 0.1);
-	var timeOutSeconds = (this.attack + this.release) * 1000;
+	let timeOutSeconds = (this.attack + this.release) * 1000;
 	var this_ = this;
 	setTimeout(function(){
 		this_.gain.disconnect();
