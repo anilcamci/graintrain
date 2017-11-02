@@ -281,16 +281,30 @@
 
 
       function onTouchStart(event){
-        console.log("TOUCHSTART");
+
         if ( event.touches.length === 1 ) {
           event.preventDefault();
-          var color = '#' + 'EE0000';
-          renderer.setClearColor(color);
+
+          var touch = event.touches[0];
+          event.preventDefault();
+
+          pointer.set((touch.clientX / window.innerWidth) * 2 - 1, - (touch.clientY / window.innerHeight) * 2 + 1);
+
+          raycaster.setFromCamera( pointer, camera );
+
+          var intersects = raycaster.intersectObject( floor );
+          if(intersects.length > 0) {
+              mouse = intersects[0].point;
+          }
+
+          if( addMode ) trajectory.beginAt(mouse);
+          // var color = '#' + 'EE0000';
+          // renderer.setClearColor(color);
         }
       }
 
       function onTouchMove(event){
-        console.log("TOUCHMOVE");
+
         if ( event.touches.length === 1 ) {
 
           var touch = event.touches[0];
