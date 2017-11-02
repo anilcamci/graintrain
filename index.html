@@ -281,7 +281,7 @@
 
 
       function onTouchStart(event){
-
+        master.connect(context.destination);
         if ( event.touches.length === 1 ) {
 
           var touch = event.touches[0];
@@ -307,7 +307,7 @@
         if ( event.touches.length === 1 ) {
 
           var touch = event.touches[0];
-          event.preventDefault();
+          // event.preventDefault();
 
           pointer.set((touch.clientX / window.innerWidth) * 2 - 1, - (touch.clientY / window.innerHeight) * 2 + 1);
 

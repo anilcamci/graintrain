@@ -3,7 +3,6 @@ let context = new AudioContext();
 
 //master gain node
 let master = context.createGain();
-master.connect(context.destination);
 
 //control initial settings
 let attack = 0.40;
