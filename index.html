@@ -117,7 +117,7 @@
         document.body.addEventListener( 'touchend', onTouchEnd, false);
         window.addEventListener( 'resize', onWindowResize, false );
 
-        fileInput.addEventListener("change", function() {
+        fileInput.addEventListener('change', function() {
           var reader = new FileReader();
           reader.onload = function(ev) {
             context.decodeAudioData(ev.target.result, function(buffer) {
