@@ -369,6 +369,7 @@
       function onTouchEnd(event){
 
         context = createAudioContext();
+        console.log(context);
         master = context.createGain();
         master.connect(context.destination);
 
