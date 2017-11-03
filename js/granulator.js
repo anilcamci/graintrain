@@ -1,8 +1,8 @@
-window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
-let context = new AudioContext();
+// window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
+// let context = new AudioContext();
 
-let master = context.createGain();
-master.connect(context.destination);
+// let master = context.createGain();
+// master.connect(context.destination);
 
 let attack = 0.40;
 let release = 0.40;
@@ -12,8 +12,6 @@ let trans = 1;
 let amp = 0.3;
 
 function grain(intersectedBlock) {
-
-	console.log(context.destination);
 
 	this.now = context.currentTime;
 
