@@ -296,6 +296,13 @@
           if( addMode ) trajectory.beginAt(mouse);
           // var color = '#' + 'EE0000';
           // renderer.setClearColor(color);
+
+          var intersects = raycaster.intersectObjects(scene.children, true);
+          intersected = intersects[0];
+          if( editMode && intersected){
+            draggedObject = intersected.parent;
+            setMouseOffset();
+          }
         }
       }
 
