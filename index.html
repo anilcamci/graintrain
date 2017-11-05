@@ -28,7 +28,7 @@
       var voices = [];
 
       var container, controls, camara, scene, renderer;
-      var raycaster, mouse, pointer;
+      var raycaster, pointer;
       var trajectory;
 
       var intersected;
@@ -43,8 +43,8 @@
       var deleteMode = false;
       var addMode = false;
 
-      var mouseOffsetX;
-      var mouseOffsetY;
+      var interactionOffsetX;
+      var interactionOffsetY;
       var mousePressed = false;
 
       var currentBuffer;
@@ -93,7 +93,6 @@
         scene.add(camera);
 
         raycaster = new THREE.Raycaster();
-        mouse = new THREE.Vector3();
         pointer = new THREE.Vector3();
 
         var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
@@ -176,11 +175,11 @@
 
         mousePressed = true;
 
-        getInteractionPoint(event);
+        let interactionPoint = getInteractionPoint(event);
 
-        if( addMode ) trajectory.beginAt(mouse);
+        if( addMode ) trajectory.beginAt(interactionPoint);
 
-        if( editMode && intersected){ draggedObject = intersected.parent; setMouseOffset();}
+        if( editMode && intersected){ draggedObject = intersected.parent; setInteractionOffset();}
 
         if( deleteMode ){
           scene.remove(intersected.parent);
@@ -204,11 +203,11 @@
 
       function onMouseMove(event){
 
-        getInteractionPoint(event);
+        let interactionPoint = getInteractionPoint(event);
 
-        if( mousePressed && addMode) trajectory.addPoint(mouse);
+        if( mousePressed && addMode) trajectory.addPoint(interactionPoint);
 
-        interactWithWave();
+        interactWithWave(interactionPoint);
       }
 
       function onTouchStart(event){
@@ -217,9 +216,9 @@
 
           var touch = event.touches[0];
 
-          getInteractionPoint(touch);
+          let interactionPoint = getInteractionPoint(touch);
 
-          if( addMode ) trajectory.beginAt(mouse);
+          if( addMode ) trajectory.beginAt(interactionPoint);
           // var color = '#' + 'EE0000';
           // renderer.setClearColor(color);
 
@@ -227,7 +226,7 @@
           intersected = intersects[0];
           if( editMode && intersected){
             draggedObject = intersected.parent;
-            setMouseOffset();
+            setInteractionOffset();
           }
         }
       }
@@ -238,17 +237,15 @@
 
         for(var i = 0; i < event.touches.length; i++){
 
-          console.log(i);
-
           var touch = event.touches[i];
 
-          getInteractionPoint(touch);
+          let interactionPoint = getInteractionPoint(touch);
 
           if(addMode){
-            trajectory.addPoint(mouse);
+            trajectory.addPoint(interactionPoint);
           }
 
-          interactWithWave();
+          interactWithWave(interactionPoint);
         }
       }
 
@@ -275,19 +272,20 @@
         raycaster.setFromCamera( pointer, camera );
 
         var intersects = raycaster.intersectObject( floor );
+
         if(intersects.length > 0) {
-            mouse = intersects[0].point;
+            return intersects[0].point;
         }
       }
 
-      function interactWithWave(){
+      function interactWithWave(interactionPoint){
         var intersects = raycaster.intersectObjects(scene.children, true);
 
         if( editMode && mousePressed){
-          const dx = mouse.x - mouseOffsetX;
-          const dy = mouse.y - mouseOffsetY;
-          mouseOffsetX = mouse.x;
-          mouseOffsetY = mouse.y;
+          const dx = interactionPoint.x - interactionOffsetX;
+          const dy = interactionPoint.y - interactionOffsetY;
+          interactionOffsetX = interactionPoint.x;
+          interactionOffsetY = interactionPoint.y;
           draggedObject.position.x += dx;
           draggedObject.position.y += dy;
         }else if(!addMode){
@@ -328,9 +326,9 @@
         }
       }
 
-      function setMouseOffset() {
-        mouseOffsetX = mouse.x;
-        mouseOffsetY = mouse.y;
+      function setInteractionOffset() {
+        interactionOffsetX = mouse.x;
+        interactionOffsetY = mouse.y;
       }
 
       function onWindowResize(){
