@@ -6,7 +6,7 @@ master.connect(context.destination);
 
 let attack = 0.40;
 let release = 0.40;
-let density = 1.0;
+let density = 0.85;
 let spread = 0.2;
 let trans = 1;
 let amp = 0.3;
@@ -47,4 +47,42 @@ function grain(intersectedBlock) {
 	setTimeout(function(){
 		this_.gain.disconnect();
 	},timeOutSeconds + 200);
+}
+
+function voice(id){
+	this.toichID = id;
+	console.log("heyo");
+}
+
+voice.prototype.playVoice = function(intersectedBlock){
+
+	this.grains = [];
+	this.graincount = 0;
+
+	var that = this; //for scope issues
+	this.play = function(){
+		//create new grain
+		var g = new grain(intersectedBlock);
+
+		//push to the array
+		that.grains[that.graincount] = g;
+		that.graincount+=1;
+
+		if(that.graincount > 30){
+			that.graincount = 0;
+		}
+		//next interval
+		this.dens = mapRange(density,1,0,0,1);
+		this.interval = (this.dens * 500) + 70;
+		that.timeout = setTimeout( that.play, this.interval );
+	}
+	this.play();
+}
+
+voice.prototype.stopVoice = function(){
+	clearTimeout(this.timeout);
+}
+
+function mapRange(value, low1, high1, low2, high2) {
+	return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
