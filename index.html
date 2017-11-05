@@ -211,11 +211,6 @@
         interactWithWave();
       }
 
-      function setMouseOffset() {
-        mouseOffsetX = mouse.x;
-        mouseOffsetY = mouse.y;
-      }
-
       function onTouchStart(event){
 
         if ( event.touches.length === 1 ) {
@@ -241,15 +236,18 @@
 
         event.preventDefault();
 
-        var touch = event.touches[0];
+        for(let touch in event.touches){
 
-        getInteractionPoint(touch);
+          // var touch = event.touches[0];
 
-        if(addMode){
-          trajectory.addPoint(mouse);
+          getInteractionPoint(touch);
+
+          if(addMode){
+            trajectory.addPoint(mouse);
+          }
+
+          interactWithWave();
         }
-
-        interactWithWave();
       }
 
       function onTouchEnd(event){
@@ -326,6 +324,11 @@
 
           intersectes = [];
         }
+      }
+
+      function setMouseOffset() {
+        mouseOffsetX = mouse.x;
+        mouseOffsetY = mouse.y;
       }
 
       function onWindowResize(){
