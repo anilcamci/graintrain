@@ -18,7 +18,7 @@
     <input type="file" id="audio-file">
 
     <button class="button" style="left:25%;" onclick="toggleAdding()">+</button>
-    <button class="button" style="left:50%;" onclick="toggleEditing()"> </button>
+    <button class="button" style="left:50%;" onclick="toggleEditing()"><img src='assets/move.png' height="40px" width="40px" style="padding-top: 10px; padding-left:1px;"></img></button>
     <button class="button" style="left:75%;" onclick="toggleDeleting()">–</button>
 
     <script>
@@ -28,7 +28,6 @@
       var voices = [];
 
       var container, controls, camara, scene, renderer;
-      var pointer;
       var trajectory;
 
       var intersected;
@@ -91,9 +90,6 @@
 
 				scene = new THREE.Scene();
         scene.add(camera);
-
-
-        pointer = new THREE.Vector3();
 
         var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
         var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
@@ -246,6 +242,7 @@
           var touch = event.touches[i];
 
           let scaledPointer = getScaledPointer(touch);
+          console.log(scaledPointer);
 
           if(addMode){
             trajectory.addPoint(getInteractionPoint(scaledPointer));
