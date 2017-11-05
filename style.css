@@ -14,10 +14,11 @@ body{
 .button {
   position: absolute;
   display: inline-block;
+  text-decoration: none;
   bottom: 2%;
-  width: 1.5em;
-  height: 1.5em;
-  border-radius: 50%;
+  width: 2em;
+  height: 2em;
+  /*border-radius: 50%;*/
   border: 0em;
   background-color: #ff5e89;
   color: #EEEEEE;
@@ -25,5 +26,5 @@ body{
   text-align: center;
   font-family:helvetica;
   font-weight: bold;
-  font-size: 2.5em;
+  font-size: 2em;
 }
