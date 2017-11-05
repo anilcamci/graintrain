@@ -79,15 +79,15 @@
         camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 100000 );
         camera.position.set(0, 0, 2000);
 
-        controls = new THREE.OrthographicTrackballControls( camera );
-        controls.rotateSpeed = 0.0;
-        controls.zoomSpeed = 1.2;
-        controls.panSpeed = 0.8;
-        controls.noZoom = false;
-        controls.noPan = false;
-        controls.staticMoving = true;
-        controls.dynamicDampingFactor = 0.3;
-        controls.keys = [ 65, 83, 68 ];
+        // controls = new THREE.OrthographicTrackballControls( camera );
+        // controls.rotateSpeed = 0.0;
+        // controls.zoomSpeed = 1.2;
+        // controls.panSpeed = 0.8;
+        // controls.noZoom = false;
+        // controls.noPan = false;
+        // controls.staticMoving = true;
+        // controls.dynamicDampingFactor = 0.3;
+        // controls.keys = [ 65, 83, 68 ];
 
 				scene = new THREE.Scene();
         scene.add(camera);
@@ -175,7 +175,7 @@
         document.getElementById('globalContainer').style.pointerEvents = 'none';
 
         mousePressed = true;
-        
+
         getInteractionPoint(event);
 
         if( addMode ) trajectory.beginAt(mouse);
@@ -215,15 +215,6 @@
         mouseOffsetX = mouse.x;
         mouseOffsetY = mouse.y;
       }
-
-      function onMouseScroll(event){
-
-        if(camera.zoom > 0.5 && camera.zoom < 2.0){
-          scene.children = [];
-          for(var i in trajectories) drawWave(trajectories[i]);
-        }
-      }
-
 
       function onTouchStart(event){
 
@@ -345,7 +336,7 @@
       }
 
       function animate() {
-        controls.update();
+        // controls.update();
         requestAnimationFrame( animate );
         render();
       }
@@ -381,6 +372,14 @@
 
         return context_
       }
+
+      // function onMouseScroll(event){
+      //
+      //   if(camera.zoom > 0.5 && camera.zoom < 2.0){
+      //     scene.children = [];
+      //     for(var i in trajectories) drawWave(trajectories[i]);
+      //   }
+      // }
 
     </script>
     </div>
