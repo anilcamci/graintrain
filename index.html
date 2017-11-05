@@ -28,7 +28,7 @@
       var voices = [];
 
       var container, controls, camara, scene, renderer;
-      var raycaster, pointer;
+      var pointer;
       var trajectory;
 
       var intersected;
@@ -92,7 +92,7 @@
 				scene = new THREE.Scene();
         scene.add(camera);
 
-        raycaster = new THREE.Raycaster();
+
         pointer = new THREE.Vector3();
 
         var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
@@ -175,13 +175,13 @@
 
         mousePressed = true;
 
-        let interactionPoint = getInteractionPoint(event);
+        let scaledPointer = getScaledPointer(event);
 
-        if( addMode ) trajectory.beginAt(interactionPoint);
+        if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
 
         if( editMode && intersected){
           draggedObject = intersected.parent;
-          setInteractionOffset(interactionPoint);
+          setInteractionOffset(getInteractionPoint(scaledPointer));
         }
 
         if( deleteMode ){
@@ -206,11 +206,11 @@
 
       function onMouseMove(event){
 
-        let interactionPoint = getInteractionPoint(event);
+        let scaledPointer = getScaledPointer(event);
 
-        if( mousePressed && addMode) trajectory.addPoint(interactionPoint);
+        if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
 
-        interactWithWave(interactionPoint);
+        interactWithWave(scaledPointer);
       }
 
       function onTouchStart(event){
@@ -219,11 +219,14 @@
 
           var touch = event.touches[0];
 
-          let interactionPoint = getInteractionPoint(touch);
+          let scaledPointer = getScaledPointer(touch);
 
-          if( addMode ) trajectory.beginAt(interactionPoint);
+          if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
           // var color = '#' + 'EE0000';
           // renderer.setClearColor(color);
+
+          var raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera( scaledPointer, camera );
 
           var intersects = raycaster.intersectObjects(scene.children, true);
           intersected = intersects[0];
@@ -242,13 +245,13 @@
 
           var touch = event.touches[i];
 
-          let interactionPoint = getInteractionPoint(touch);
+          let scaledPointer = getScaledPointer(touch);
 
           if(addMode){
-            trajectory.addPoint(interactionPoint);
+            trajectory.addPoint(getInteractionPoint(eractionPoint));
           }
 
-          interactWithWave(interactionPoint);
+          interactWithWave(scaledPointer);
         }
       }
 
@@ -268,11 +271,16 @@
         }
       }
 
-      function getInteractionPoint(interactor){
-
+      function getScaledPointer(interactor){
+        var pointer = new THREE.Vector2();
         pointer.set((interactor.clientX / window.innerWidth) * 2 - 1, - (interactor.clientY / window.innerHeight) * 2 + 1);
+        return pointer;
+      }
 
-        raycaster.setFromCamera( pointer, camera );
+      function getInteractionPoint(scaledPointer){
+
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera( scaledPointer, camera );
 
         var intersects = raycaster.intersectObject( floor );
 
@@ -281,7 +289,12 @@
         }
       }
 
-      function interactWithWave(interactionPoint){
+      function interactWithWave(scaledPointer){
+
+        var interactionPoint = getInteractionPoint(scaledPointer);
+
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera( scaledPointer, camera );
         var intersects = raycaster.intersectObjects(scene.children, true);
 
         if( editMode && mousePressed){
