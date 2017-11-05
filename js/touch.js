@@ -1,15 +1,27 @@
 function onTouchStart(event){
 
-  if ( event.touches.length === 1 ) {
+  console.log(event);
 
-    var touch = event.touches[0];
+  for(var i = 0; i < event.touches.length; i++){
+
+    var touch = event.touches[i];
 
     let scaledPointer = getScaledPointer(touch);
 
-    if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
-    // var color = '#' + 'EE0000';
-    // renderer.setClearColor(color);
+    if(addMode){
+      trajectory.beginAt(getInteractionPoint(scaledPointer));
+    }
+
+    touchWave(scaledPointer);
   }
+
+  var touch = event.touches[0];
+
+  let scaledPointer = getScaledPointer(touch);
+
+  if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
+  // var color = '#' + 'EE0000';
+  // renderer.setClearColor(color);
 }
 
 function onTouchEnd(event){
@@ -31,8 +43,6 @@ function onTouchEnd(event){
 function onTouchMove(event){
 
   event.preventDefault();
-
-  console.log(event.touches);
 
   for(var i = 0; i < event.touches.length; i++){
 
