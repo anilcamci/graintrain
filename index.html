@@ -300,6 +300,7 @@
           var intersects = raycaster.intersectObjects(scene.children, true);
           intersected = intersects[0];
           if( editMode && intersected){
+            console.log("here");
             draggedObject = intersected.parent;
             setMouseOffset();
           }
@@ -374,7 +375,6 @@
 
         if(context.state !== "running"){
           context = createAudioContext();
-          console.log(context);
           master = context.createGain();
           master.connect(context.destination);
         }
