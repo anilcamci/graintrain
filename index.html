@@ -242,7 +242,7 @@
           var touch = event.touches[i];
 
           let scaledPointer = getScaledPointer(touch);
-          console.log(scaledPointer);
+          console.log(i + " " + scaledPointer);
 
           if(addMode){
             trajectory.addPoint(getInteractionPoint(scaledPointer));
