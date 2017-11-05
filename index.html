@@ -303,7 +303,6 @@
           var intersects = raycaster.intersectObjects(scene.children, true);
           intersected = intersects[0];
           if( editMode && intersected){
-            console.log("here");
             draggedObject = intersected.parent;
             setMouseOffset();
           }

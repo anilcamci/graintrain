@@ -50,8 +50,8 @@ function grain(intersectedBlock) {
 	},timeOutSeconds + 200);
 }
 
-function voice(id){
-	this.toichID = id;
+function voice(){
+	//this.toichID = id;
 }
 
 voice.prototype.playVoice = function(intersectedBlock){
