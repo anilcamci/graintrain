@@ -18,11 +18,11 @@
     <div id = "globalContainer">
 
       <input type="file" id="audio-file">
-      <label for="audio-file" class="button" style="left:25%;" onclick="toggleAdding()">+</label>
+      <button class="button" style="left:25%;" onclick="toggleAdding()"> </button>
 
-      <button class="button" style="left:50%;" onclick="toggleEditMode()"><i class="material-icons">mode_edit</i></button>
+      <button class="button" style="left:50%;" onclick="toggleEditing()"> </button>
 
-      <button class="button" style="left:75%;" onclick="toggleDeleting()">–</button>
+      <button class="button" style="left:75%;" onclick="toggleDeleting()"> </button>
 
     <script>
 
@@ -54,16 +54,17 @@
       init();
       render();
 
-      function toggleEditMode() {
-        editMode = !editMode;
-        deleteMode = false;
-        addMode = false
-      }
-
       function toggleAdding(){
+        document.getElementById('audio-file').click();
         addMode = !addMode;
         deleteMode = false;
         editMode = false;
+      }
+
+      function toggleEditing() {
+        editMode = !editMode;
+        deleteMode = false;
+        addMode = false
       }
 
       function toggleDeleting(){
