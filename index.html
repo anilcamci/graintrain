@@ -25,6 +25,7 @@
 
       var data;
       var trajectories = [];
+      var voices = [];
 
       var container, controls, camara, scene, renderer;
       var raycaster, mouse, pointer;
@@ -197,6 +198,8 @@
           drawWave(obj.spline);
           addMode = false;
         }
+
+        if(voices[0]) voices[0].stopVoice();
       }
 
       function onMouseMove(event){
@@ -221,6 +224,8 @@
           // Reset previously painted interactions
           for(var j = 0; j < previouslyIntersected.length; j++){
 
+            previouslyIntersected[j].voice.stopVoice();
+
             for( var i = -highlightRange; i < highlightRange + 1; i++){
               var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
               previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
@@ -233,6 +238,9 @@
 
             intersected = intersects[l].object;
 
+            intersected.voice = new voice();
+            intersected.voice.playVoice(intersected);
+
             for( var i = -highlightRange; i < highlightRange + 1; i++){
               var gradient = (highlightRange - Math.abs(i))/7;
               var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
@@ -241,8 +249,6 @@
             }
 
             previouslyIntersected[l] = intersected;
-
-            var g = new grain(intersected);
           }
 
           intersectes = [];
@@ -343,6 +349,8 @@
              // Reset previously painted interactions
              for(var j = 0; j < previouslyIntersected.length; j++){
 
+               previouslyIntersected[j].voice.stopVoice();
+
                for( var i = -highlightRange; i < highlightRange + 1; i++){
                  var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
                  previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
@@ -354,6 +362,9 @@
 
                intersected = intersects[l].object;
 
+               intersected.voice = new voice();
+               intersected.voice.playVoice(intersected);
+
                for( var i = -highlightRange; i < highlightRange + 1; i++){
                  var gradient = (highlightRange - Math.abs(i))/7;
                  var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
@@ -363,7 +374,7 @@
 
                previouslyIntersected[l] = intersected;
 
-               var g = new grain(intersected);
+               var voice = new playVoice(intersected);
              }
 
              intersectes = [];
