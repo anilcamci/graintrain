@@ -179,7 +179,10 @@
 
         if( addMode ) trajectory.beginAt(interactionPoint);
 
-        if( editMode && intersected){ draggedObject = intersected.parent; setInteractionOffset();}
+        if( editMode && intersected){
+          draggedObject = intersected.parent;
+          setInteractionOffset(interactionPoint);
+        }
 
         if( deleteMode ){
           scene.remove(intersected.parent);
@@ -226,7 +229,7 @@
           intersected = intersects[0];
           if( editMode && intersected){
             draggedObject = intersected.parent;
-            setInteractionOffset();
+            setInteractionOffset(interactionPoint);
           }
         }
       }
@@ -326,9 +329,9 @@
         }
       }
 
-      function setInteractionOffset() {
-        interactionOffsetX = mouse.x;
-        interactionOffsetY = mouse.y;
+      function setInteractionOffset(interactionPoint) {
+        interactionOffsetX = interactionPoint.x;
+        interactionOffsetY = interactionPoint.y;
       }
 
       function onWindowResize(){
