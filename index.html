@@ -242,7 +242,6 @@
           var touch = event.touches[i];
 
           let scaledPointer = getScaledPointer(touch);
-          console.log(i, scaledPointer);
 
           if(addMode){
             trajectory.addPoint(getInteractionPoint(scaledPointer));
@@ -293,6 +292,8 @@
         var raycaster = new THREE.Raycaster();
         raycaster.setFromCamera( scaledPointer, camera );
         var intersects = raycaster.intersectObjects(scene.children, true);
+
+        console.log(intersects);
 
         if( editMode && mousePressed){
           const dx = interactionPoint.x - interactionOffsetX;
