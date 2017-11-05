@@ -38,7 +38,8 @@ function grain(intersectedBlock) {
 	this.randomoffset = Math.max((Math.random() * this.spread) - (this.spread / 2), 0);
 
 	this.source.start(this.now, this.offset + this.randomoffset, this.attack + this.release);
-	this.gain.gain.linearRampToValueAtTime(this.amp,this.now + this.attack);
+	this.gain.gain.setValueAtTime(0.0, this.now);
+	this.gain.gain.linearRampToValueAtTime(this.amp ,this.now + this.attack);
 	this.gain.gain.linearRampToValueAtTime(0,this.now + (this.attack +  this.release) );
 
 	this.source.stop(this.now + this.attack + this.release + 0.1);
@@ -51,7 +52,6 @@ function grain(intersectedBlock) {
 
 function voice(id){
 	this.toichID = id;
-	console.log("heyo");
 }
 
 voice.prototype.playVoice = function(intersectedBlock){
@@ -68,7 +68,7 @@ voice.prototype.playVoice = function(intersectedBlock){
 		that.grains[that.graincount] = g;
 		that.graincount+=1;
 
-		if(that.graincount > 30){
+		if(that.graincount > 20){
 			that.graincount = 0;
 		}
 		//next interval

@@ -198,8 +198,6 @@
           drawWave(obj.spline);
           addMode = false;
         }
-
-        if(voices[0]) voices[0].stopVoice();
       }
 
       function onMouseMove(event){
@@ -245,7 +243,7 @@
               var gradient = (highlightRange - Math.abs(i))/7;
               var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
               intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
-              intersected.parent.children[ID].scale.z = 1.2 + gradient;
+              intersected.parent.children[ID].scale.z = 1.5 + gradient;
             }
 
             previouslyIntersected[l] = intersected;
@@ -288,7 +286,6 @@
         if ( event.touches.length === 1 ) {
 
           var touch = event.touches[0];
-          // event.preventDefault();
 
           pointer.set((touch.clientX / window.innerWidth) * 2 - 1, - (touch.clientY / window.innerHeight) * 2 + 1);
 
@@ -318,7 +315,7 @@
         if ( event.touches.length === 1 ) {
 
           var touch = event.touches[0];
-          // event.preventDefault();
+          event.preventDefault();
 
           pointer.set((touch.clientX / window.innerWidth) * 2 - 1, - (touch.clientY / window.innerHeight) * 2 + 1);
 
