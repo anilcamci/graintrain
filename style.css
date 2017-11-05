@@ -13,16 +13,17 @@ body{
 
 .button {
   position: absolute;
+  display: inline-block;
   bottom: 2%;
-  width: 50px;
-  height: 50px;
+  width: 1.5em;
+  height: 1.5em;
   border-radius: 50%;
-  border: 0px;
+  border: 0em;
   background-color: #ff5e89;
   color: #EEEEEE;
   cursor: pointer;
   text-align: center;
   font-family:helvetica;
   font-weight: bold;
-  font-size: 35px;
+  font-size: 2.5em;
 }
