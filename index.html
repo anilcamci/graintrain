@@ -9,7 +9,9 @@
     <script src="js/SoundTrajectory.js"></script>
     <script src="js/simplify.js"></script>
     <script src="js/granulator.js"></script>
-    <script src="js/OrthographicTrackballControls.js"></script>
+    <script src="js/mouse.js"></script>
+    <script src="js/touch.js"></script>
+    <!-- <script src="js/OrthographicTrackballControls.js"></script> -->
   </head>
 
   <body>
@@ -165,109 +167,8 @@
         scene.add(wave);
       }
 
-      function onMouseDown(event){
-
-        document.getElementById('globalContainer').style.pointerEvents = 'none';
-
-        mousePressed = true;
-
-        let scaledPointer = getScaledPointer(event);
-
-        if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
-
-        if( editMode && intersected){
-          draggedObject = intersected.parent;
-          setInteractionOffset(getInteractionPoint(scaledPointer));
-        }
-
-        if( deleteMode ){
-          scene.remove(intersected.parent);
-          previouslyIntersected = [];
-        }
-      }
-
-      function onMouseUp(event){
-
-        document.getElementById('globalContainer').style.pointerEvents = 'auto';
-
-        mousePressed = false;
-
-        if(addMode){
-          var obj = trajectory.createObject();
-          trajectories.push(obj.spline);
-          drawWave(obj.spline);
-          addMode = false;
-        }
-      }
-
-      function onMouseMove(event){
-
-        let scaledPointer = getScaledPointer(event);
-
-        if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
-
-        interactWithWave(scaledPointer);
-      }
-
-      function onTouchStart(event){
-
-        if ( event.touches.length === 1 ) {
-
-          var touch = event.touches[0];
-
-          let scaledPointer = getScaledPointer(touch);
-
-          if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
-          // var color = '#' + 'EE0000';
-          // renderer.setClearColor(color);
-
-          var raycaster = new THREE.Raycaster();
-          raycaster.setFromCamera( scaledPointer, camera );
-
-          var intersects = raycaster.intersectObjects(scene.children, true);
-          intersected = intersects[0];
-          if( editMode && intersected){
-            draggedObject = intersected.parent;
-            setInteractionOffset(interactionPoint);
-          }
-        }
-      }
-
-      function onTouchMove(event){
-
-        event.preventDefault();
-
-        for(var i = 0; i < event.touches.length; i++){
-
-          var touch = event.touches[i];
-
-          let scaledPointer = getScaledPointer(touch);
-
-          if(addMode){
-            trajectory.addPoint(getInteractionPoint(scaledPointer));
-          }
-
-          interactWithWave(scaledPointer);
-        }
-      }
-
-      function onTouchEnd(event){
-
-        if(context.state !== "running"){
-          context = createAudioContext();
-          master = context.createGain();
-          master.connect(context.destination);
-        }
-
-        if(addMode){
-          var obj = trajectory.createObject();
-          trajectories.push(obj.spline);
-          drawWave(obj.spline);
-          addMode = false;
-        }
-      }
-
       function getScaledPointer(interactor){
+
         var pointer = new THREE.Vector2();
         pointer.set((interactor.clientX / window.innerWidth) * 2 - 1, - (interactor.clientY / window.innerHeight) * 2 + 1);
         return pointer;
@@ -283,66 +184,6 @@
         if(intersects.length > 0) {
             return intersects[0].point;
         }
-      }
-
-      function interactWithWave(scaledPointer){
-
-        var interactionPoint = getInteractionPoint(scaledPointer);
-
-        var raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera( scaledPointer, camera );
-        var intersects = raycaster.intersectObjects(scene.children, true);
-
-        console.log(intersects);
-
-        if( editMode && mousePressed){
-          const dx = interactionPoint.x - interactionOffsetX;
-          const dy = interactionPoint.y - interactionOffsetY;
-          interactionOffsetX = interactionPoint.x;
-          interactionOffsetY = interactionPoint.y;
-          draggedObject.position.x += dx;
-          draggedObject.position.y += dy;
-        }else if(!addMode){
-
-          draggedObjectIndex = null;
-
-          // Reset previously painted interactions
-          for(var j = 0; j < previouslyIntersected.length; j++){
-
-            previouslyIntersected[j].voice.stopVoice();
-
-            for( var i = -highlightRange; i < highlightRange + 1; i++){
-              var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
-              previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
-              previouslyIntersected[j].parent.children[previousID].scale.z = 1;
-            }
-          }
-
-          // Paint the newly interacted objects
-          for(var l = 0; l < intersects.length; l++){
-
-            intersected = intersects[l].object;
-
-            intersected.voice = new voice();
-            intersected.voice.playVoice(intersected);
-
-            for( var i = -highlightRange; i < highlightRange + 1; i++){
-              var gradient = (highlightRange - Math.abs(i))/7;
-              var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
-              intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
-              intersected.parent.children[ID].scale.z = 1.5 + gradient;
-            }
-
-            previouslyIntersected[l] = intersected;
-          }
-
-          intersectes = [];
-        }
-      }
-
-      function setInteractionOffset(interactionPoint) {
-        interactionOffsetX = interactionPoint.x;
-        interactionOffsetY = interactionPoint.y;
       }
 
       function onWindowResize(){
@@ -361,33 +202,6 @@
       function render() {
 
         renderer.render(scene, camera);
-      }
-
-      function createAudioContext (desiredSampleRate) {
-        var AudioCtor = window.AudioContext || window.webkitAudioContext
-
-        desiredSampleRate = typeof desiredSampleRate === 'number'
-          ? desiredSampleRate
-          : 44100
-        var context_ = new AudioCtor()
-
-        // Check if hack is necessary. Only occurs in iOS6+ devices
-        // and only when you first boot the iPhone, or play a audio/video
-        // with a different sample rate
-        if (/(iPhone|iPad)/i.test(navigator.userAgent) &&
-            context_.sampleRate !== desiredSampleRate) {
-          var buffer = context_.createBuffer(1, 1, desiredSampleRate)
-          var dummy = context_.createBufferSource()
-          dummy.buffer = buffer
-          dummy.connect(context_.destination)
-          dummy.start(0)
-          dummy.disconnect()
-
-          context_.close() // dispose old context
-          context_ = new AudioCtor()
-        }
-
-        return context_
       }
 
       // function onMouseScroll(event){
