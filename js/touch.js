@@ -41,9 +41,9 @@ function onTouchMove(event){
 
   console.log(event);
 
-  for(var i = 0; i < event.touches.length; i++){
+  for(var i = 0; i < event.changedTouches.length; i++){
 
-    var touch = event.touches[i];
+    var touch = event.changedTouches[i];
 
     let scaledPointer = getScaledPointer(touch);
 
