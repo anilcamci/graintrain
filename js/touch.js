@@ -4,9 +4,9 @@ function onTouchStart(event){
 
   for(var i = 0; i < event.touches.length; i++){
 
-    var touch = event.touches[i];
+    let scaledPointer = getScaledPointer(event.touches[i]);
 
-    let scaledPointer = getScaledPointer(touch);
+    event.touches[i].previouslyIntersected = [];
 
     if(addMode){
       trajectory.beginAt(getInteractionPoint(scaledPointer));
