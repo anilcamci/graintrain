@@ -2,9 +2,9 @@ function onTouchStart(event){
 
   console.log(event);
 
-  for(var i = 0; i < event.touches.length; i++){
+  for(var i = 0; i < event.changedTouches.length; i++){
 
-    let scaledPointer = getScaledPointer(event.touches[i]);
+    let scaledPointer = getScaledPointer(event.changedTouches[i]);
 
     event.touches[i].previouslyIntersected = [];
 
