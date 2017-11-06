@@ -15,11 +15,6 @@ function onTouchStart(event){
     touchWave(scaledPointer);
   }
 
-  var touch = event.touches[0];
-
-  let scaledPointer = getScaledPointer(touch);
-
-  if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
   // var color = '#' + 'EE0000';
   // renderer.setClearColor(color);
 }
@@ -94,7 +89,7 @@ function touchWave(scaledPointer){
     // Paint the newly interacted objects
     for(var l = 0; l < intersects.length; l++){
 
-      intersected = intersects[l].object;
+      let intersected = intersects[l].object;
 
       intersected.voice = new voice();
       intersected.voice.playVoice(intersected);
@@ -106,9 +101,7 @@ function touchWave(scaledPointer){
         intersected.parent.children[ID].scale.z = 1.5 + gradient;
       }
 
-      previouslyIntersected[l] = intersected;
+      previouslyIntersected.push(intersected);
     }
-
-    intersectes = [];
   }
 }
