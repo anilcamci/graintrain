@@ -39,6 +39,8 @@ function onTouchMove(event){
 
   event.preventDefault();
 
+  console.log(event);
+
   for(var i = 0; i < event.touches.length; i++){
 
     var touch = event.touches[i];
