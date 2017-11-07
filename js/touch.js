@@ -30,12 +30,12 @@ function onTouchEnd(event){
 
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
-        for(var k = 0; j < touches[j].previouslyIntersected.length; j++){
+        for(var k = 0; k < touches[j].previouslyIntersected.length; k++){
 
           touches[j].previouslyIntersected[k].voice.stopVoice();
 
-          for( var i = -highlightRange; i < highlightRange + 1; i++){
-            var previousID = Math.max(Math.min(touches[j].previouslyIntersected[j].index - i, touches[j].previouslyIntersected[k].parent.children.length - 1), 0);
+          for( var l = -highlightRange; l < highlightRange + 1; l++){
+            var previousID = Math.max(Math.min(touches[j].previouslyIntersected[j].index - l, touches[j].previouslyIntersected[k].parent.children.length - 1), 0);
             touches[j].previouslyIntersected[k].parent.children[previousID].material.color.setHex( 0x00ccff );
             touches[j].previouslyIntersected[k].parent.children[previousID].scale.z = 1;
           }
