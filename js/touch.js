@@ -19,6 +19,7 @@ function onTouchStart(event){
     if(editMode){
       var intersects =  touches[touches.length - 1].raycaster.intersectObjects(scene.children, true);
       if(intersects.length > 0){
+        touches[touches.length - 1].interactionPoint = getInteractionPoint(scaledPointer);
         touches[touches.length - 1].interactionOffset = setInteractionOffset(getInteractionPoint(scaledPointer));
         touches[touches.length - 1].draggedObject = intersects[0].object.parent;
       }
@@ -98,8 +99,8 @@ function touchWave(touch){
 
 
   if( editMode ){
-    const dx = interactionPoint.x - touch.interactionOffset.x;
-    const dy = interactionPoint.y - touch.interactionOffset.y;
+    const dx = touch.interactionPoint.x - touch.interactionOffset.x;
+    const dy = touch.interactionPoint.y - touch.interactionOffset.y;
     touch.interactionOffset.x = interactionPoint.x;
     touch.interactionOffset.y = interactionPoint.y;
     touch.draggedObject.position.x += dx;
