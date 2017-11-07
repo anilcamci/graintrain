@@ -1,18 +1,22 @@
-function onTouchStart(event){
+let touches = [];
 
-  console.log(event);
+function onTouchStart(event){
 
   for(var i = 0; i < event.changedTouches.length; i++){
 
     let scaledPointer = getScaledPointer(event.changedTouches[i]);
+    let raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera( scaledPointer, camera );
 
-    event.touches[i].previouslyIntersected = [];
+    event.changedTouches[i].previouslyIntersected = [];
+    event.changedTouches[i].raycaster = raycaster;
+    touches.push(event.changedTouches[i])
 
     if(addMode){
       trajectory.beginAt(getInteractionPoint(scaledPointer));
     }
 
-    touchWave(scaledPointer);
+    touchWave(touches[touches.length - 1]);
   }
 
   // var color = '#' + 'EE0000';
@@ -20,6 +24,12 @@ function onTouchStart(event){
 }
 
 function onTouchEnd(event){
+
+  console.log(event.changedTouches);
+
+  for(var i = 0; i < touches.length; i++){
+    if( event.changedTouches[0])
+  }
 
   if(context.state !== "running"){
     context = createAudioContext();
@@ -39,9 +49,14 @@ function onTouchMove(event){
 
   event.preventDefault();
 
-  console.log(event);
-
   for(var i = 0; i < event.changedTouches.length; i++){
+
+    for(var j = 0; j < touches[j].length; j++){
+      if( event.changedTouches[i].identifier === touches[j].identifier){
+        event.changedTouches[i].previouslyIntersected = touches[j].previouslyIntersected;
+        let scaledPointer = getScaledPointer(event.changedTouches[i]);
+        touches[j].raycaster.setFromCamera( scaledPointer, camera );
+    }
 
     var touch = event.changedTouches[i];
 
@@ -51,40 +66,41 @@ function onTouchMove(event){
       trajectory.addPoint(getInteractionPoint(scaledPointer));
     }
 
+    //pass the touch instance here, which would have its own previouslyIntersected attribute
+
     touchWave(scaledPointer);
   }
 }
 
-function touchWave(scaledPointer){
+function touchWave(touch){
 
-  var interactionPoint = getInteractionPoint(scaledPointer);
+  // var interactionPoint = getInteractionPoint(scaledPointer);
 
-  var raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera( scaledPointer, camera );
-  var intersects = raycaster.intersectObjects(scene.children, true);
 
-  var previo
+  var intersects = touch.raycaster.intersectObjects(scene.children, true);
 
-  if( editMode && mousePressed){
-    const dx = interactionPoint.x - interactionOffsetX;
-    const dy = interactionPoint.y - interactionOffsetY;
-    interactionOffsetX = interactionPoint.x;
-    interactionOffsetY = interactionPoint.y;
-    draggedObject.position.x += dx;
-    draggedObject.position.y += dy;
-  }else if(!addMode){
 
-    draggedObjectIndex = null;
+  // if( editMode && mousePressed){
+  //   const dx = interactionPoint.x - interactionOffsetX;
+  //   const dy = interactionPoint.y - interactionOffsetY;
+  //   interactionOffsetX = interactionPoint.x;
+  //   interactionOffsetY = interactionPoint.y;
+  //   draggedObject.position.x += dx;
+  //   draggedObject.position.y += dy;
+  // }else
+  if(!addMode){
+
+    // draggedObjectIndex = null;
 
     // Reset previously painted interactions
-    for(var j = 0; j < previouslyIntersected.length; j++){
+    for(var j = 0; j < touch.previouslyIntersected.length; j++){
 
-      previouslyIntersected[j].voice.stopVoice();
+      touch.previouslyIntersected[j].voice.stopVoice();
 
       for( var i = -highlightRange; i < highlightRange + 1; i++){
-        var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
-        previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
-        previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+        var previousID = Math.max(Math.min(touch.previouslyIntersected[j].index - i, touch.previouslyIntersected[j].parent.children.length - 1), 0);
+        touch.previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
+        touch.previouslyIntersected[j].parent.children[previousID].scale.z = 1;
       }
     }
 
@@ -103,7 +119,7 @@ function touchWave(scaledPointer){
         intersected.parent.children[ID].scale.z = 1.5 + gradient;
       }
 
-      previouslyIntersected.push(intersected);
+      touch.previouslyIntersected.push(intersected);
     }
   }
 }
