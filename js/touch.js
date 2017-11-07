@@ -25,11 +25,9 @@ function onTouchStart(event){
 
 function onTouchEnd(event){
 
-  console.log(touches[0]);
-  console.log(event.changedTouches[0]);
-
   for(var i = 0; i < event.changedTouches.length; i++){
-    for(var j = 0; j < touches[j].length; j++){
+    for(var j = 0; j < touches.length; j++){
+
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
         console.log("here");
