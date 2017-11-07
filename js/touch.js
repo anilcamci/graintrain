@@ -26,13 +26,13 @@ function onTouchStart(event){
 function onTouchEnd(event){
 
   console.log(touches);
-  console.log(event.changedTouches);
+  console.log(event.changedTouches):
 
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches[j].length; j++){
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
-        console.log("here");
+        console.log("here_");
 
         for(var j = 0; j < touches[j].previouslyIntersected.length; j++){
 
