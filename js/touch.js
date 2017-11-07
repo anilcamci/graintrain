@@ -17,9 +17,11 @@ function onTouchStart(event){
     }
 
     if(editMode){
-      touches[touches.length - 1].interactionOffset = setInteractionOffset(getInteractionPoint(scaledPointer));
-      var intersects = touch.raycaster.intersectObjects(scene.children, true);
-      touches[touches.length - 1].draggedObject = intersects[0].object.parent;
+      var intersects =  touches[touches.length - 1].raycaster.intersectObjects(scene.children, true);
+      if(intersects.length > 0){
+        touches[touches.length - 1].interactionOffset = setInteractionOffset(getInteractionPoint(scaledPointer));
+        touches[touches.length - 1].draggedObject = intersects[0].object.parent;
+      }
     }
 
     touchWave(touches[touches.length - 1]);
