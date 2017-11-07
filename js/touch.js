@@ -28,7 +28,9 @@ function onTouchEnd(event){
   console.log(event.changedTouches);
 
   for(var i = 0; i < touches.length; i++){
-    if( event.changedTouches[0])
+    if( event.changedTouches[0]){
+      
+    }
   }
 
   if(context.state !== "running"){
