@@ -30,15 +30,14 @@ function onTouchEnd(event){
 
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
-        console.log(touches[j]);
-        for(var j = 0; j < touches[j].previouslyIntersected.length; j++){
+        for(var k = 0; j < touches[j].previouslyIntersected.length; j++){
 
-          touches[j].previouslyIntersected[j].voice.stopVoice();
+          touches[j].previouslyIntersected[k].voice.stopVoice();
 
           for( var i = -highlightRange; i < highlightRange + 1; i++){
-            var previousID = Math.max(Math.min(touches[j].previouslyIntersected[j].index - i, touches[j].previouslyIntersected[j].parent.children.length - 1), 0);
-            touches[j].previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
-            touches[j].previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+            var previousID = Math.max(Math.min(touches[j].previouslyIntersected[j].index - i, touches[j].previouslyIntersected[k].parent.children.length - 1), 0);
+            touches[j].previouslyIntersected[k].parent.children[previousID].material.color.setHex( 0x00ccff );
+            touches[j].previouslyIntersected[k].parent.children[previousID].scale.z = 1;
           }
         }
 
