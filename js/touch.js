@@ -27,7 +27,6 @@ function onTouchEnd(event){
 
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches.length; j++){
-
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
         for(var k = 0; k < touches[j].previouslyIntersected.length; k++){
@@ -65,8 +64,8 @@ function onTouchMove(event){
   event.preventDefault();
 
   for(var i = 0; i < event.changedTouches.length; i++){
-    for(var j = 0; j < touches[j].length; j++){
-      if( event.changedTouches[i].identifier === touches[j].identifier){
+    for(var j = 0; j < touches.length; j++){
+      if( event.changedTouches[i].identifier == touches[j].identifier){
         event.changedTouches[i].previouslyIntersected = touches[j].previouslyIntersected;
         let scaledPointer = getScaledPointer(event.changedTouches[i]);
         touches[j].raycaster.setFromCamera( scaledPointer, camera );
@@ -74,11 +73,10 @@ function onTouchMove(event){
       }
     }
 
-    var touch = event.changedTouches[0];
-
-    let scaledPointer = getScaledPointer(touch);
 
     if(addMode){
+      var touch = event.changedTouches[0];
+      let scaledPointer = getScaledPointer(touch);
       trajectory.addPoint(getInteractionPoint(scaledPointer));
     }
   }
