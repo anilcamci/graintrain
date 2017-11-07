@@ -27,9 +27,23 @@ function onTouchEnd(event){
 
   console.log(event.changedTouches);
 
-  for(var i = 0; i < touches.length; i++){
-    if( event.changedTouches[0]){
+  for(var i = 0; i < event.changedTouches.length; i++){
+    for(var j = 0; j < touches[j].length; j++){
+      if( event.changedTouches[i].identifier === touches[j].identifier){
 
+        for(var j = 0; j < touches[j].previouslyIntersected.length; j++){
+
+          touches[j].previouslyIntersected[j].voice.stopVoice();
+
+          for( var i = -highlightRange; i < highlightRange + 1; i++){
+            var previousID = Math.max(Math.min(touches[j].previouslyIntersected[j].index - i, touches[j].previouslyIntersected[j].parent.children.length - 1), 0);
+            touches[j].previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
+            touches[j].previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+          }
+        }
+
+        touches.splice(j, 1);
+      }
     }
   }
 
@@ -52,26 +66,22 @@ function onTouchMove(event){
   event.preventDefault();
 
   for(var i = 0; i < event.changedTouches.length; i++){
-
     for(var j = 0; j < touches[j].length; j++){
       if( event.changedTouches[i].identifier === touches[j].identifier){
         event.changedTouches[i].previouslyIntersected = touches[j].previouslyIntersected;
         let scaledPointer = getScaledPointer(event.changedTouches[i]);
         touches[j].raycaster.setFromCamera( scaledPointer, camera );
+        touchWave(touches[j]);
       }
     }
 
-    var touch = event.changedTouches[i];
+    var touch = event.changedTouches[0];
 
     let scaledPointer = getScaledPointer(touch);
 
     if(addMode){
       trajectory.addPoint(getInteractionPoint(scaledPointer));
     }
-
-    //pass the touch instance here, which would have its own previouslyIntersected attribute
-
-    touchWave(scaledPointer);
   }
 }
 
