@@ -35,7 +35,7 @@ function onTouchEnd(event){
           touches[j].previouslyIntersected[k].voice.stopVoice();
 
           for( var l = -highlightRange; l < highlightRange + 1; l++){
-            var previousID = Math.max(Math.min(touches[j].previouslyIntersected[j].index - l, touches[j].previouslyIntersected[k].parent.children.length - 1), 0);
+            var previousID = Math.max(Math.min(touches[j].previouslyIntersected[k].index - l, touches[j].previouslyIntersected[k].parent.children.length - 1), 0);
             touches[j].previouslyIntersected[k].parent.children[previousID].material.color.setHex( 0x00ccff );
             touches[j].previouslyIntersected[k].parent.children[previousID].scale.z = 1;
           }
