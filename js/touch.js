@@ -24,7 +24,6 @@ function onTouchStart(event){
 }
 
 function onTouchEnd(event){
-
   console.log(event.changedTouches);
 
   for(var i = 0; i < event.changedTouches.length; i++){
