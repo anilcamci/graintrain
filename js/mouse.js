@@ -98,6 +98,8 @@ function interactWithWave(scaledPointer){
 }
 
 function setInteractionOffset(interactionPoint) {
-  interactionOffsetX = interactionPoint.x;
-  interactionOffsetY = interactionPoint.y;
+  interactionOffset = new THREE.Vector2();
+  interactionOffset.x = interactionPoint.x;
+  interactionOffset.y = interactionPoint.y;
+  return interactionOffset;
 }

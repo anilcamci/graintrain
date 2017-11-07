@@ -16,6 +16,12 @@ function onTouchStart(event){
       trajectory.beginAt(getInteractionPoint(scaledPointer));
     }
 
+    if(editMode){
+      touches[touches.length - 1].interactionOffset = setInteractionOffset(getInteractionPoint(scaledPointer));
+      var intersects = touch.raycaster.intersectObjects(scene.children, true);
+      touches[touches.length - 1].draggedObject = intersects[0].object.parent;
+    }
+
     touchWave(touches[touches.length - 1]);
   }
 
@@ -89,15 +95,14 @@ function touchWave(touch){
   var intersects = touch.raycaster.intersectObjects(scene.children, true);
 
 
-  // if( editMode && mousePressed){
-  //   const dx = interactionPoint.x - interactionOffsetX;
-  //   const dy = interactionPoint.y - interactionOffsetY;
-  //   interactionOffsetX = interactionPoint.x;
-  //   interactionOffsetY = interactionPoint.y;
-  //   draggedObject.position.x += dx;
-  //   draggedObject.position.y += dy;
-  // }else
-  if(!addMode){
+  if( editMode ){
+    const dx = interactionPoint.x - touch.interactionOffset.x;
+    const dy = interactionPoint.y - touch.interactionOffset.y;
+    touch.interactionOffset.x = interactionPoint.x;
+    touch.interactionOffset.y = interactionPoint.y;
+    touch.draggedObject.position.x += dx;
+    touch.draggedObject.position.y += dy;
+  }else if(!addMode){
 
     // draggedObjectIndex = null;
 
