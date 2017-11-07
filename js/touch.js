@@ -73,7 +73,6 @@ function onTouchMove(event){
       }
     }
 
-
     if(addMode){
       var touch = event.changedTouches[0];
       let scaledPointer = getScaledPointer(touch);
@@ -119,17 +118,23 @@ function touchWave(touch){
 
       let intersected = intersects[l].object;
 
-      intersected.voice = new voice();
-      intersected.voice.playVoice(intersected);
+      if( deleteMode ){
+        scene.remove(intersected.parent);
+        intersected.voice.stopVoice();
+      }else{
 
-      for( var i = -highlightRange; i < highlightRange + 1; i++){
-        var gradient = (highlightRange - Math.abs(i))/7;
-        var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
-        intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
-        intersected.parent.children[ID].scale.z = 1.5 + gradient;
+        intersected.voice = new voice();
+        intersected.voice.playVoice(intersected);
+
+        for( var i = -highlightRange; i < highlightRange + 1; i++){
+          var gradient = (highlightRange - Math.abs(i))/7;
+          var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
+          intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
+          intersected.parent.children[ID].scale.z = 1.5 + gradient;
+        }
+
+        touch.previouslyIntersected.push(intersected);
       }
-
-      touch.previouslyIntersected.push(intersected);
     }
   }
 }
