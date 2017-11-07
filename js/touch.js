@@ -101,8 +101,8 @@ function touchWave(touch){
   if( editMode ){
     const dx = touch.interactionPoint.x - touch.interactionOffset.x;
     const dy = touch.interactionPoint.y - touch.interactionOffset.y;
-    touch.interactionOffset.x = interactionPoint.x;
-    touch.interactionOffset.y = interactionPoint.y;
+    touch.interactionOffset.x = touch.interactionPoint.x;
+    touch.interactionOffset.y = touch.interactionPoint.y;
     touch.draggedObject.position.x += dx;
     touch.draggedObject.position.y += dy;
   }else if(!addMode){
