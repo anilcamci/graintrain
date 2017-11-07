@@ -29,7 +29,7 @@ function onTouchEnd(event){
 
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches[j].length; j++){
-      if( event.changedTouches[i].identifier === touches[j].identifier){
+      if( event.changedTouches[i].identifier == touches[j].identifier){
 
         console.log("here");
 
