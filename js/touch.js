@@ -29,7 +29,7 @@ function onTouchEnd(event){
 
   for(var i = 0; i < touches.length; i++){
     if( event.changedTouches[0]){
-      
+
     }
   }
 
@@ -58,6 +58,7 @@ function onTouchMove(event){
         event.changedTouches[i].previouslyIntersected = touches[j].previouslyIntersected;
         let scaledPointer = getScaledPointer(event.changedTouches[i]);
         touches[j].raycaster.setFromCamera( scaledPointer, camera );
+      }
     }
 
     var touch = event.changedTouches[i];
