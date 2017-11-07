@@ -30,7 +30,6 @@ function onTouchEnd(event){
 
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
-        console.log(touches[j]);
 
         for(var j = 0; j < touches[j].previouslyIntersected.length; j++){
 
@@ -44,6 +43,7 @@ function onTouchEnd(event){
         }
 
         touches.splice(j, 1);
+        console.log(touches);
       }
     }
   }
