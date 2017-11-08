@@ -19,8 +19,7 @@ function onTouchStart(event){
     if(editMode){
       var intersects =  touches[touches.length - 1].raycaster.intersectObjects(scene.children, true);
       if(intersects.length > 0){
-        touches[touches.length - 1].interactionPoint = getInteractionPoint(scaledPointer);
-        touches[touches.length - 1].interactionOffset = setInteractionOffset(getInteractionPoint(scaledPointer));
+        touches[touches.length - 1].interactionOffset = getInteractionPoint(scaledPointer);
         touches[touches.length - 1].draggedObject = intersects[0].object.parent;
         console.log(touches[touches.length - 1].draggedObject);
       }
@@ -79,6 +78,8 @@ function onTouchMove(event){
         event.changedTouches[i].previouslyIntersected = touches[j].previouslyIntersected;
         let scaledPointer = getScaledPointer(event.changedTouches[i]);
         touches[j].raycaster.setFromCamera( scaledPointer, camera );
+        var intersects = raycaster.intersectObject( floor );
+        touches[j].interactionPoint = intersects[0];
         touchWave(touches[j]);
       }
     }
