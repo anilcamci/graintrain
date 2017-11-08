@@ -17,12 +17,14 @@ function onTouchStart(event){
     }
 
     if(editMode){
-      var intersects =  touches[touches.length - 1].raycaster.intersectObjects(scene.children, true);
-      if(intersects.length > 0){
-        touches[touches.length - 1].interactionOffset = getInteractionPoint(scaledPointer);
-        touches[touches.length - 1].draggedObject = intersects[0].object.parent;
-        console.log(touches[touches.length - 1].draggedObject);
-      }
+
+      var intersects = touches[touches.length - 1].raycaster.intersectObject( floor );
+      touches[touches.length - 1].interactionPoint = intersects[0].point;
+      touches[touches.length - 1].interactionOffset = intersects[0].point;
+      intersects = touches[touches.length - 1].raycaster.intersectObjects( scene.children, true );
+      console.log(intersects[0]);
+      touches[touches.length - 1].draggedObject = intersects[0].object.parent;
+
     }
 
     touchWave(touches[touches.length - 1]);
@@ -78,8 +80,8 @@ function onTouchMove(event){
         event.changedTouches[i].previouslyIntersected = touches[j].previouslyIntersected;
         let scaledPointer = getScaledPointer(event.changedTouches[i]);
         touches[j].raycaster.setFromCamera( scaledPointer, camera );
-        var intersects = raycaster.intersectObject( floor );
-        touches[j].interactionPoint = intersects[0];
+        var intersects = touches[j].raycaster.intersectObject( floor );
+        touches[j].interactionPoint = intersects[0].point;
         touchWave(touches[j]);
       }
     }
