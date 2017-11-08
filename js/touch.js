@@ -20,9 +20,9 @@ function onTouchStart(event){
       var intersects =  touches[touches.length - 1].raycaster.intersectObjects(scene.children, true);
       if(intersects.length > 0){
         touches[touches.length - 1].interactionPoint = getInteractionPoint(scaledPointer);
-        console.log(touches[touches.length - 1].interactionPoint);
         touches[touches.length - 1].interactionOffset = setInteractionOffset(getInteractionPoint(scaledPointer));
         touches[touches.length - 1].draggedObject = intersects[0].object.parent;
+        console.log(touches[touches.length - 1].draggedObject);
       }
     }
 
