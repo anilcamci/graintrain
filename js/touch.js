@@ -2,8 +2,6 @@ let touches = [];
 
 function onTouchStart(event){
 
-  event.preventDefault();
-
   for(var i = 0; i < event.changedTouches.length; i++){
 
     let scaledPointer = getScaledPointer(event.changedTouches[i]);
