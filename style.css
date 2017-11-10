@@ -20,13 +20,24 @@ body{
   height: 50px;
   line-height: 50px;
   margin-left: -25px;
-  border-radius: 50%;
+  /*border-radius: 50%;*/
   border: 0em;
   background-color: #ff5e89;
   color: #EEEEEE;
   cursor: pointer;
   text-align: center;
+  vertical-align: middle;
   font-family:helvetica;
   font-weight: bold;
-  font-size: 30px;
+  font-size: 40px;
+}
+
+.button span{
+  position: absolute;
+  top: -3px;
+  left: 14px;
+}
+
+.button img{
+  padding-top: 10px;
 }
