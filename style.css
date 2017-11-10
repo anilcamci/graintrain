@@ -20,7 +20,7 @@ body{
   height: 50px;
   line-height: 50px;
   margin-left: -25px;
-  /*border-radius: 50%;*/
+  border-radius: 50%;
   border: 0em;
   background-color: #ff5e89;
   color: #EEEEEE;
