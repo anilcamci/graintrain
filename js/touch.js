@@ -2,6 +2,8 @@ let touches = [];
 
 function onTouchStart(event){
 
+  event.preventDefault();
+
   for(var i = 0; i < event.changedTouches.length; i++){
 
     let scaledPointer = getScaledPointer(event.changedTouches[i]);
@@ -29,9 +31,6 @@ function onTouchStart(event){
 
     touchWave(touches[touches.length - 1]);
   }
-
-  // var color = '#' + 'EE0000';
-  // renderer.setClearColor(color);
 }
 
 function onTouchEnd(event){
@@ -96,11 +95,7 @@ function onTouchMove(event){
 
 function touchWave(touch){
 
-  // var interactionPoint = getInteractionPoint(scaledPointer);
-
-
   var intersects = touch.raycaster.intersectObjects(scene.children, true);
-
 
   if( moveMode ){
     const dx = touch.interactionPoint.x - touch.interactionOffset.x;
@@ -110,8 +105,6 @@ function touchWave(touch){
     touch.draggedObject.position.x += dx;
     touch.draggedObject.position.y += dy;
   }else if(!addMode){
-
-    // draggedObjectIndex = null;
 
     // Reset previously painted interactions
     for(var j = 0; j < touch.previouslyIntersected.length; j++){

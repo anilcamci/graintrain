@@ -39,7 +39,7 @@ function onMouseMove(event){
 
   if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
 
-  // interactWithWave(scaledPointer);
+  interactWithWave(scaledPointer);
 }
 
 function interactWithWave(scaledPointer){
@@ -50,13 +50,11 @@ function interactWithWave(scaledPointer){
   raycaster.setFromCamera( scaledPointer, camera );
   var intersects = raycaster.intersectObjects(scene.children, true);
 
-  console.log(intersects);
-
-  if( moveMode && mousePressed){
-    const dx = interactionPoint.x - interactionOffsetX;
-    const dy = interactionPoint.y - interactionOffsetY;
-    interactionOffsetX = interactionPoint.x;
-    interactionOffsetY = interactionPoint.y;
+  if( moveMode && mousePressed ){
+    const dx = interactionPoint.x - interactionOffset.x;
+    const dy = interactionPoint.y - interactionOffset.y;
+    interactionOffset.x = interactionPoint.x;
+    interactionOffset.y = interactionPoint.y;
     draggedObject.position.x += dx;
     draggedObject.position.y += dy;
   }else if(!addMode){
