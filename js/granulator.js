@@ -87,12 +87,12 @@ function mapRange(value, low1, high1, low2, high2) {
 	return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
-function createAudioContext (desiredSampleRate) {
+function createAudioContext () {
 	var AudioCtor = window.AudioContext || window.webkitAudioContext
 
-	desiredSampleRate = typeof desiredSampleRate === 'number'
-		? desiredSampleRate
-		: 44100
+	// desiredSampleRate = typeof desiredSampleRate === 'number'
+	// 	? desiredSampleRate
+	// 	: 44100
 	var context_ = new AudioCtor()
 
 	// Check if hack is necessary. Only occurs in iOS6+ devices
