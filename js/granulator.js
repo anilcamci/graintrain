@@ -98,18 +98,18 @@ function createAudioContext (desiredSampleRate) {
 	// Check if hack is necessary. Only occurs in iOS6+ devices
 	// and only when you first boot the iPhone, or play a audio/video
 	// with a different sample rate
-	if (/(iPhone|iPad)/i.test(navigator.userAgent) &&
-			context_.sampleRate !== desiredSampleRate) {
-		var buffer = context_.createBuffer(1, 1, desiredSampleRate)
-		var dummy = context_.createBufferSource()
-		dummy.buffer = buffer
-		dummy.connect(context_.destination)
-		dummy.start(0)
-		dummy.disconnect()
-
-		context_.close() // dispose old context
-		context_ = new AudioCtor()
-	}
+	// if (/(iPhone|iPad)/i.test(navigator.userAgent) &&
+	// 		context_.sampleRate !== desiredSampleRate) {
+	// 	var buffer = context_.createBuffer(1, 1, desiredSampleRate)
+	// 	var dummy = context_.createBufferSource()
+	// 	dummy.buffer = buffer
+	// 	dummy.connect(context_.destination)
+	// 	dummy.start(0)
+	// 	dummy.disconnect()
+  //
+	// 	context_.close() // dispose old context
+	// 	context_ = new AudioCtor()
+	// }
 
 	return context_;
 }
