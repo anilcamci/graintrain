@@ -15,6 +15,7 @@ function onMouseDown(event){
 
   if( deleteMode ){
     scene.remove(intersected.parent);
+    intersected.voice.stopVoice();
     previouslyIntersected = [];
   }
 }
