@@ -139,6 +139,14 @@
         document.body.addEventListener( 'touchend', onTouchEnd, false);
         window.addEventListener( 'resize', onWindowResize, false );
 
+        fileInput.addEventListener('click', function(){
+          document.body.onfocus = function() { setTimeout(function(){
+            if(fileInput.value.length == 0){
+              toggleAddMode();
+            }
+          }, 100);}
+        });
+
         fileInput.addEventListener('change', function() {
           var reader = new FileReader();
           reader.onload = function(ev) {
