@@ -8,7 +8,7 @@ function onMouseDown(event){
 
   if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
 
-  if( editMode && intersected){
+  if( moveMode && intersected){
     draggedObject = intersected.parent;
     setInteractionOffset(getInteractionPoint(scaledPointer));
   }
@@ -29,7 +29,7 @@ function onMouseUp(event){
     var obj = trajectory.createObject();
     trajectories.push(obj.spline);
     drawWave(obj.spline);
-    addMode = false;
+    toggleAdding();
   }
 }
 
@@ -52,7 +52,7 @@ function interactWithWave(scaledPointer){
 
   console.log(intersects);
 
-  if( editMode && mousePressed){
+  if( moveMode && mousePressed){
     const dx = interactionPoint.x - interactionOffsetX;
     const dy = interactionPoint.y - interactionOffsetY;
     interactionOffsetX = interactionPoint.x;

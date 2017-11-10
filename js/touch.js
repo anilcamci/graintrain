@@ -16,7 +16,7 @@ function onTouchStart(event){
       trajectory.beginAt(getInteractionPoint(scaledPointer));
     }
 
-    if(editMode){
+    if(moveMode){
 
       var intersects = touches[touches.length - 1].raycaster.intersectObject( floor );
       touches[touches.length - 1].interactionPoint = intersects[0].point;
@@ -102,7 +102,7 @@ function touchWave(touch){
   var intersects = touch.raycaster.intersectObjects(scene.children, true);
 
 
-  if( editMode ){
+  if( moveMode ){
     const dx = touch.interactionPoint.x - touch.interactionOffset.x;
     const dy = touch.interactionPoint.y - touch.interactionOffset.y;
     touch.interactionOffset.x = touch.interactionPoint.x;
