@@ -18,11 +18,10 @@ function onTouchStart(event){
 
     if(moveMode){
       var intersects = touches[touches.length - 1].raycaster.intersectObject( floor );
-      if(intersects[0]){
+      if(intersects[0].object){
         touches[touches.length - 1].interactionPoint = intersects[0].point;
         touches[touches.length - 1].interactionOffset = intersects[0].point;
         intersects = touches[touches.length - 1].raycaster.intersectObjects( scene.children, true );
-        console.log(intersects[0]);
         touches[touches.length - 1].draggedObject = intersects[0].object.parent;
       }
     }
