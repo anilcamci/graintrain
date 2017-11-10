@@ -29,7 +29,7 @@ function onMouseUp(event){
     var obj = trajectory.createObject();
     trajectories.push(obj.spline);
     drawWave(obj.spline);
-    toggleAdding();
+    toggleAddMode();
   }
 }
 

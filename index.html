@@ -19,9 +19,9 @@
 
     <input type="file" id="audio-file">
 
-    <button class="button" id="add" style="left:25%;" onclick="toggleAdding()">+</button>
-    <button class="button" id="move" style="left:50%;" onclick="toggleMoving()"><img src='assets/move.png' height="40px" width="40px" style="padding-top: 10px; padding-left:1px;"></img></button>
-    <button class="button" id="delete" style="left:75%;" onclick="toggleDeleting()">–</button>
+    <button class="button" id="add" style="left:25%;" onclick="toggleAddMode()">+</button>
+    <button class="button" id="move" style="left:50%;" onclick="toggleMoveMode()"><img src='assets/move.png' height="40px" width="40px" style="padding-top: 10px; padding-left:1px;"></img></button>
+    <button class="button" id="delete" style="left:75%;" onclick="toggleDeleteMode()">–</button>
 
     <script>
 
@@ -53,7 +53,7 @@
       init();
       render();
 
-      function toggleAdding(){
+      function toggleAddMode(){
 
         if(addMode){
           addMode = !addMode;
@@ -67,7 +67,7 @@
         }
       }
 
-      function toggleMoving() {
+      function toggleMoveMode() {
         if(moveMode){
           moveMode = !moveMode;
           document.getElementById('move').style.background = "#FF5E89";
@@ -80,7 +80,7 @@
 
       }
 
-      function toggleDeleting(){
+      function toggleDeleteMode(){
         if(deleteMode){
           deleteMode = !deleteMode;
           document.getElementById('delete').style.background = "#FF5E89";

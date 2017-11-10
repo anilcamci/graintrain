@@ -66,7 +66,7 @@ function onTouchEnd(event){
     var obj = trajectory.createObject();
     trajectories.push(obj.spline);
     drawWave(obj.spline);
-    addMode = false;
+    toggleAddMode;
   }
 }
 
