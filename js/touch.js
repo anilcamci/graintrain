@@ -92,7 +92,7 @@ function touchWave(touch){
 
   var intersects = touch.raycaster.intersectObjects(scene.children, true);
 
-  if( moveMode ){
+  if( moveMode && intersects.length > 0){
     const dx = touch.interactionPoint.x - touch.interactionOffset.x;
     const dy = touch.interactionPoint.y - touch.interactionOffset.y;
     touch.interactionOffset.x = touch.interactionPoint.x;
