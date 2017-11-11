@@ -2,24 +2,11 @@ let touches = [];
 
 function onTouchStart(event){
 
-  if(context.state !== "running"){
-    // context = createAudioContext();
-    // master = context.createGain();
-    // master.connect(context.destination);
-
-    // create empty buffer
-    var dummy = context.createBuffer(1, 1, 22050);
-    var source = context.createBufferSource();
-    source.buffer = dummy;
-
-    // connect to output (your speakers)
-    source.connect(context.destination);
-
-    // play the file
-    source.noteOn(0);
-
-
-  }
+  // if(context.state !== "running"){
+  //   context = createAudioContext();
+  //   master = context.createGain();
+  //   master.connect(context.destination);
+  // }
 
   for(var i = 0; i < event.changedTouches.length; i++){
 
