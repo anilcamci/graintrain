@@ -88,12 +88,10 @@ function mapRange(value, low1, high1, low2, high2) {
 }
 
 function createAudioContext (desiredSampleRate) {
-	var AudioCtor = window.AudioContext || window.webkitAudioContext
+	var AudioCtor = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 
-	desiredSampleRate = typeof desiredSampleRate === 'number'
-		? desiredSampleRate
-		: 44100
-	var context_ = new AudioCtor()
+	desiredSampleRate = typeof desiredSampleRate === 'number' ? desiredSampleRate : 44100;
+	var context_ = new AudioCtor();
 
 	// Check if hack is necessary. Only occurs in iOS6+ devices
 	// and only when you first boot the iPhone, or play a audio/video
@@ -102,15 +100,15 @@ function createAudioContext (desiredSampleRate) {
 			context_.sampleRate !== desiredSampleRate) {
 
 				console.log("here");
-		var buffer = context_.createBuffer(1, 1, desiredSampleRate)
-		var dummy = context_.createBufferSource()
-		dummy.buffer = buffer
-		dummy.connect(context_.destination)
-		dummy.start(0)
-		dummy.disconnect()
+		var buffer = context_.createBuffer(1, 1, desiredSampleRate);
+		var dummy = context_.createBufferSource();
+		dummy.buffer = buffer;
+		dummy.connect(context_.destination);
+		dummy.start(0);
+		dummy.disconnect();
 
-		context_.close() // dispose old context
-		context_ = new AudioCtor()
+		context_.close(); // dispose old context
+		context_ = new AudioCtor();
 	}
 
 	return context_;
