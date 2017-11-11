@@ -87,27 +87,27 @@ function mapRange(value, low1, high1, low2, high2) {
 	return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
-function createAudioContext (desiredSampleRate) {
-	var AudioCtor = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
-
-	desiredSampleRate = typeof desiredSampleRate === 'number' ? desiredSampleRate : 44100;
-	var context_ = new AudioCtor();
-
-	// Check if hack is necessary. Only occurs in iOS6+ devices
-	// and only when you first boot the iPhone, or play a audio/video
-	// with a different sample rate
-	if (/(iPhone|iPad)/i.test(navigator.userAgent) && context_.sampleRate !== desiredSampleRate) {
-
-		var buffer = context_.createBuffer(1, 1, desiredSampleRate);
-		var dummy = context_.createBufferSource();
-		dummy.buffer = buffer;
-		dummy.connect(context_.destination);
-		dummy.start(0);
-		dummy.disconnect();
-
-		context_.close(); // dispose old context
-		context_ = new AudioCtor();
-	}
-
-	return context_;
-}
+// function createAudioContext (desiredSampleRate) {
+// 	var AudioCtor = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
+//
+// 	desiredSampleRate = typeof desiredSampleRate === 'number' ? desiredSampleRate : 44100;
+// 	var context_ = new AudioCtor();
+//
+// 	// Check if hack is necessary. Only occurs in iOS6+ devices
+// 	// and only when you first boot the iPhone, or play a audio/video
+// 	// with a different sample rate
+// 	if (/(iPhone|iPad)/i.test(navigator.userAgent) && context_.sampleRate !== desiredSampleRate) {
+//
+// 		var buffer = context_.createBuffer(1, 1, desiredSampleRate);
+// 		var dummy = context_.createBufferSource();
+// 		dummy.buffer = buffer;
+// 		dummy.connect(context_.destination);
+// 		dummy.start(0);
+// 		dummy.disconnect();
+//
+// 		context_.close(); // dispose old context
+// 		context_ = new AudioCtor();
+// 	}
+//
+// 	return context_;
+// }
