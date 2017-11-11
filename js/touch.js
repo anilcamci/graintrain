@@ -13,7 +13,7 @@ function onTouchStart(event){
     source.buffer = dummy;
 
     // connect to output (your speakers)
-    source.connect(myContext.destination);
+    source.connect(context.destination);
 
     // play the file
     source.noteOn(0);
