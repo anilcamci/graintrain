@@ -146,6 +146,7 @@
         // });
 
         fileInput.addEventListener('change', function() {
+          console.log(context);
           var reader = new FileReader();
           reader.onload = function(ev) {
             context.decodeAudioData(ev.target.result, function(buffer) {
