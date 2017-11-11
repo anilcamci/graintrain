@@ -1,7 +1,7 @@
 let touches = [];
 
 function onTouchStart(event){
-console.log(context);
+// console.log(context);
   if(context.state !== "running"){
     context = createAudioContext();
     master = context.createGain();
