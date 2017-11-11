@@ -2,11 +2,11 @@ let touches = [];
 
 function onTouchStart(event){
 
-  // if(context.state !== "running"){
-  //   context = createAudioContext();
-  //   master = context.createGain();
-  //   master.connect(context.destination);
-  // }
+  if(context.state !== "running"){
+    context = new AudioContext();
+    master = context.createGain();
+    master.connect(context.destination);
+  }
 
   for(var i = 0; i < event.changedTouches.length; i++){
 

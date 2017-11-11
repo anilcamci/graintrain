@@ -47,7 +47,7 @@
       var mousePressed = false;
 
       var currentBuffer;
-      let context, master;
+      var context, master;
       window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 
 
@@ -149,8 +149,6 @@
         // });
 
         context = new AudioContext();
-        master = context.createGain();
-        master.connect(context.destination);
 
         fileInput.addEventListener('change', function() {
           let reader = new FileReader();
