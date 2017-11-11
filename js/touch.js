@@ -31,6 +31,7 @@ function onTouchStart(event){
 function onTouchEnd(event){
 
   if(context.state !== "running"){
+    console.log("here");
     context = createAudioContext(44100);
     master = context.createGain();
     master.connect(context.destination);
