@@ -100,6 +100,8 @@ function createAudioContext (desiredSampleRate) {
 	// with a different sample rate
 	if (/(iPhone|iPad)/i.test(navigator.userAgent) &&
 			context_.sampleRate !== desiredSampleRate) {
+
+				console.log("here");
 		var buffer = context_.createBuffer(1, 1, desiredSampleRate)
 		var dummy = context_.createBufferSource()
 		dummy.buffer = buffer
