@@ -2,6 +2,13 @@ let touches = [];
 
 function onTouchStart(event){
 
+  if(context.state !== "running"){
+    context = createAudioContext(44100);
+    master = context.createGain();
+    master.connect(context.destination);
+    console.log(context);
+  }
+
   for(var i = 0; i < event.changedTouches.length; i++){
 
     let scaledPointer = getScaledPointer(event.changedTouches[i]);
@@ -29,13 +36,6 @@ function onTouchStart(event){
 }
 
 function onTouchEnd(event){
-
-  if(context.state !== "running"){
-    console.log("here");
-    context = createAudioContext(44100);
-    master = context.createGain();
-    master.connect(context.destination);
-  }
 
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches.length; j++){
