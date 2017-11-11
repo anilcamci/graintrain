@@ -40,7 +40,7 @@ function onMouseMove(event){
 
   if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
 
-  // interactWithWave(scaledPointer);
+  interactWithWave(scaledPointer);
 }
 
 function interactWithWave(scaledPointer){
