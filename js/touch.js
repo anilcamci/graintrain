@@ -3,7 +3,7 @@ let touches = [];
 function onTouchStart(event){
 
   if(context.state !== "running"){
-    context = createAudioContext(44100);
+    context = createAudioContext();
     master = context.createGain();
     master.connect(context.destination);
     console.log(context);
