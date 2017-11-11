@@ -149,13 +149,11 @@
         // });
 
         context = new AudioContext();
-        console.log(context);
 
         fileInput.addEventListener('change', function() {
           let reader = new FileReader();
           reader.onload = function(ev) {
             context.decodeAudioData(ev.target.result, function(buffer) {
-              console.log("here");
               currentBuffer = buffer;
               data = buffer.getChannelData(0);
             });
