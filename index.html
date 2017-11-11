@@ -149,6 +149,8 @@
         // });
 
         context = new AudioContext();
+        master = context.createGain();
+        master.connect(context.destination);
 
         fileInput.addEventListener('change', function() {
           let reader = new FileReader();
