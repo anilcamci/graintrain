@@ -1,8 +1,8 @@
 let touches = [];
 
 function onTouchStart(event){
-  if(context.state !== "running"){
-    context = createAudioContext();
+  if(context.state == "suspended"){
+    createAudioContext();
     master = context.createGain();
     master.connect(context.destination);
 

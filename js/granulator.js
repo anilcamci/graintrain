@@ -90,7 +90,7 @@ function mapRange(value, low1, high1, low2, high2) {
 function createAudioContext () {
 	// var AudioCtor = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 
-	var context_ = new AudioContext();
+	// var context_ = new AudioContext();
 
 	// Check if hack is necessary. Only occurs in iOS6+ devices
 	// and only when you first boot the iPhone, or play a audio/video
@@ -107,6 +107,9 @@ function createAudioContext () {
 	// 	context_.close(); // dispose old context
 	// 	context_ = new AudioCtor();
 	// }
+	context.close().then(function(){
+		context = new AudioContext();
+	});
 
-	return context_;
+	// return context_;
 }
