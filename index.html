@@ -55,6 +55,9 @@
       render();
 
       function toggleAddMode(){
+
+        console.log(context);
+
         if(addMode){
           addMode = false;
           document.getElementById('add').style.background = "#FF5E89";
@@ -161,6 +164,7 @@
             });
           };
           reader.readAsArrayBuffer(this.files[0]);
+          console.log(context);
         }, false);
 
         animate();
