@@ -40,7 +40,7 @@ function onMouseMove(event){
 
   if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
 
-  // interactWithWave(scaledPointer);
+  interactWithWave(scaledPointer);
 }
 
 function interactWithWave(scaledPointer){
@@ -58,7 +58,7 @@ function interactWithWave(scaledPointer){
     interactionOffset.y = interactionPoint.y;
     draggedObject.position.x += dx;
     draggedObject.position.y += dy;
-  }else if(!addMode){
+  }else if(!addMode && !deleteMode){
 
     draggedObjectIndex = null;
 

@@ -30,6 +30,12 @@ function onTouchStart(event){
 
 function onTouchEnd(event){
 
+  if(context.state !== "running"){
+    context = createAudioContext(44100);
+    master = context.createGain();
+    master.connect(context.destination);
+  }
+
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches.length; j++){
       if( event.changedTouches[i].identifier == touches[j].identifier){
@@ -48,12 +54,6 @@ function onTouchEnd(event){
         touches.splice(j, 1);
       }
     }
-  }
-
-  if(context.state !== "running"){
-    context = createAudioContext();
-    master = context.createGain();
-    master.connect(context.destination);
   }
 
   if(addMode){
