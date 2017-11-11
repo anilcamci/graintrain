@@ -94,6 +94,7 @@ function createAudioContext () {
 	// 	? desiredSampleRate
 	// 	: 44100
 	var context_ = new AudioCtor()
+	context_.sampleRate = 44100;
 
 	// Check if hack is necessary. Only occurs in iOS6+ devices
 	// and only when you first boot the iPhone, or play a audio/video
