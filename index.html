@@ -19,7 +19,7 @@
 
     <input type="file" id="audio-file">
 
-    <button class="button" id="add" style="left:25%;" onclick="toggleAddMode()"><span>+</span></button>
+    <div class="button" id="add" style="left:25%;" onclick="toggleAddMode()"><span>+</span></div>
     <div class="button" id="move" style="left:50%;" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
     <div class="button" id="delete" style="left:75%;" onclick="toggleDeleteMode()"><span>–</span></div>
 
@@ -136,14 +136,14 @@
         document.body.addEventListener( 'touchend', onTouchEnd, false);
         window.addEventListener( 'resize', onWindowResize, false );
 
-        fileInput.addEventListener('click', function(){
-
-          document.body.onfocus = function() { setTimeout(function(){
-            if(fileInput.value.length == 0){
-              if(addMode) toggleAddMode();
-            }
-          }, 100);}
-        });
+        // fileInput.addEventListener('click', function(){
+        //
+        //   document.body.onfocus = function() { setTimeout(function(){
+        //     if(fileInput.value.length == 0){
+        //       if(addMode) toggleAddMode();
+        //     }
+        //   }, 100);}
+        // });
 
         fileInput.addEventListener('change', function() {
           var reader = new FileReader();
