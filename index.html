@@ -47,6 +47,9 @@
       var mousePressed = false;
 
       var currentBuffer;
+      let context, master;
+      window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
+
 
       init();
       render();
@@ -145,9 +148,12 @@
         //   }, 100);}
         // });
 
+        context = new AudioContext();
+        master = context.createGain();
+        master.connect(context.destination);
+
         fileInput.addEventListener('change', function() {
-          // console.log(context);
-          var reader = new FileReader();
+          let reader = new FileReader();
           reader.onload = function(ev) {
             context.decodeAudioData(ev.target.result, function(buffer) {
               currentBuffer = buffer;
