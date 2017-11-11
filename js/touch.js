@@ -1,12 +1,12 @@
 let touches = [];
 
 function onTouchStart(event){
-
+console.log(context);
   if(context.state !== "running"){
     context = createAudioContext();
     master = context.createGain();
     master.connect(context.destination);
-    console.log(context);
+
   }
 
   for(var i = 0; i < event.changedTouches.length; i++){
