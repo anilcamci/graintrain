@@ -1,7 +1,7 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
-let context = new AudioContext();
+var context = new AudioContext();
 
-let master = context.createGain();
+var master = context.createGain();
 master.connect(context.destination);
 
 let attack = 0.40;
