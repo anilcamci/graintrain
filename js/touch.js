@@ -1,9 +1,24 @@
 let touches = [];
 
 function onTouchStart(event){
-  if(context.state == "suspended"){
-    console.log("here");
-    createAudioContext();
+
+  if(context.state !== "running"){
+    // context = createAudioContext();
+    // master = context.createGain();
+    // master.connect(context.destination);
+
+    // create empty buffer
+    var dummy = context.createBuffer(1, 1, 22050);
+    var source = context.createBufferSource();
+    source.buffer = dummy;
+
+    // connect to output (your speakers)
+    source.connect(myContext.destination);
+
+    // play the file
+    source.noteOn(0);
+
+
   }
 
   for(var i = 0; i < event.changedTouches.length; i++){
