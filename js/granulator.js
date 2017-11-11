@@ -109,6 +109,9 @@ function createAudioContext () {
 	// }
 	context.close().then(function(){
 		context = new AudioContext();
+		master = context.createGain();
+		master.connect(context.destination);
+		console.log(context);
 	});
 
 	// return context_;
