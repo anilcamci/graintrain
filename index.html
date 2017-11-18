@@ -17,6 +17,13 @@
   <body>
     <div id = "globalContainer">
 
+    <!-- <div id="slidecontainer">
+      <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider" style="left:3%;">
+      <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:26%;">
+      <input type="range" min="1" max="100" value="60" class="slider" id="volumeSlider" style="left:49%;">
+      <input type="range" min="1" max="100" value="80" class="slider" id="densitySlider" style="left:72%;">
+    </div> -->
+
     <input type="file" id="audio-file">
 
     <div class="button" id="add" style="left:25%;" onclick="toggleAddMode()"><span>+</span></div>
@@ -50,6 +57,32 @@
       var context, master;
       window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 
+      // var pitchSlider = document.getElementById("pitchSlider");
+      // trans = pitchSlider.value / 50;
+      // var sizeSlider = document.getElementById("sizeSlider");
+      // attack = sizeSlider.value / 200;
+      // release = sizeSlider.value / 200;
+      // var volumeSlider = document.getElementById("volumeSlider");
+      // amp = volumeSlider.value / 200;
+      // var densitySlider = document.getElementById("densitySlider");
+      // density = pitchSlider.value / 100;
+      //
+      // pitchSlider.oninput = function() {
+      //   trans = pitchSlider.value / 50;
+      // }
+      //
+      // sizeSlider.oninput = function() {
+      //   attack = sizeSlider.value / 200;
+      //   release = sizeSlider.value / 200;
+      // }
+      //
+      // volumeSlider.oninput = function() {
+      //   amp = volumeSlider.value / 300;
+      // }
+      //
+      // densitySlider.oninput = function() {
+      //   density = densitySlider.value / 100;
+      // }
 
       init();
       render();

@@ -41,3 +41,44 @@ body{
 .button img{
   padding-top: 10px;
 }
+
+#slidecontainer {
+  position: absolute;
+  width: 100%;
+  top: 2%;
+}
+
+.slider {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 20%;
+  height: 7px;
+  border-radius: 5px;
+  background: #d5d5d5;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  /*transition: opacity .2s;*/
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #ff5e89;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #ff5e89;
+  cursor: pointer;
+}

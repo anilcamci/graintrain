@@ -58,7 +58,7 @@ function interactWithWave(scaledPointer){
     interactionOffset.y = interactionPoint.y;
     draggedObject.position.x += dx;
     draggedObject.position.y += dy;
-  }else if(!addMode && !deleteMode){
+  }else if(!addMode){
 
     draggedObjectIndex = null;
 
@@ -80,7 +80,7 @@ function interactWithWave(scaledPointer){
       intersected = intersects[l].object;
 
       intersected.voice = new voice();
-      intersected.voice.playVoice(intersected);
+      if(!deleteMode) intersected.voice.playVoice(intersected);
 
       for( var i = -highlightRange; i < highlightRange + 1; i++){
         var gradient = (highlightRange - Math.abs(i))/7;
