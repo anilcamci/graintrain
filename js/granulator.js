@@ -33,8 +33,8 @@ function grain(intersectedBlock) {
 
 	this.source.start(this.now, this.offset + this.randomoffset, this.attack + this.release);
 	this.gain.gain.setValueAtTime(0.0, this.now);
-	this.gain.gain.linearRampToValueAtTime(this.amp ,this.now + this.attack);
-	this.gain.gain.linearRampToValueAtTime(0,this.now + (this.attack +  this.release) );
+	this.gain.gain.linearRampToValueAtTime(this.amp, this.now + this.attack);
+	this.gain.gain.linearRampToValueAtTime(0.0, this.now + (this.attack +  this.release) );
 
 	this.source.stop(this.now + this.attack + this.release + 0.1);
 	let timeOutSeconds = (this.attack + this.release) * 1000;
@@ -62,7 +62,7 @@ voice.prototype.playVoice = function(intersectedBlock){
 		that.grains[that.graincount] = g;
 		that.graincount+=1;
 
-		if(that.graincount > 20){
+		if(that.graincount > 30){
 			that.graincount = 0;
 		}
 		//next interval
