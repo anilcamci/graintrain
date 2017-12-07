@@ -62,7 +62,7 @@ voice.prototype.playVoice = function(intersectedBlock){
 		that.grains[that.graincount] = g;
 		that.graincount+=1;
 
-		if(that.graincount > 30){
+		if(that.graincount > 20){
 			that.graincount = 0;
 		}
 		//next interval
