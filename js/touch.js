@@ -36,9 +36,8 @@ function onTouchStart(event){
 
 function onTouchEnd(event){
 
-  console.log("touchEnd");
-
   for(var i = 0; i < event.changedTouches.length; i++){
+    console.log("touchEnd");
     for(var j = 0; j < touches.length; j++){
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
