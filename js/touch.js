@@ -39,9 +39,8 @@ function onTouchEnd(event){
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches.length; j++){
       if( event.changedTouches[i].identifier == touches[j].identifier){
-          console.log("touchEnd");
         for(var k = 0; k < touches[j].previouslyIntersected.length; k++){
-
+          console.log("touchEnd");
           touches[j].previouslyIntersected[k].voice.stopVoice();
 
           for( var l = -highlightRange; l < highlightRange + 1; l++){
