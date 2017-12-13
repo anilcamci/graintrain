@@ -37,8 +37,8 @@ function onTouchStart(event){
 function onTouchEnd(event){
 
   for(var i = 0; i < event.changedTouches.length; i++){
-    console.log("touchEnd");
     for(var j = 0; j < touches.length; j++){
+      console.log("touchEnd");
       if( event.changedTouches[i].identifier == touches[j].identifier){
 
         for(var k = 0; k < touches[j].previouslyIntersected.length; k++){
