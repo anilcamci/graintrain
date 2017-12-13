@@ -111,6 +111,7 @@ function touchWave(touch){
         touch.previouslyIntersected[j].parent.children[previousID].scale.z = 1;
       }
     }
+    touch.previouslyIntersected = [];
 
     // Paint the newly interacted objects
     for(var l = 0; l < intersects.length; l++){
