@@ -36,7 +36,7 @@ function onTouchStart(event){
 
 function onTouchEnd(event){
 
-  // event.preventDefault();
+  console.log("touchEnd");
 
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches.length; j++){
