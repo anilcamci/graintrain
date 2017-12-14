@@ -40,7 +40,7 @@ function onTouchEnd(event){
     for(var j = 0; j < touches.length; j++){
       if( event.changedTouches[i].identifier == touches[j].identifier){
         for(var k = 0; k < touches[j].previouslyIntersected.length; k++){
-          console.log("here");
+
           touches[j].previouslyIntersected[k].voice.stopVoice();
 
           for( var l = -highlightRange; l < highlightRange + 1; l++){
@@ -102,7 +102,7 @@ function touchWave(touch){
 
     // Reset previously painted interactions
     for(var j = 0; j < touch.previouslyIntersected.length; j++){
-
+      console.log("here");
       touch.previouslyIntersected[j].voice.stopVoice();
 
       for( var i = -highlightRange; i < highlightRange + 1; i++){
