@@ -36,6 +36,8 @@ function onMouseUp(event){
 
 function onMouseMove(event){
 
+  event.preventDefault();
+
   let scaledPointer = getScaledPointer(event);
 
   if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
@@ -77,7 +79,6 @@ function interactWithWave(scaledPointer){
     for(var l = 0; l < intersects.length; l++){
 
       intersected = intersects[l].object;
-      console.log("here");
       intersected.voice = new voice();
       if(!deleteMode) intersected.voice.playVoice(intersected);
 
