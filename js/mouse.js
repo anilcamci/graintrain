@@ -36,12 +36,11 @@ function onMouseUp(event){
 
 function onMouseMove(event){
 
-  event.preventDefault();
-
   let scaledPointer = getScaledPointer(event);
 
   if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
 
+  console.log("here");
   interactWithWave(scaledPointer);
 }
 
