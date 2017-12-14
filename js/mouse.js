@@ -64,7 +64,6 @@ function interactWithWave(scaledPointer){
 
     // Reset previously painted interactions
     for(var j = 0; j < previouslyIntersected.length; j++){
-      console.log(previouslyIntersected[j]);
       previouslyIntersected[j].voice.stopVoice();
 
       for( var i = -highlightRange; i < highlightRange + 1; i++){
@@ -78,7 +77,7 @@ function interactWithWave(scaledPointer){
     for(var l = 0; l < intersects.length; l++){
 
       intersected = intersects[l].object;
-
+      console.log("here");
       intersected.voice = new voice();
       if(!deleteMode) intersected.voice.playVoice(intersected);
 
