@@ -1,47 +1,49 @@
 function onMouseDown(event){
+  if(!isTouchInterface){
+    document.getElementById('globalContainer').style.pointerEvents = 'none';
 
-  document.getElementById('globalContainer').style.pointerEvents = 'none';
+    mousePressed = true;
 
-  mousePressed = true;
+    let scaledPointer = getScaledPointer(event);
 
-  let scaledPointer = getScaledPointer(event);
+    if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
 
-  if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
+    if( moveMode && intersected){
+      draggedObject = intersected.parent;
+      setInteractionOffset(getInteractionPoint(scaledPointer));
+    }
 
-  if( moveMode && intersected){
-    draggedObject = intersected.parent;
-    setInteractionOffset(getInteractionPoint(scaledPointer));
-  }
-
-  if( deleteMode ){
-    scene.remove(intersected.parent);
-    intersected.voice.stopVoice();
-    previouslyIntersected = [];
+    if( deleteMode ){
+      scene.remove(intersected.parent);
+      intersected.voice.stopVoice();
+      previouslyIntersected = [];
+    }
   }
 }
 
 function onMouseUp(event){
+  if(!isTouchInterface){
+    document.getElementById('globalContainer').style.pointerEvents = 'auto';
 
-  document.getElementById('globalContainer').style.pointerEvents = 'auto';
+    mousePressed = false;
 
-  mousePressed = false;
-
-  if(addMode){
-    var obj = trajectory.createObject();
-    trajectories.push(obj.spline);
-    drawWave(obj.spline);
-    toggleAddMode();
+    if(addMode){
+      var obj = trajectory.createObject();
+      trajectories.push(obj.spline);
+      drawWave(obj.spline);
+      toggleAddMode();
+    }
   }
 }
 
 function onMouseMove(event){
+  if(!isTouchInterface){
+    let scaledPointer = getScaledPointer(event);
 
-  let scaledPointer = getScaledPointer(event);
+    if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
 
-  if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
-
-  console.log("here");
-  interactWithWave(scaledPointer);
+    interactWithWave(scaledPointer);
+  }
 }
 
 function interactWithWave(scaledPointer){

@@ -8,6 +8,8 @@ function onTouchStart(event){
     master.connect(context.destination);
   }
 
+  if (!isTouchInterface) isTouchInterface = true;
+
   for(var i = 0; i < event.changedTouches.length; i++){
 
     let scaledPointer = getScaledPointer(event.changedTouches[i]);
