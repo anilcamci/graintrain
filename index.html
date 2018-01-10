@@ -17,12 +17,18 @@
   <body>
     <div id = "globalContainer">
 
-    <!-- <div id="slidecontainer">
+    <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE </P> & DRAW A WAVEFORM</div>
+
+    <div id="slidecontainer">
       <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider" style="left:3%;">
+      <div class="sliderLabel" style="left:3.3%;">pitch</div>
       <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:26%;">
+      <div class="sliderLabel" style="left:26.3%;">size</div>
       <input type="range" min="1" max="100" value="60" class="slider" id="volumeSlider" style="left:49%;">
+      <div class="sliderLabel" style="left:49.3%;">volume</div>
       <input type="range" min="1" max="100" value="80" class="slider" id="densitySlider" style="left:72%;">
-    </div> -->
+      <div class="sliderLabel" style="left:72.3%;">density</div>
+    </div>
 
     <input type="file" id="audio-file">
 
@@ -58,32 +64,32 @@
       var context, master;
       window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 
-      // var pitchSlider = document.getElementById("pitchSlider");
-      // trans = pitchSlider.value / 50;
-      // var sizeSlider = document.getElementById("sizeSlider");
-      // attack = sizeSlider.value / 200;
-      // release = sizeSlider.value / 200;
-      // var volumeSlider = document.getElementById("volumeSlider");
-      // amp = volumeSlider.value / 200;
-      // var densitySlider = document.getElementById("densitySlider");
-      // density = pitchSlider.value / 50;
-      //
-      // pitchSlider.oninput = function() {
-      //   trans = pitchSlider.value / 50;
-      // }
-      //
-      // sizeSlider.oninput = function() {
-      //   attack = sizeSlider.value / 200;
-      //   release = sizeSlider.value / 200;
-      // }
-      //
-      // volumeSlider.oninput = function() {
-      //   amp = volumeSlider.value / 300;
-      // }
-      //
-      // densitySlider.oninput = function() {
-      //   density = densitySlider.value / 50;
-      // }
+      var pitchSlider = document.getElementById("pitchSlider");
+      trans = pitchSlider.value / 50;
+      var sizeSlider = document.getElementById("sizeSlider");
+      attack = sizeSlider.value / 200;
+      release = sizeSlider.value / 200;
+      var volumeSlider = document.getElementById("volumeSlider");
+      amp = volumeSlider.value / 200;
+      var densitySlider = document.getElementById("densitySlider");
+      density = pitchSlider.value / 50;
+
+      pitchSlider.oninput = function() {
+        trans = pitchSlider.value / 50;
+      }
+
+      sizeSlider.oninput = function() {
+        attack = sizeSlider.value / 200;
+        release = sizeSlider.value / 200;
+      }
+
+      volumeSlider.oninput = function() {
+        amp = volumeSlider.value / 300;
+      }
+
+      densitySlider.oninput = function() {
+        density = densitySlider.value / 50;
+      }
 
       init();
       render();
@@ -91,11 +97,15 @@
       function toggleAddMode(){
         if(addMode){
           addMode = false;
+          document.getElementById('drawInstruction').style.display = 'none';
+          renderer.setClearColor(0xf0f0f0);
           document.getElementById('add').style.background = "#FF5E89";
         }else{
           addMode = true;
           moveMode = false;
           deleteMode = false;
+          document.getElementById('drawInstruction').style.display = 'block';
+          renderer.setClearColor(0xe8f0f1);
           document.getElementById('add').style.background = "#00CCFF";
           document.getElementById('move').style.background = "#FF5E89";
           document.getElementById('delete').style.background = "#FF5E89";

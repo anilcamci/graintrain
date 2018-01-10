@@ -46,6 +46,7 @@ body{
   position: absolute;
   width: 100%;
   top: 2%;
+  display: none;
 }
 
 .slider {
@@ -54,7 +55,7 @@ body{
   width: 20%;
   height: 7px;
   border-radius: 5px;
-  background: #d5d5d5;
+  background: #AAEEFF;
   outline: none;
   opacity: 0.7;
   -webkit-transition: .2s;
@@ -81,4 +82,33 @@ body{
   border-radius: 50%;
   background: #ff5e89;
   cursor: pointer;
+}
+
+.sliderLabel{
+  top: 10px;
+  position:absolute;
+  text-align: center;
+  vertical-align: middle;
+  font-family:helvetica;
+  font-weight: bold;
+  font-size: 20px;
+  color:#00CCFF;
+}
+
+.instructionLabel{
+  line-height: 2px;
+  padding: 10px;
+  /* border-radius: 20%; */
+  position:absolute;
+  text-align: left;
+  /* vertical-align: middle; */
+  font-family:helvetica;
+  font-weight: bold;
+  font-size: 14px;
+  bottom: 10%;
+  left: 18.5%;
+  display:none;
+  color: #FFFFFF;
+  background-color: #00CCFF;
+  opacity: 0.6;
 }
