@@ -184,9 +184,9 @@
         container.addEventListener( 'mousedown', onMouseDown, false );
         container.addEventListener( 'mouseup', onMouseUp, false );
         container.addEventListener( 'mousemove', onMouseMove, false );
-        document.body.addEventListener( 'touchstart', onTouchStart, false);
-        document.body.addEventListener( 'touchmove', onTouchMove, false);
-        document.body.addEventListener( 'touchend', onTouchEnd, false);
+        container.addEventListener( 'touchstart', onTouchStart, false);
+        container.addEventListener( 'touchmove', onTouchMove, false);
+        container.addEventListener( 'touchend', onTouchEnd, false);
         window.addEventListener( 'resize', onWindowResize, false );
 
         // fileInput.addEventListener('click', function(){
