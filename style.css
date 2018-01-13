@@ -49,10 +49,11 @@ body{
   position: absolute;
   width: 100%;
   top: 2%;
-  display: none;
+  /* display: none; */
 }
 
 .slider {
+  touch-action: auto;
   position: absolute;
   -webkit-appearance: none;
   width: 15%;
