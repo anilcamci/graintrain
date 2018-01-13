@@ -46,13 +46,13 @@ body{
   position: absolute;
   width: 100%;
   top: 2%;
-  display: none;
+  /* display: none; */
 }
 
 .slider {
   position: absolute;
   -webkit-appearance: none;
-  width: 20%;
+  width: 15%;
   height: 7px;
   border-radius: 5px;
   background: #AAEEFF;

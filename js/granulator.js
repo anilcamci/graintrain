@@ -27,7 +27,7 @@ function grain(intersectedBlock) {
 	if(this.release < 0){
 		this.release = 0.1;
 	}
-	this.spread = spread;
+	this.spread = highlightRange / 20.;
 
 	this.randomoffset = Math.max((Math.random() * this.spread) - (this.spread / 2), 0);
 

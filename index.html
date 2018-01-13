@@ -20,14 +20,16 @@
     <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE </P> & DRAW A WAVEFORM</div>
 
     <div id="slidecontainer">
-      <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider" style="left:3%;">
-      <div class="sliderLabel" style="left:3.3%;">pitch</div>
-      <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:26%;">
-      <div class="sliderLabel" style="left:26.3%;">size</div>
-      <input type="range" min="1" max="100" value="60" class="slider" id="volumeSlider" style="left:49%;">
-      <div class="sliderLabel" style="left:49.3%;">volume</div>
-      <input type="range" min="1" max="100" value="80" class="slider" id="densitySlider" style="left:72%;">
-      <div class="sliderLabel" style="left:72.3%;">density</div>
+      <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider" style="left:2.5%;">
+      <div class="sliderLabel" style="left:2.8%;">pitch</div>
+      <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:22%;">
+      <div class="sliderLabel" style="left:22.3%;">size</div>
+      <input type="range" min="1" max="100" value="60" class="slider" id="volumeSlider" style="left:41.5%;">
+      <div class="sliderLabel" style="left:41.8%;">volume</div>
+      <input type="range" min="1" max="100" value="80" class="slider" id="densitySlider" style="left:61%;">
+      <div class="sliderLabel" style="left:61.3%;">density</div>
+      <input type="range" min="1" max="10" value="4" class="slider" id="rangeSlider" style="left:80.5%;">
+      <div class="sliderLabel" style="left:80.8%;">range</div>
     </div>
 
     <input type="file" id="audio-file">
@@ -89,6 +91,10 @@
 
       densitySlider.oninput = function() {
         density = densitySlider.value / 50;
+      }
+
+      rangeSlider.oninput = function() {
+        highlightRange = rangeSlider.value / 1;
       }
 
       init();
