@@ -53,7 +53,7 @@ body{
 }
 
 .slider {
-  touch-action: auto;
+  /* touch-action: auto; */
   position: absolute;
   -webkit-appearance: none;
   width: 15%;
