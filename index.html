@@ -26,10 +26,10 @@
       <div class="sliderLabel" style="left:22.3%;">size</div>
       <input type="range" min="1" max="100" value="60" class="slider" id="volumeSlider" style="left:41.5%;">
       <div class="sliderLabel" style="left:41.8%;">volume</div>
-      <input type="range" min="1" max="100" value="80" class="slider" id="densitySlider" style="left:61%;">
+      <input type="range" min="30" max="100" value="80" class="slider" id="densitySlider" style="left:61%;">
       <div class="sliderLabel" style="left:61.3%;">density</div>
-      <input type="range" min="1" max="10" value="4" class="slider" id="rangeSlider" style="left:80.5%;">
-      <div class="sliderLabel" style="left:80.8%;">range</div>
+      <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider" style="left:80.5%;">
+      <div class="sliderLabel" style="left:80.8%;">spread</div>
     </div>
 
     <input type="file" id="audio-file">
@@ -93,8 +93,8 @@
         density = densitySlider.value / 50;
       }
 
-      rangeSlider.oninput = function() {
-        highlightRange = rangeSlider.value / 1;
+      spreadSlider.oninput = function() {
+        highlightRange = spreadSlider.value / 1;
       }
 
       init();

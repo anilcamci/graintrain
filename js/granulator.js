@@ -27,11 +27,14 @@ function grain(intersectedBlock) {
 	if(this.release < 0){
 		this.release = 0.1;
 	}
-	this.spread = highlightRange / 20.;
+	this.spread = highlightRange * 10 / intersectedBlock.parent.children.length;
 
-	this.randomoffset = Math.max((Math.random() * this.spread) - (this.spread / 2), 0);
+	var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+	this.randomoffset = plusOrMinus * Math.random() * this.spread;
+	this.playhead = Math.min(Math.max(this.offset + this.randomoffset, 0), this.source.buffer.duration);
+	// Math.max((Math.random() * this.spread) - (this.spread / 2), 0);
 
-	this.source.start(this.now, this.offset + this.randomoffset, this.attack + this.release);
+	this.source.start(this.now, this.playhead, this.attack + this.release);
 	this.gain.gain.setValueAtTime(0.0, this.now);
 	this.gain.gain.linearRampToValueAtTime(this.amp, this.now + this.attack);
 	this.gain.gain.linearRampToValueAtTime(0.0, this.now + (this.attack +  this.release) );
