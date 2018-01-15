@@ -2,7 +2,7 @@ let attack = 0.40;
 let release = 0.40;
 let density = 0.85;
 let spread = 0.2;
-let trans = 1;
+let pitch = 1;
 let amp = 0.3;
 
 function grain(intersectedBlock) {
@@ -10,7 +10,7 @@ function grain(intersectedBlock) {
 	this.now = context.currentTime;
 
 	this.source = context.createBufferSource();
-	this.source.playbackRate.value = this.source.playbackRate.value * trans;
+	this.source.playbackRate.value = this.source.playbackRate.value * pitch;
 	this.source.buffer = intersectedBlock.parent.buffer;
 
 	this.gain = context.createGain();

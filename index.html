@@ -24,9 +24,9 @@
       <div class="sliderLabel" style="left:2.8%;">pitch</div>
       <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:22%;">
       <div class="sliderLabel" style="left:22.3%;">size</div>
-      <input type="range" min="1" max="100" value="60" class="slider" id="volumeSlider" style="left:41.5%;">
+      <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider" style="left:41.5%;">
       <div class="sliderLabel" style="left:41.8%;">volume</div>
-      <input type="range" min="30" max="100" value="80" class="slider" id="densitySlider" style="left:61%;">
+      <input type="range" min="30" max="100" value="50" class="slider" id="densitySlider" style="left:61%;">
       <div class="sliderLabel" style="left:61.3%;">density</div>
       <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider" style="left:80.5%;">
       <div class="sliderLabel" style="left:80.8%;">spread</div>
@@ -67,17 +67,17 @@
       window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
 
       var pitchSlider = document.getElementById("pitchSlider");
-      trans = pitchSlider.value / 50;
+      pitch = pitchSlider.value / 50;
       var sizeSlider = document.getElementById("sizeSlider");
       attack = sizeSlider.value / 200;
       release = sizeSlider.value / 200;
       var volumeSlider = document.getElementById("volumeSlider");
       amp = volumeSlider.value / 200;
       var densitySlider = document.getElementById("densitySlider");
-      density = pitchSlider.value / 50;
+      density = densitySlider.value / 50;
 
       pitchSlider.oninput = function() {
-        trans = pitchSlider.value / 50;
+        pitch = pitchSlider.value / 50;
       }
 
       sizeSlider.oninput = function() {
