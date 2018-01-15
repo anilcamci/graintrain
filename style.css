@@ -77,6 +77,8 @@ body{
   height: 25px;
   border-radius: 50%;
   background: #ff5e89;
+  border-color: #ff5e89;
+  outline: none;
   cursor: pointer;
 }
 
@@ -85,6 +87,8 @@ body{
   height: 25px;
   border-radius: 50%;
   background: #ff5e89;
+  border-color: #ff5e89;
+  outline: none;
   cursor: pointer;
 }
 
