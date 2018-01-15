@@ -155,7 +155,7 @@ trajectory = {                   // live drawing by mouse
 	},
 
 	createObject: function() {
-		var points = simplify(this.points, 50, true);
+		var points = simplify(this.points, 10, true);
 		var object;
 
 		object = new SoundTrajectory(points);
