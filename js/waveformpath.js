@@ -17,29 +17,6 @@ var WaveformPath = function(points) {
 	this.renderPath = function() {
 
 		var points = this.splinePoints;
-		this.pointObjects = (function() {
-
-			var sphere = new THREE.SphereGeometry(3);
-			var sphereMat = new THREE.MeshBasicMaterial( { color:0x00ccff } );
-
-			var collider = new THREE.SphereGeometry(15);
-			var colliderMat = new THREE.MeshBasicMaterial( {color:0x00ccff, transparent:true, opacity:0});
-			var colliderMesh = new THREE.Mesh( collider, colliderMat );
-
-			var pointObjects = [];
-			points.forEach(function(point) {
-				var sphereMesh = new THREE.Mesh( sphere, sphereMat.clone() );
-				var group = new THREE.Object3D();
-
-				group.add(sphereMesh, colliderMesh.clone());
-				group.position.x = point.x,
-				group.position.y = point.y;
-
-				pointObjects.push(group);
-			})
-
-			return pointObjects;
-		})();
 
 		this.spline = new THREE.CatmullRomCurve3(this.splinePoints);
 		this.spline.type = 'centripetal';
@@ -68,10 +45,6 @@ WaveformPath.prototype = {
 
 	get objects() {
 		return this.spline.mesh;
-	},
-
-	addToScene: function(scene) {
-	    // scene.add(this.spline.mesh);
 	},
 
 	removeFromScene: function(scene) {
@@ -115,15 +88,14 @@ WaveformPath.prototype = {
 		var scene = this.spline.mesh.parent;
 		this.removeFromScene(scene);
 		this.renderPath();
-		this.addToScene(scene);
 	}
 }
 
 
-waveformPath = {                   // live drawing by mouse
-	scene: null,              //    the scene
-	points: [],               //    points on path
-	lines: [],                //    lines on the scene
+waveformPath = {
+	scene: null,
+	points: [],
+	lines: [],
 	lastPoint: new THREE.Vector3(),
 
 	setScene: function(scene) {
@@ -162,7 +134,6 @@ waveformPath = {                   // live drawing by mouse
 
 		this.clear();
 
-		if (this.scene && object) object.addToScene(this.scene);
 		return object;
 	},
 
