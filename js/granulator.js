@@ -1,3 +1,6 @@
+// Granular processing is partly based on Ehsan Ziya's great
+// work on an HTML5 granulator found at: https://github.com/zya/granular
+
 let attack = 0.40;
 let release = 0.40;
 let density = 0.85;
@@ -18,7 +21,7 @@ function grain(intersectedBlock) {
 	this.gain.connect(master);
 
 	this.posX = intersectedBlock.index;
-	this.offset = this.posX * (this.source.buffer.duration / intersectedBlock.parent.children.length); //pixels to seconds
+	this.offset = this.posX * (this.source.buffer.duration / intersectedBlock.parent.children.length);
 	this.amp = amp;
 
 	this.attack = attack * 0.4;
@@ -32,7 +35,6 @@ function grain(intersectedBlock) {
 	var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
 	this.randomoffset = plusOrMinus * Math.random() * this.spread;
 	this.playhead = Math.min(Math.max(this.offset + this.randomoffset, 0), this.source.buffer.duration);
-	// Math.max((Math.random() * this.spread) - (this.spread / 2), 0);
 
 	this.source.start(this.now, this.playhead, this.attack + this.release);
 	this.gain.gain.setValueAtTime(0.0, this.now);
@@ -48,7 +50,7 @@ function grain(intersectedBlock) {
 }
 
 function voice(){
-	//this.toichID = id;
+
 }
 
 voice.prototype.playVoice = function(intersectedBlock){
@@ -56,19 +58,17 @@ voice.prototype.playVoice = function(intersectedBlock){
 	this.grains = [];
 	this.graincount = 0;
 
-	var that = this; //for scope issues
+	var that = this;
 	this.play = function(){
-		//create new grain
-		var g = new grain(intersectedBlock);
 
-		//push to the array
+		var g = new grain(intersectedBlock);
 		that.grains[that.graincount] = g;
 		that.graincount+=1;
 
 		if(that.graincount > 20){
 			that.graincount = 0;
 		}
-		//next interval
+
 		this.dens = mapRange(density,1,0,0,1);
 		this.interval = (this.dens * 500) + 70;
 		that.timeout = setTimeout( that.play, this.interval );
@@ -83,28 +83,3 @@ voice.prototype.stopVoice = function(){
 function mapRange(value, low1, high1, low2, high2) {
 	return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
-
-// function createAudioContext (desiredSampleRate) {
-// 	var AudioCtor = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
-//
-// 	desiredSampleRate = typeof desiredSampleRate === 'number' ? desiredSampleRate : 44100;
-// 	var context_ = new AudioCtor();
-//
-// 	// Check if hack is necessary. Only occurs in iOS6+ devices
-// 	// and only when you first boot the iPhone, or play a audio/video
-// 	// with a different sample rate
-// 	if (/(iPhone|iPad)/i.test(navigator.userAgent) && context_.sampleRate !== desiredSampleRate) {
-//
-// 		var buffer = context_.createBuffer(1, 1, desiredSampleRate);
-// 		var dummy = context_.createBufferSource();
-// 		dummy.buffer = buffer;
-// 		dummy.connect(context_.destination);
-// 		dummy.start(0);
-// 		dummy.disconnect();
-//
-// 		context_.close(); // dispose old context
-// 		context_ = new AudioCtor();
-// 	}
-//
-// 	return context_;
-// }

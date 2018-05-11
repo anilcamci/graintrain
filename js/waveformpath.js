@@ -1,6 +1,6 @@
-var SoundTrajectory = function(points) {
+var WaveformPath = function(points) {
 
-	this.type = 'SoundTrajectory';
+	this.type = 'WaveformPath';
 
 	this.splinePoints = points;
 	this.pointObjects;
@@ -62,9 +62,9 @@ var SoundTrajectory = function(points) {
 }
 
 
-SoundTrajectory.prototype = {
+WaveformPath.prototype = {
 
-	constructor: SoundTrajectory,
+	constructor: WaveformPath,
 
 	get objects() {
 		return this.spline.mesh;
@@ -106,12 +106,12 @@ SoundTrajectory.prototype = {
 		}
 
 		this.splinePoints.splice(minPoint, 0, position);
-		this.updateTrajectory();
+		this.updatePath();
 		this.selectPoint(this.pointObjects[minPoint]);
 
 	},
 
-	updateTrajectory: function() {
+	updatePath: function() {
 		var scene = this.spline.mesh.parent;
 		this.removeFromScene(scene);
 		this.renderPath();
@@ -120,7 +120,7 @@ SoundTrajectory.prototype = {
 }
 
 
-trajectory = {                   // live drawing by mouse
+waveformPath = {                   // live drawing by mouse
 	scene: null,              //    the scene
 	points: [],               //    points on path
 	lines: [],                //    lines on the scene
@@ -158,7 +158,7 @@ trajectory = {                   // live drawing by mouse
 		var points = simplify(this.points, 10, true);
 		var object;
 
-		object = new SoundTrajectory(points);
+		object = new WaveformPath(points);
 
 		this.clear();
 

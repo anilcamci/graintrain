@@ -6,12 +6,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <script src="js/three.min.js"></script>
-    <script src="js/SoundTrajectory.js"></script>
+    <script src="js/waveformpath.js"></script>
     <script src="js/simplify.js"></script>
     <script src="js/granulator.js"></script>
     <script src="js/mouse.js"></script>
     <script src="js/touch.js"></script>
-    <!-- <script src="js/OrthographicTrackballControls.js"></script> -->
   </head>
 
   <body>
@@ -41,11 +40,11 @@
     <script>
 
       var data;
-      var trajectories = [];
       var voices = [];
+      var waveformPaths = [];
 
       var container, controls, camara, scene, renderer;
-      var trajectory;
+      var waveformPath;
 
       var intersected;
       var previouslyIntersected = [];
@@ -173,7 +172,7 @@
         var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
         var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
         floor = new THREE.Mesh( geometry, material );
-        trajectory.setScene(scene);
+        waveformPath.setScene(scene);
 
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setClearColor(0xf0f0f0);
@@ -293,14 +292,6 @@
 
         renderer.render(scene, camera);
       }
-
-      // function onMouseScroll(event){
-      //
-      //   if(camera.zoom > 0.5 && camera.zoom < 2.0){
-      //     scene.children = [];
-      //     for(var i in trajectories) drawWave(trajectories[i]);
-      //   }
-      // }
 
     </script>
     </div>

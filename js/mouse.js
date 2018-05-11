@@ -6,7 +6,7 @@ function onMouseDown(event){
 
     let scaledPointer = getScaledPointer(event);
 
-    if( addMode ) trajectory.beginAt(getInteractionPoint(scaledPointer));
+    if( addMode ) waveformPath.beginAt(getInteractionPoint(scaledPointer));
 
     if( moveMode && intersected){
       draggedObject = intersected.parent;
@@ -28,8 +28,8 @@ function onMouseUp(event){
     mousePressed = false;
 
     if(addMode){
-      var obj = trajectory.createObject();
-      trajectories.push(obj.spline);
+      var obj = waveformPath.createObject();
+      waveformPaths.push(obj.spline);
       drawWave(obj.spline);
       toggleAddMode();
     }
@@ -40,7 +40,7 @@ function onMouseMove(event){
   if(!isTouchInterface){
     let scaledPointer = getScaledPointer(event);
 
-    if( mousePressed && addMode) trajectory.addPoint(getInteractionPoint(scaledPointer));
+    if( mousePressed && addMode) waveformPath.addPoint(getInteractionPoint(scaledPointer));
 
     interactWithWave(scaledPointer);
   }

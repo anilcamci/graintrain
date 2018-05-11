@@ -21,7 +21,7 @@ function onTouchStart(event){
     touches.push(event.changedTouches[i])
 
     if(addMode){
-      trajectory.beginAt(getInteractionPoint(scaledPointer));
+      waveformPath.beginAt(getInteractionPoint(scaledPointer));
     }
 
     if(moveMode){
@@ -58,8 +58,8 @@ function onTouchEnd(event){
   }
 
   if(addMode){
-    var obj = trajectory.createObject();
-    trajectories.push(obj.spline);
+    var obj = waveformPath.createObject();
+    waveformPaths.push(obj.spline);
     drawWave(obj.spline);
     toggleAddMode();
   }
@@ -84,7 +84,7 @@ function onTouchMove(event){
     if(addMode){
       var touch = event.changedTouches[0];
       let scaledPointer = getScaledPointer(touch);
-      trajectory.addPoint(getInteractionPoint(scaledPointer));
+      waveformPath.addPoint(getInteractionPoint(scaledPointer));
     }
   }
 }
