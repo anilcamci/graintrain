@@ -156,16 +156,6 @@
         camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 100000 );
         camera.position.set(0, 0, 2000);
 
-        // controls = new THREE.OrthographicTrackballControls( camera );
-        // controls.rotateSpeed = 0.0;
-        // controls.zoomSpeed = 1.2;
-        // controls.panSpeed = 0.8;
-        // controls.noZoom = false;
-        // controls.noPan = false;
-        // controls.staticMoving = true;
-        // controls.dynamicDampingFactor = 0.3;
-        // controls.keys = [ 65, 83, 68 ];
-
 				scene = new THREE.Scene();
         scene.add(camera);
 
@@ -187,15 +177,6 @@
         container.addEventListener( 'touchmove', onTouchMove, false);
         container.addEventListener( 'touchend', onTouchEnd, false);
         window.addEventListener( 'resize', onWindowResize, false );
-
-        // fileInput.addEventListener('click', function(){
-        //
-        //   document.body.onfocus = function() { setTimeout(function(){
-        //     if(fileInput.value.length == 0){
-        //       if(addMode) toggleAddMode();
-        //     }
-        //   }, 100);}
-        // });
 
         context = new AudioContext();
         master = context.createGain();
@@ -283,7 +264,6 @@
       }
 
       function animate() {
-        // controls.update();
         requestAnimationFrame( animate );
         render();
       }
