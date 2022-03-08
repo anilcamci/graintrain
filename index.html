@@ -19,23 +19,28 @@
     <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE </P> AND DRAW A PATH</div>
 
     <div id="slideContainer">
-      <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider" style="left:2.5%;">
-      <div class="sliderLabel" style="left:2.8%;">pitch</div>
-      <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:22%;">
-      <div class="sliderLabel" style="left:22.3%;">size</div>
-      <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider" style="left:41.5%;">
-      <div class="sliderLabel" style="left:41.8%;">volume</div>
-      <input type="range" min="30" max="100" value="50" class="slider" id="densitySlider" style="left:61%;">
-      <div class="sliderLabel" style="left:61.3%;">density</div>
-      <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider" style="left:80.5%;">
-      <div class="sliderLabel" style="left:80.8%;">spread</div>
+      <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider" style="left:2%;">
+      <div class="sliderLabel" style="left:2%;">pitch</div>
+      <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:16%;">
+      <div class="sliderLabel" style="left:16.3%;">size</div>
+      <input type="range" min="30" max="60" value="50" class="slider" id="densitySlider" style="left:30%;">
+      <div class="sliderLabel" style="left:30.3%;">density</div>
+      <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider" style="left:44%;">
+      <div class="sliderLabel" style="left:44.3%;">spread</div>
+      <input type="range" min="0" max="100" value="100" class="slider" id="brightnessSlider" style="left:58%;">
+      <div class="sliderLabel" style="left:58.3%;">brightness</div>
+      <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider" style="left:72%;">
+      <div class="sliderLabel" style="left:72.3%;">reverb</div>
+      <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider" style="left:86%;">
+      <div class="sliderLabel" style="left:86.3%;">volume</div>
     </div>
 
     <input type="file" id="audio-file">
 
-    <div class="button" id="add" style="left:25%;" onclick="toggleAddMode()"><span>+</span></div>
-    <div class="button" id="move" style="left:50%;" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
-    <div class="button" id="delete" style="left:75%;" onclick="toggleDeleteMode()"><span>–</span></div>
+    <div class="button" id="add" style="left:20%;" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
+    <div class="button" id="move" style="left:40%;" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
+    <div class="button" id="delete" style="left:60%;" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
+    <div class="button" id="reset" style="left:80%;" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
 
     <script>
 
@@ -47,6 +52,7 @@
       var waveformPath;
 
       var intersected;
+      var currentlyIntersecting;
       var previouslyIntersected = [];
       var draggedObject = null;
 
@@ -64,6 +70,8 @@
       var currentBuffer;
       var context, master;
       window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
+      var lowPassFilter;
+      var reverb, dryGain, wetGain;
 
       var pitchSlider = document.getElementById("pitchSlider");
       pitch = pitchSlider.value / 50;
@@ -74,6 +82,8 @@
       amp = volumeSlider.value / 200;
       var densitySlider = document.getElementById("densitySlider");
       density = densitySlider.value / 50;
+      var brightnessSlider = document.getElementById("brightnessSlider");
+      filterCutOff = logarithmicSlider(brightnessSlider.value);
 
       pitchSlider.oninput = function() {
         pitch = pitchSlider.value / 50;
@@ -96,10 +106,37 @@
         highlightRange = spreadSlider.value / 1;
       }
 
+      brightnessSlider.oninput = function() {
+        lowPassFilter.frequency.value = logarithmicSlider(brightnessSlider.value);
+      }
+
+      reverbSlider.oninput = function() {
+        dryGain.gain.value = 1 - reverbSlider.value / 100;
+        wetGain.gain.value = reverbSlider.value / 100;
+      }
+
+      var loadImpulse = function(){
+
+        var request = new XMLHttpRequest();
+        request.open( "GET", 'assets/ir.wav', true );
+        request.responseType = "arraybuffer";
+        request.onload = function (){
+          context.decodeAudioData( request.response, function ( buffer ) {
+            reverb.buffer = buffer;
+          }, function ( e ) {
+            //console.log( e );
+          } );
+        };request.onerror = function ( e ){
+            //console.log( e );
+          };
+        request.send();
+      };
+
       init();
       render();
 
       function toggleAddMode(){
+
         if(addMode){
           addMode = false;
           document.getElementById('drawInstruction').style.display = 'none';
@@ -120,6 +157,7 @@
       }
 
       function toggleMoveMode() {
+
         if(moveMode){
           moveMode = false;
           document.getElementById('move').style.background = "#FF5E89";
@@ -135,6 +173,7 @@
       }
 
       function toggleDeleteMode(){
+
         if(deleteMode){
           deleteMode = false;
           document.getElementById('delete').style.background = "#FF5E89";
@@ -147,6 +186,56 @@
           document.getElementById('move').style.background = "#FF5E89";
         }
 
+      }
+
+      function reset(){
+        for(i in voices){
+          voices[i].stopVoice();
+        }
+        voices = [];
+        context.close();
+        context = new AudioContext();
+
+        reverb = context.createConvolver();
+        loadImpulse();
+        dryGain = context.createGain();
+        wetGain = context.createGain();
+        dryGain.gain.value = 1 - reverbSlider.value / 100;;
+        wetGain.gain.value = reverbSlider.value / 100;;
+
+        lowPassFilter = context.createBiquadFilter();
+        lowPassFilter.type = "lowpass";
+        lowPassFilter.frequency.value = logarithmicSlider(brightnessSlider.value);
+
+        master = context.createGain();
+        master.connect(lowPassFilter);
+        lowPassFilter.connect(dryGain);
+        dryGain.connect(context.destination);
+
+        lowPassFilter.connect(wetGain);
+        wetGain.connect(reverb);
+        reverb.connect(context.destination);
+
+        fileInput.addEventListener('change', function() {
+          let reader = new FileReader();
+          reader.onload = function(ev) {
+            context.decodeAudioData(ev.target.result, function(buffer) {
+              currentBuffer = buffer;
+              data = buffer.getChannelData(0);
+            });
+          };
+          reader.readAsArrayBuffer(this.files[0]);
+        }, false);
+      }
+
+      function logarithmicSlider(position) {
+
+        var minPosition = 0;
+        var maxPosition = 100;
+        var minValue = Math.log(100);
+        var maxValue = Math.log(20000);
+        var scale = (maxValue-minValue) / (maxPosition-minPosition);
+        return Math.exp(minValue + scale*(position-minPosition));
       }
 
       function init() {
@@ -174,14 +263,32 @@
         container.addEventListener( 'mousedown', onMouseDown, false );
         container.addEventListener( 'mouseup', onMouseUp, false );
         container.addEventListener( 'mousemove', onMouseMove, false );
-        container.addEventListener( 'touchstart', onTouchStart, false);
-        container.addEventListener( 'touchmove', onTouchMove, false);
+        container.addEventListener( 'touchstart', onTouchStart, false );
+        container.addEventListener( 'touchmove', onTouchMove, false );
         container.addEventListener( 'touchend', onTouchEnd, false);
         window.addEventListener( 'resize', onWindowResize, false );
 
         context = new AudioContext();
+
+        reverb = context.createConvolver();
+        loadImpulse();
+        dryGain = context.createGain();
+        wetGain = context.createGain();
+        dryGain.gain.value = 1;
+        wetGain.gain.value = 0;
+
+        lowPassFilter = context.createBiquadFilter();
+        lowPassFilter.type = "lowpass";
+        lowPassFilter.frequency.value = 20000;
+
         master = context.createGain();
-        master.connect(context.destination);
+        master.connect(lowPassFilter);
+        lowPassFilter.connect(dryGain);
+        dryGain.connect(context.destination);
+
+        lowPassFilter.connect(wetGain);
+        wetGain.connect(reverb);
+        reverb.connect(context.destination);
 
         fileInput.addEventListener('change', function() {
           let reader = new FileReader();
@@ -253,7 +360,7 @@
         var intersects = raycaster.intersectObject( floor );
 
         if(intersects.length > 0) {
-            return intersects[0].point;
+          return intersects[0].point;
         }
       }
 
@@ -265,6 +372,7 @@
       }
 
       function animate() {
+
         requestAnimationFrame( animate );
         render();
       }

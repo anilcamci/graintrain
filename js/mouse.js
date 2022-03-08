@@ -8,15 +8,16 @@ function onMouseDown(event){
 
     if( addMode ) waveformPath.beginAt(getInteractionPoint(scaledPointer));
 
-    if( moveMode && intersected){
+    if( moveMode && currentlyIntersecting){
       draggedObject = intersected.parent;
       setInteractionOffset(getInteractionPoint(scaledPointer));
     }
 
-    if( deleteMode ){
+    if( deleteMode && currentlyIntersecting ){
       scene.remove(intersected.parent);
       intersected.voice.stopVoice();
       previouslyIntersected = [];
+      toggleDeleteMode();
     }
   }
 }
@@ -40,7 +41,7 @@ function onMouseMove(event){
   if(!isTouchInterface){
     let scaledPointer = getScaledPointer(event);
 
-    if( mousePressed && addMode) waveformPath.addPoint(getInteractionPoint(scaledPointer));
+    if( mousePressed && addMode ) waveformPath.addPoint(getInteractionPoint(scaledPointer));
 
     interactWithWave(scaledPointer);
   }
@@ -54,7 +55,7 @@ function interactWithWave(scaledPointer){
   raycaster.setFromCamera( scaledPointer, camera );
   var intersects = raycaster.intersectObjects(scene.children, true);
 
-  if( moveMode && mousePressed ){
+  if( moveMode && mousePressed && currentlyIntersecting){
     const dx = interactionPoint.x - interactionOffset.x;
     const dy = interactionPoint.y - interactionOffset.y;
     interactionOffset.x = interactionPoint.x;
@@ -78,9 +79,10 @@ function interactWithWave(scaledPointer){
 
     // Paint the newly interacted objects
     for(var l = 0; l < intersects.length; l++){
-
+      currentlyIntersecting = true;
       intersected = intersects[l].object;
       intersected.voice = new voice();
+      voices.push(intersected.voice);
       if(!deleteMode) intersected.voice.playVoice(intersected);
 
       for( var i = -highlightRange; i < highlightRange + 1; i++){
@@ -93,7 +95,8 @@ function interactWithWave(scaledPointer){
       previouslyIntersected[l] = intersected;
     }
 
-    intersectes = [];
+    //intersects = [];
+    if(intersects.length == 0) currentlyIntersecting = false;
   }
 }
 

@@ -7,6 +7,7 @@ let density = 0.85;
 let spread = 0.2;
 let pitch = 1;
 let amp = 0.3;
+let lpf = 1;
 
 function grain(intersectedBlock) {
 

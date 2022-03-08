@@ -121,10 +121,12 @@ function touchWave(touch){
 
       if( deleteMode ){
         scene.remove(intersected.parent);
+        toggleDeleteMode();
         intersected.voice.stopVoice();
       }else{
 
         intersected.voice = new voice();
+        voices.push(intersected.voice);
         intersected.voice.playVoice(intersected);
 
         for( var i = -highlightRange; i < highlightRange + 1; i++){
