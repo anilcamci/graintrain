@@ -61,15 +61,16 @@ body{
 #sliderArray {
   position: absolute;
   width: 100%;
-  top: 6.5%;
+  top: 65px;
 }
 
 .sliderContainer{
+  /* border-style: solid; */
   transform: rotate(-90deg);
   position: relative;
   margin: auto;
   float: left;
-  width: calc(100% / 7.3);
+  width: calc(100% / 7.28);
 }
 
 .slider {
