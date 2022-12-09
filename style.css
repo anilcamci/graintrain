@@ -14,9 +14,16 @@ body{
   display: none;
 }
 
-.buttonContainer{
+.buttonArray{
   position: absolute;
+  width: 100%;
   bottom: 2%;
+}
+
+.buttonContainer{
+  position: relative;
+  float: left;
+  width: calc(100% / 4.1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,7 +32,6 @@ body{
 
 .button {
   display: inline-block;
-  /* position: relative; */
   margin: auto;
   width: 50px;
   height: 50px;
@@ -55,20 +61,21 @@ body{
 #sliderArray {
   position: absolute;
   width: 100%;
-  top: 65px;
+  top: 6.5%;
 }
 
 .sliderContainer{
-  position: absolute;
+  transform: rotate(-90deg);
+  position: relative;
+  margin: auto;
+  float: left;
+  width: calc(100% / 7.3);
 }
 
 .slider {
-  transform: rotate(-90deg);
-  position: relative;
-  float: left;
+  margin: auto;
   -webkit-appearance: none;
-  width: 120px;
-  /* height: 10px; */
+  width: 140px;
   border-radius: 15px;
   background: #AAEEFF;
   outline: none;
@@ -105,26 +112,21 @@ body{
 }
 
 .sliderLabel{
-  /* top: -20px; */
-  transform: rotate(-90deg);
-  left: -40px;
+  display: inline-block;
   position:relative;
-  text-align: right;
-  /* float: right; */
-  font-family:helvetica;
+  left: 5px;
+  margin: auto;
+  font-family: helvetica;
   font-weight: bold;
   font-size: 16px;
   color:#00CCFF;
-  /* z-index: -1; */
 }
 
 .instructionLabel{
   line-height: 2px;
   padding: 10px;
-  /* border-radius: 20%; */
   position:absolute;
   text-align: center;
-  /* vertical-align: middle; */
   font-family:helvetica;
   font-weight: bold;
   font-size: 14px;

@@ -20,62 +20,70 @@
 
     <div id="sliderArray">
       <div class="sliderContainer">
-        <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider">
         <div class="sliderLabel">PITCH</div>
+        <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider">
+        
       </div>
 
-      <div class="sliderContainer" style="left:14%;">
-        <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">
+      <div class="sliderContainer">
         <div class="sliderLabel">SIZE</div>
+        <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">
+        
       </div>
 
-      <div class="sliderContainer" style="left:28%;">
-        <input type="range" min="30" max="60" value="50" class="slider" id="densitySlider">
+      <div class="sliderContainer">
         <div class="sliderLabel">DENSITY</div>
+        <input type="range" min="30" max="60" value="50" class="slider" id="densitySlider">
+        
       </div>
 
-      <div class="sliderContainer" style="left:42%;">
-        <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">
+      <div class="sliderContainer">
         <div class="sliderLabel">SPREAD</div>
+        <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">
+        
       </div>
 
-      <div class="sliderContainer" style="left:56%;">
-        <input type="range" min="0" max="100" value="100" class="slider" id="brightnessSlider">
+      <div class="sliderContainer">
         <div class="sliderLabel">BRIGHTNESS</div>
+        <input type="range" min="0" max="100" value="100" class="slider" id="brightnessSlider">
+       
       </div>
 
-      <div class="sliderContainer" style="left:70%;">
-        <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider">
+      <div class="sliderContainer">
         <div class="sliderLabel">REVERB</div>
+        <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider">
+        
       </div>
 
-      <div class="sliderContainer" style="left:84%;">
-        <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider">
+      <div class="sliderContainer">
         <div class="sliderLabel">VOLUME</div>
+        <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider">
+        
       </div>
 
     </div>
 
     <input type="file" id="audio-file">
+    <div class="buttonArray">
+      <div class="buttonContainer">
+        <div class="buttonLabel">ADD</div>
+        <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
+      </div>
+      
+      <div class="buttonContainer">
+        <div class="buttonLabel">MOVE</div>
+        <div class="button" id="move" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
+      </div>
 
-    <div class="buttonContainer" style="left:17%;">
-      <div class="buttonLabel">ADD</div>
-      <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
-    </div>
-    
-    <div class="buttonContainer" style="left:37%;">
-      <div class="buttonLabel">MOVE</div>
-      <div class="button" id="move" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
-    </div>
-
-    <div class="buttonContainer" style="left:57%;">
-      <div class="buttonLabel">REMOVE</div>
-      <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
-    </div>
-    
-    <div class="buttonContainer" style="left:77%;">
-      <div class="buttonLabel">PANIC</div>
-      <div class="button" id="reset" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
+      <div class="buttonContainer">
+        <div class="buttonLabel">REMOVE</div>
+        <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
+      </div>
+      
+      <div class="buttonContainer">
+        <div class="buttonLabel">PANIC</div>
+        <div class="button" id="reset" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
+      </div>
     </div>
 
     <script>
