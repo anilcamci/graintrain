@@ -49,13 +49,28 @@ body{
 }
 
 .buttonLabel{
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   margin: auto;
   font-family:helvetica;
   font-weight: bold;
   font-size: 16px;
   color:#ff5e89;
   z-index: 1;
+}
+
+.instructionLabel{
+  line-height: 2px;
+  padding: 10px;
+  position:absolute;
+  text-align: center;
+  font-family:helvetica;
+  font-weight: bold;
+  font-size: 14px;
+  bottom: 110%;
+  display:none;
+  color: #FFFFFF;
+  background-color: #00CCFF;
+  opacity: 0.6;
 }
 
 #sliderArray {
@@ -114,27 +129,11 @@ body{
 
 .sliderLabel{
   display: inline-block;
-  position:relative;
+  position: relative;
   left: 5px;
   margin: auto;
   font-family: helvetica;
   font-weight: bold;
   font-size: 16px;
   color:#00CCFF;
-}
-
-.instructionLabel{
-  line-height: 2px;
-  padding: 10px;
-  position:absolute;
-  text-align: center;
-  font-family:helvetica;
-  font-weight: bold;
-  font-size: 14px;
-  bottom: 10%;
-  left: 12%;
-  display:none;
-  color: #FFFFFF;
-  background-color: #00CCFF;
-  opacity: 0.6;
 }

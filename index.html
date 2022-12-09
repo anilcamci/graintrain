@@ -16,49 +16,40 @@
   <body>
     <div id = "globalContainer">
 
-    <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE </P> AND DRAW A PATH</div>
-
     <div id="sliderArray">
       <div class="sliderContainer">
         <div class="sliderLabel">PITCH</div>
-        <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider">
-        
+        <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider">       
       </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel">SIZE</div>
-        <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">
-        
+        <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">        
       </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel">DENSITY</div>
         <input type="range" min="30" max="60" value="50" class="slider" id="densitySlider">
-        
       </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel">SPREAD</div>
-        <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">
-        
+        <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">        
       </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel">BRIGHTNESS</div>
-        <input type="range" min="0" max="100" value="100" class="slider" id="brightnessSlider">
-       
+        <input type="range" min="0" max="100" value="100" class="slider" id="brightnessSlider">     
       </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel">REVERB</div>
-        <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider">
-        
+        <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider">        
       </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel">VOLUME</div>
-        <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider">
-        
+        <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider">        
       </div>
 
     </div>
@@ -66,6 +57,7 @@
     <input type="file" id="audio-file">
     <div class="buttonArray">
       <div class="buttonContainer">
+        <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE </P> AND DRAW A PATH</div>
         <div class="buttonLabel">ADD</div>
         <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
       </div>
