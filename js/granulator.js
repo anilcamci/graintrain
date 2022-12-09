@@ -18,7 +18,7 @@ function grain(intersectedBlock) {
 	this.source.buffer = intersectedBlock.parent.buffer;
 
 	this.gain = context.createGain();
-  this.source.connect(this.gain);
+  	this.source.connect(this.gain);
 	this.gain.connect(master);
 
 	this.posX = intersectedBlock.index;
