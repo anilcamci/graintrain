@@ -18,33 +18,54 @@
 
     <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE </P> AND DRAW A PATH</div>
 
-    <div id="slideContainer">
-      <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider" style="left:2%;">
-      <div class="sliderLabel" style="left:4.5%;">PITCH</div>
-      <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider" style="left:16%;">
-      <div class="sliderLabel" style="left:18.5%;">SIZE</div>
-      <input type="range" min="30" max="60" value="50" class="slider" id="densitySlider" style="left:30%;">
-      <div class="sliderLabel" style="left:32.5%;">DENSITY</div>
-      <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider" style="left:44%;">
-      <div class="sliderLabel" style="left:46.5%;">SPREAD</div>
-      <input type="range" min="0" max="100" value="100" class="slider" id="brightnessSlider" style="left:58%;">
-      <div class="sliderLabel" style="left:60.5%;">BRIGHTNESS</div>
-      <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider" style="left:72%;">
-      <div class="sliderLabel" style="left:74.5%;">REVERB</div>
-      <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider" style="left:86%;">
-      <div class="sliderLabel" style="left:88.5%;">VOLUME</div>
+    <div id="sliderArray">
+      <div class="sliderContainer" style="left:2%;">
+        <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider">
+        <div class="sliderLabel" style="left:5px;">PITCH</div>
+      </div>
+
+      <div class="sliderContainer" style="left:16%;">
+        <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">
+        <div class="sliderLabel" style="left:5px;">SIZE</div>
+      </div>
+
+      <div class="sliderContainer" style="left:30%;">
+        <input type="range" min="1" max="100" value="50" class="slider" id="densitySlider">
+        <div class="sliderLabel" style="left:5px;">DENSITY</div>
+      </div>
+
+      <div class="sliderContainer" style="left:44%;">
+        <input type="range" min="1" max="100" value="50" class="slider" id="spreadSlider">
+        <div class="sliderLabel" style="left:5px;">SPREAD</div>
+      </div>
+
+      <div class="sliderContainer" style="left:58%;">
+        <input type="range" min="1" max="100" value="50" class="slider" id="brightnessSlider">
+        <div class="sliderLabel" style="left:5px;">BRIGHTNESS</div>
+      </div>
+
+      <div class="sliderContainer" style="left:72%;">
+        <input type="range" min="1" max="100" value="50" class="slider" id="reverbSlider">
+        <div class="sliderLabel" style="left:5px;">REVERB</div>
+      </div>
+
+      <div class="sliderContainer" style="left:86%;">
+        <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider">
+        <div class="sliderLabel" style="left:5px;">VOLUME</div>
+      </div>
+
     </div>
 
     <input type="file" id="audio-file">
 
     <div class="button" id="add" style="left:20%;" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
-    <div class="buttonLabel" style="left:23%;">ADD</div>
+    <div class="buttonLabel" style="left:20%;">ADD</div>
     <div class="button" id="move" style="left:40%;" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
-    <div class="buttonLabel" style="left:43%;">MOVE</div>
+    <div class="buttonLabel" style="left:40%;">MOVE</div>
     <div class="button" id="delete" style="left:60%;" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
-    <div class="buttonLabel" style="left:63%;">REMOVE</div>
+    <div class="buttonLabel" style="left:60%;">REMOVE</div>
     <div class="button" id="reset" style="left:80%;" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
-    <div class="buttonLabel" style="left:83%;">PANIC</div>
+    <div class="buttonLabel" style="left:80%;">PANIC</div>
 
     <script>
 
