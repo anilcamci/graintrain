@@ -24,7 +24,7 @@ body{
   border: 0px;
   position: relative;
   float: left;
-  width: calc(100% / 4.1);
+  width: calc(100% / 4);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -73,25 +73,44 @@ body{
   background-color: #ff5e89;
 }
 
-#sliderArray {
-  position: absolute;
-  width: 100%;
-  top: calc(100vw / 14.56);
+@media screen and (max-width: 1000px) {
+  #sliderArray {
+    position: absolute;
+    width: 100%;
+    top: calc(100vw / 14);
+  }
+
+  .sliderContainer{
+    border: 0px;
+    transform: rotate(-90deg);
+    position: relative;
+    margin: auto;
+    float: left;
+    width: calc(100vw / 7);
+  }
 }
 
-.sliderContainer{
-  border: 0px;
-  transform: rotate(-90deg);
-  position: relative;
-  margin: auto;
-  float: left;
-  width: calc(100vw / 7);
+@media screen and (min-width: 1000px) {
+  #sliderArray {
+    position: absolute;
+    width: 100%;
+    top: 2%;
+  }
+
+  .sliderContainer{
+    border: 0px;
+    /* transform: rotate(-90deg); */
+    position: relative;
+    margin: auto;
+    float: left;
+    width: calc(100vw / 7);
+  }
 }
 
 .slider {
   margin: auto;
   -webkit-appearance: none;
-  width: 100%;
+  width: 95%;
   border-radius: 15px;
   background: #AAEEFF;
   outline: none;
