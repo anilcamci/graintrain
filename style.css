@@ -17,14 +17,18 @@ body{
 .buttonContainer{
   position: absolute;
   bottom: 2%;
-  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
 }
 
 .button {
   display: inline-block;
-  position: relative;
+  /* position: relative; */
   margin: auto;
-  width: 50%;
+  width: 50px;
   height: 50px;
   line-height: 50px;
   border-radius: 50%;
@@ -40,10 +44,7 @@ body{
 }
 
 .buttonLabel{
-  display: inline-block;
   padding-bottom: 8px;
-  width: 100%;
-  position:relative;
   margin: auto;
   font-family:helvetica;
   font-weight: bold;
@@ -55,12 +56,10 @@ body{
 #sliderArray {
   position: absolute;
   width: 100%;
-  top: 50px;
-  padding: 10px;
+  top: 65px;
 }
 
 .sliderContainer{
-  
   position: absolute;
 }
 
