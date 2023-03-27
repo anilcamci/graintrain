@@ -3,7 +3,7 @@
 
 let attack = 0.40;
 let release = 0.40;
-let density = 0.85;
+let density = 0.5;
 let spread = 0.2;
 let pitch = 1;
 let amp = 0.3;
@@ -37,16 +37,17 @@ function grain(intersectedBlock) {
 	this.randomoffset = plusOrMinus * Math.random() * this.spread;
 	this.playhead = Math.min(Math.max(this.offset + this.randomoffset, 0), this.source.buffer.duration);
 
-	this.source.start(this.now, this.playhead, this.attack + this.release);
 	this.gain.gain.setValueAtTime(0.0, this.now);
 	this.gain.gain.linearRampToValueAtTime(this.amp, this.now + this.attack);
-	this.gain.gain.linearRampToValueAtTime(0.0, this.now + (this.attack +  this.release) );
+	this.gain.gain.linearRampToValueAtTime(0.0, this.now + this.attack +  this.release);
+	this.source.start(this.now, this.playhead, this.attack + this.release);
 
 	this.source.stop(this.now + this.attack + this.release + 0.1);
 	let timeOutSeconds = (this.attack + this.release) * 1000;
-	var this_ = this;
+	
+	var that = this;
 	setTimeout(function(){
-		this_.gain.disconnect();
+		that.gain.disconnect();
 	},timeOutSeconds + 200);
 }
 
@@ -71,7 +72,7 @@ voice.prototype.playVoice = function(intersectedBlock){
 		}
 
 		this.dens = mapRange(density,1,0,0,1);
-		this.interval = (this.dens * 500) + 70;
+		this.interval = this.dens * 250;
 		that.timeout = setTimeout( that.play, this.interval );
 	}
 	this.play();

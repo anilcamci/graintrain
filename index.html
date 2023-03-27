@@ -19,7 +19,7 @@
     <div id="sliderArray">
       <div class="sliderContainer">
         <div class="sliderLabel">PITCH</div>
-        <input type="range" min="1" max="100" value="50" class="slider" id="pitchSlider">       
+        <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">       
       </div>
 
       <div class="sliderContainer">
@@ -29,7 +29,7 @@
 
       <div class="sliderContainer">
         <div class="sliderLabel">DENSITY</div>
-        <input type="range" min="30" max="60" value="50" class="slider" id="densitySlider">
+        <input type="range" min="0" max="100" value="50" class="slider" id="densitySlider">
       </div>
 
       <div class="sliderContainer">
@@ -115,7 +115,7 @@
       attack = sizeSlider.value / 200;
       release = sizeSlider.value / 200;
       var densitySlider = document.getElementById("densitySlider");
-      density = densitySlider.value / 50;
+      density = densitySlider.value / 100;
       var brightnessSlider = document.getElementById("brightnessSlider");
       filterCutOff = logarithmicSlider(brightnessSlider.value);
       var volumeSlider = document.getElementById("volumeSlider");
@@ -123,7 +123,11 @@
 
 
       pitchSlider.oninput = function() {
-        pitch = pitchSlider.value / 50;
+        if(pitchSlider.value <= 50){
+          pitch = pitchSlider.value/100 + 0.5;
+        }else{
+          pitch = pitchSlider.value/50;
+        }
       }
 
       sizeSlider.oninput = function() {
@@ -132,7 +136,7 @@
       }
 
       densitySlider.oninput = function() {
-        density = densitySlider.value / 50;
+        density = densitySlider.value / 100;
       }
 
       spreadSlider.oninput = function() {
