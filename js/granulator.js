@@ -71,7 +71,7 @@ voice.prototype.playVoice = function(intersectedBlock){
 			that.graincount = 0;
 		}
 
-		this.dens = mapRange(density,1,0,0,1);
+		this.dens = Math.pow(mapRange(density, 1, 0, 0, 1), 2);
 		this.interval = this.dens * 250;
 		that.timeout = setTimeout( that.play, this.interval );
 	}
