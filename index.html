@@ -18,7 +18,7 @@
 
     <div id="sliderArray">
       <div class="sliderContainer">
-        <div class="sliderLabel">PITCH</div>
+        <div class="sliderLabel">PITCH <span id="myText"></span></div>
         <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">       
       </div>
 
@@ -58,22 +58,22 @@
     <div class="buttonArray">
       <div class="buttonContainer">
         <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE AND DRAW A PATH</div>
-        <div class="buttonLabel">ADD</div>
+        <!-- <div class="buttonLabel">ADD</div> -->
         <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
       </div>
       
       <div class="buttonContainer">
-        <div class="buttonLabel">MOVE</div>
+        <!-- <div class="buttonLabel">MOVE</div> -->
         <div class="button" id="move" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
       </div>
 
       <div class="buttonContainer">
-        <div class="buttonLabel">REMOVE</div>
+        <!-- <div class="buttonLabel">REMOVE</div> -->
         <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
       </div>
       
       <div class="buttonContainer">
-        <div class="buttonLabel">PANIC</div>
+        <!-- <div class="buttonLabel">PANIC</div> -->
         <div class="button" id="reset" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
       </div>
     </div>
@@ -123,11 +123,14 @@
 
 
       pitchSlider.oninput = function() {
-        if(pitchSlider.value <= 50){
+        if(pitchSlider.value <= 45){
           pitch = pitchSlider.value/100 + 0.5;
-        }else{
+        }else if(pitchSlider.value >= 55){
           pitch = pitchSlider.value/50;
+        }else{
+          pitch = 1;
         }
+        document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
       }
 
       sizeSlider.oninput = function() {
