@@ -2,6 +2,9 @@ let touches = [];
 
 function onTouchStart(event){
 
+  event.preventDefault();
+  event.stopPropagation();
+
   if(context.state !== "running"){
     context = new AudioContext();
     master = context.createGain();
@@ -68,6 +71,7 @@ function onTouchEnd(event){
 function onTouchMove(event){
 
   event.preventDefault();
+  event.stopPropagation();
 
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches.length; j++){

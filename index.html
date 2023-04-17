@@ -58,22 +58,22 @@
     <div class="buttonArray">
       <div class="buttonContainer">
         <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE AND DRAW A PATH</div>
-        <!-- <div class="buttonLabel">ADD</div> -->
+        <div class="buttonLabel" id="addLabel">ADD</div>
         <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
       </div>
       
       <div class="buttonContainer">
-        <!-- <div class="buttonLabel">MOVE</div> -->
+        <div class="buttonLabel" id="moveLabel">MOVE</div>
         <div class="button" id="move" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
       </div>
 
       <div class="buttonContainer">
-        <!-- <div class="buttonLabel">REMOVE</div> -->
+        <div class="buttonLabel" id="removeLabel">REMOVE</div>
         <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
       </div>
       
       <div class="buttonContainer">
-        <!-- <div class="buttonLabel">PANIC</div> -->
+        <div class="buttonLabel">PANIC</div>
         <div class="button" id="reset" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
       </div>
     </div>
@@ -186,6 +186,7 @@
           document.getElementById('drawInstruction').style.display = 'none';
           renderer.setClearColor(0xf0f0f0);
           document.getElementById('add').style.background = "#FF5E89";
+          document.getElementById('addLabel').style.color = "#FF5E89";
         }else{
           context.resume();
           addMode = true;
@@ -194,8 +195,11 @@
           document.getElementById('drawInstruction').style.display = 'block';
           renderer.setClearColor(0xe8f0f1);
           document.getElementById('add').style.background = "#00CCFF";
+          document.getElementById('addLabel').style.color = "#00CCFF";
           document.getElementById('move').style.background = "#FF5E89";
+          document.getElementById('moveLabel').style.color = "#FF5E89";
           document.getElementById('delete').style.background = "#FF5E89";
+          document.getElementById('removeLabel').style.color = "#FF5E89";
           document.getElementById('audio-file').click();
         }
       }
@@ -205,13 +209,18 @@
         if(moveMode){
           moveMode = false;
           document.getElementById('move').style.background = "#FF5E89";
+          document.getElementById('moveLabel').style.color = "#FF5E89";
         }else{
           moveMode = true;
           deleteMode = false;
           addMode = false;
           document.getElementById('move').style.background = "#00CCFF";
+          document.getElementById('moveLabel').style.color = "#00CCFF";
           document.getElementById('delete').style.background = "#FF5E89";
+          document.getElementById('removeLabel').style.color = "#FF5E89";
           document.getElementById('add').style.background = "#FF5E89";
+          document.getElementById('addLabel').style.color = "#FF5E89";
+          document.getElementById('drawInstruction').style.display = 'none';
         }
 
       }
@@ -221,13 +230,18 @@
         if(deleteMode){
           deleteMode = false;
           document.getElementById('delete').style.background = "#FF5E89";
+          document.getElementById('removeLabel').style.color = "#FF5E89";
         }else{
           deleteMode = true;
           moveMode = false;
           addMode = false;
           document.getElementById('delete').style.background = "#00CCFF";
+          document.getElementById('removeLabel').style.color = "#00CCFF";
           document.getElementById('add').style.background = "#FF5E89";
+          document.getElementById('addLabel').style.color = "#FF5E89";
           document.getElementById('move').style.background = "#FF5E89";
+          document.getElementById('moveLabel').style.color = "#FF5E89";
+          document.getElementById('drawInstruction').style.display = 'none';
         }
 
       }
@@ -270,6 +284,17 @@
           };
           reader.readAsArrayBuffer(this.files[0]);
         }, false);
+      
+        deleteMode = false;
+        moveMode = false;
+        addMode = false;
+        document.getElementById('delete').style.background = "#FF5E89";
+        document.getElementById('removeLabel').style.color = "#FF5E89";
+        document.getElementById('add').style.background = "#FF5E89";
+        document.getElementById('addLabel').style.color = "#FF5E89";
+        document.getElementById('move').style.background = "#FF5E89";
+        document.getElementById('moveLabel').style.color = "#FF5E89";
+        document.getElementById('drawInstruction').style.display = 'none';
       }
 
       function logarithmicSlider(position) {
