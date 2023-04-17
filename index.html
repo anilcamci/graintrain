@@ -18,7 +18,7 @@
 
     <div id="sliderArray">
       <div class="sliderContainer">
-        <div class="sliderLabel">PITCH <span id="myText"></span></div>
+        <div class="sliderLabel" style="white-space: nowrap;">PITCH <span id="myText"></span></div>
         <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">       
       </div>
 
@@ -34,7 +34,7 @@
 
       <div class="sliderContainer">
         <div class="sliderLabel">SPREAD</div>
-        <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">        
+        <input type="range" min="10" max="100" value="40" class="slider" id="spreadSlider">        
       </div>
 
       <div class="sliderContainer">
@@ -143,7 +143,7 @@
       }
 
       spreadSlider.oninput = function() {
-        highlightRange = spreadSlider.value / 1;
+        highlightRange = Math.round(spreadSlider.value / 10);
       }
 
       brightnessSlider.oninput = function() {
