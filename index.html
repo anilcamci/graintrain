@@ -460,61 +460,6 @@
         renderer.render(scene, camera);
       }
 
-      var sliders = document.querySelectorAll('.slider');
-
-      sliders.forEach(function(slider){
-
-          slider.addEventListener('touchstart', function(event){
-              event.stopPropagation();
-              updateSliderFromTouch(slider, event.touches[0]);
-          }, { passive: false });
-
-          slider.addEventListener('touchmove', function(event){
-              event.preventDefault();
-              event.stopPropagation();
-              updateSliderFromTouch(slider, event.touches[0]);
-          }, { passive: false });
-
-          slider.addEventListener('touchend', function(event){
-              event.stopPropagation();
-          }, { passive: false });
-
-          slider.addEventListener('mousedown', function(event){
-              updateSliderFromMouse(slider, event);
-
-              function onMouseMove(e){
-                  updateSliderFromMouse(slider, e);
-              }
-              function onMouseUp(){
-                  document.removeEventListener('mousemove', onMouseMove);
-                  document.removeEventListener('mouseup', onMouseUp);
-              }
-              document.addEventListener('mousemove', onMouseMove);
-              document.addEventListener('mouseup', onMouseUp);
-          });
-      });
-
-      function updateSliderFromTouch(slider, touch){
-          var rect = slider.getBoundingClientRect();
-          var x = touch.clientX - rect.left;
-          var ratio = Math.max(0, Math.min(1, x / rect.width));
-          var min = parseFloat(slider.min);
-          var max = parseFloat(slider.max);
-          var value = min + ratio * (max - min);
-          slider.value = value;
-          slider.dispatchEvent(new Event('input'));
-      }
-
-      function updateSliderFromMouse(slider, event){
-          var rect = slider.getBoundingClientRect();
-          var x = event.clientX - rect.left;
-          var ratio = Math.max(0, Math.min(1, x / rect.width));
-          var min = parseFloat(slider.min);
-          var max = parseFloat(slider.max);
-          var value = min + ratio * (max - min);
-          slider.value = value;
-          slider.dispatchEvent(new Event('input'));
-      }
     </script>
     </div>
   </body>
