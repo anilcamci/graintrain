@@ -33,7 +33,6 @@ function onTouchStart(event){
         reverb.connect(limiter);
         limiter.connect(context.destination);
 
-        // Reset pool and scheduler for new context
         grainPool = null;
         scheduler = null;
     }
@@ -46,25 +45,32 @@ function onTouchStart(event){
         let raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(scaledPointer, camera);
 
-        event.changedTouches[i].previouslyIntersected = [];
-        event.changedTouches[i].previouslyIntersectedParents = [];
-        event.changedTouches[i].raycaster = raycaster;
-        touches.push(event.changedTouches[i]);
+        // Create a tracked touch object with its own state
+        var trackedTouch = {
+            identifier: event.changedTouches[i].identifier,
+            raycaster: raycaster,
+            previouslyIntersected: [],
+            voices: {},           // keyed by parent.uuid
+            interactionPoint: null,
+            interactionOffset: null,
+            draggedObject: null
+        };
+
+        touches.push(trackedTouch);
 
         if(addMode){
             waveformPath.beginAt(getInteractionPoint(scaledPointer));
         }
 
         if(moveMode){
-            var intersects = touches[touches.length - 1].raycaster.intersectObject(floor);
-            touches[touches.length - 1].interactionPoint = intersects[0].point;
-            touches[touches.length - 1].interactionOffset = intersects[0].point;
-            intersects = touches[touches.length - 1].raycaster.intersectObjects(scene.children, true);
-            if (intersects.length) touches[touches.length - 1].draggedObject = intersects[0].object.parent;
+            var intersects = trackedTouch.raycaster.intersectObject(floor);
+            trackedTouch.interactionPoint = intersects[0].point;
+            trackedTouch.interactionOffset = intersects[0].point;
+            intersects = trackedTouch.raycaster.intersectObjects(scene.children, true);
+            if (intersects.length) trackedTouch.draggedObject = intersects[0].object.parent;
         }
 
-        intersects = [];
-        touchWave(touches[touches.length - 1]);
+        touchWave(trackedTouch);
     }
 }
 
@@ -74,25 +80,25 @@ function onTouchEnd(event){
         for(var j = 0; j < touches.length; j++){
             if(event.changedTouches[i].identifier == touches[j].identifier){
 
-                // Stop all voices for this touch
-                for(var k = 0; k < touches[j].previouslyIntersectedParents.length; k++){
-                    var parent = touches[j].previouslyIntersectedParents[k];
-                    if(parent.voice){
-                        parent.voice.stopVoice();
-                        parent.voice.isPlaying = false;
-                        parent.voice = null;
+                var touch = touches[j];
+
+                // Stop all voices owned by this specific touch
+                for(var key in touch.voices){
+                    if(touch.voices[key]){
+                        touch.voices[key].stopVoice();
+                        touch.voices[key].isPlaying = false;
                     }
                 }
 
                 // Reset visual highlighting
-                for(var k = 0; k < touches[j].previouslyIntersected.length; k++){
+                for(var k = 0; k < touch.previouslyIntersected.length; k++){
                     for(var l = -highlightRange; l < highlightRange + 1; l++){
                         var previousID = Math.max(Math.min(
-                            touches[j].previouslyIntersected[k].index - l,
-                            touches[j].previouslyIntersected[k].parent.children.length - 1
+                            touch.previouslyIntersected[k].index - l,
+                            touch.previouslyIntersected[k].parent.children.length - 1
                         ), 0);
-                        touches[j].previouslyIntersected[k].parent.children[previousID].material.color.setHex(0x00ccff);
-                        touches[j].previouslyIntersected[k].parent.children[previousID].scale.z = 1;
+                        touch.previouslyIntersected[k].parent.children[previousID].material.color.setHex(0x00ccff);
+                        touch.previouslyIntersected[k].parent.children[previousID].scale.z = 1;
                     }
                 }
 
@@ -117,8 +123,6 @@ function onTouchMove(event){
     for(var i = 0; i < event.changedTouches.length; i++){
         for(var j = 0; j < touches.length; j++){
             if(event.changedTouches[i].identifier == touches[j].identifier){
-                event.changedTouches[i].previouslyIntersected = touches[j].previouslyIntersected;
-                event.changedTouches[i].previouslyIntersectedParents = touches[j].previouslyIntersectedParents;
                 let scaledPointer = getScaledPointer(event.changedTouches[i]);
                 touches[j].raycaster.setFromCamera(scaledPointer, camera);
                 var intersects = touches[j].raycaster.intersectObject(floor);
@@ -163,31 +167,30 @@ function touchWave(touch){
         }
         touch.previouslyIntersected = [];
 
-        var currentIntersectedParents = [];
+        var currentParentUUIDs = [];
 
-        // Paint and trigger newly interacted objects
         for(var l = 0; l < intersects.length; l++){
 
-            intersected = intersects[l].object;
-            currentIntersectedParents.push(intersected.parent);
+            var intersected = intersects[l].object;
+            var parentUUID = intersected.parent.uuid;
+            currentParentUUIDs.push(parentUUID);
 
             if(deleteMode){
                 scene.remove(intersected.parent);
                 toggleDeleteMode();
-                if(intersected.parent.voice){
-                    intersected.parent.voice.stopVoice();
-                    intersected.parent.voice.isPlaying = false;
-                    intersected.parent.voice = null;
+                if(touch.voices[parentUUID]){
+                    touch.voices[parentUUID].stopVoice();
+                    touch.voices[parentUUID].isPlaying = false;
+                    delete touch.voices[parentUUID];
                 }
             } else {
-                // If this parent doesn't have a voice yet, create one
-                if(intersected.parent.voice == null){
-                    intersected.parent.voice = new voice();
-                    intersected.parent.voice.playVoice(intersected);
+                // If this touch doesn't have a voice for this parent, create one
+                if(!touch.voices[parentUUID]){
+                    touch.voices[parentUUID] = new voice();
+                    touch.voices[parentUUID].playVoice(intersected);
                 } else {
-                    // Voice exists — update the intersected block
-                    // so grains play from the new position
-                    intersected.parent.voice.intersectedBlock = intersected;
+                    // Update grain position
+                    touch.voices[parentUUID].intersectedBlock = intersected;
                 }
 
                 for(var i = -highlightRange; i < highlightRange + 1; i++){
@@ -204,16 +207,13 @@ function touchWave(touch){
             }
         }
 
-        // Stop voices for parents no longer being touched
-        for(var m = 0; m < touch.previouslyIntersectedParents.length; m++){
-            var parent = touch.previouslyIntersectedParents[m];
-            if(currentIntersectedParents.indexOf(parent) === -1 && parent.voice){
-                parent.voice.stopVoice();
-                parent.voice.isPlaying = false;
-                parent.voice = null;
+        // Stop voices for parents this touch is no longer intersecting
+        for(var key in touch.voices){
+            if(currentParentUUIDs.indexOf(key) === -1){
+                touch.voices[key].stopVoice();
+                touch.voices[key].isPlaying = false;
+                delete touch.voices[key];
             }
         }
-
-        touch.previouslyIntersectedParents = currentIntersectedParents;
     }
 }
