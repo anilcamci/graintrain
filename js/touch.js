@@ -1,7 +1,7 @@
 let touches = [];
 
 function onTouchStart(event){
-
+    event.preventDefault();
     if(context.state !== "running"){
         context = new AudioContext({ latencyHint: 'playback' });
         
@@ -75,7 +75,7 @@ function onTouchStart(event){
 }
 
 function onTouchEnd(event){
-
+    event.preventDefault();
     for(var i = 0; i < event.changedTouches.length; i++){
         for(var j = 0; j < touches.length; j++){
             if(event.changedTouches[i].identifier == touches[j].identifier){
@@ -117,9 +117,7 @@ function onTouchEnd(event){
 }
 
 function onTouchMove(event){
-
     event.preventDefault();
-
     for(var i = 0; i < event.changedTouches.length; i++){
         for(var j = 0; j < touches.length; j++){
             if(event.changedTouches[i].identifier == touches[j].identifier){
