@@ -11,6 +11,7 @@
     <script src="js/granulator.js"></script>
     <script src="js/mouse.js"></script>
     <script src="js/touch.js"></script>
+    <script src="js/gainprocessor.js"></script>
   </head>
 
   <body>
@@ -18,7 +19,7 @@
 
     <div id="sliderArray">
       <div class="sliderContainer">
-        <div class="sliderLabel" style="white-space: nowrap;">PITCH <span id="myText"></span></div>
+        <div class="sliderLabel">PITCH</div>
         <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">       
       </div>
 
@@ -34,7 +35,7 @@
 
       <div class="sliderContainer">
         <div class="sliderLabel">SPREAD</div>
-        <input type="range" min="10" max="100" value="40" class="slider" id="spreadSlider">        
+        <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">        
       </div>
 
       <div class="sliderContainer">
@@ -49,7 +50,7 @@
 
       <div class="sliderContainer">
         <div class="sliderLabel">VOLUME</div>
-        <input type="range" min="1" max="100" value="50" class="slider" id="volumeSlider">        
+        <input type="range" min="0" max="100" value="50" class="slider" id="volumeSlider">        
       </div>
 
     </div>
@@ -58,22 +59,22 @@
     <div class="buttonArray">
       <div class="buttonContainer">
         <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE AND DRAW A PATH</div>
-        <div class="buttonLabel" id="addLabel">ADD</div>
+        <!-- <div class="buttonLabel">ADD</div> -->
         <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
       </div>
       
       <div class="buttonContainer">
-        <div class="buttonLabel" id="moveLabel">MOVE</div>
+        <!-- <div class="buttonLabel">MOVE</div> -->
         <div class="button" id="move" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
       </div>
 
       <div class="buttonContainer">
-        <div class="buttonLabel" id="removeLabel">REMOVE</div>
+        <!-- <div class="buttonLabel">REMOVE</div> -->
         <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
       </div>
       
       <div class="buttonContainer">
-        <div class="buttonLabel">PANIC</div>
+        <!-- <div class="buttonLabel">PANIC</div> -->
         <div class="button" id="reset" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
       </div>
     </div>
@@ -90,6 +91,8 @@
       var intersected;
       var currentlyIntersecting;
       var previouslyIntersected = [];
+      var intersectedParents = [];
+      var previouslyIntersectedParents = [];
       var draggedObject = null;
 
       var highlightRange = 4;
@@ -108,6 +111,7 @@
       window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
       var lowPassFilter;
       var reverb, dryGain, wetGain;
+      var limiter;
 
       var pitchSlider = document.getElementById("pitchSlider");
       pitch = pitchSlider.value / 50;
@@ -119,18 +123,15 @@
       var brightnessSlider = document.getElementById("brightnessSlider");
       filterCutOff = logarithmicSlider(brightnessSlider.value);
       var volumeSlider = document.getElementById("volumeSlider");
-      amp = volumeSlider.value / 200;
+      amp = volumeSlider.value / 300;
 
 
       pitchSlider.oninput = function() {
-        if(pitchSlider.value <= 45){
+        if(pitchSlider.value < 50){
           pitch = pitchSlider.value/100 + 0.5;
-        }else if(pitchSlider.value >= 55){
-          pitch = pitchSlider.value/50;
         }else{
-          pitch = 1;
+          pitch = pitchSlider.value/50;
         }
-        document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
       }
 
       sizeSlider.oninput = function() {
@@ -143,7 +144,7 @@
       }
 
       spreadSlider.oninput = function() {
-        highlightRange = Math.round(spreadSlider.value / 10);
+        highlightRange = spreadSlider.value / 1;
       }
 
       brightnessSlider.oninput = function() {
@@ -186,7 +187,6 @@
           document.getElementById('drawInstruction').style.display = 'none';
           renderer.setClearColor(0xf0f0f0);
           document.getElementById('add').style.background = "#FF5E89";
-          document.getElementById('addLabel').style.color = "#FF5E89";
         }else{
           context.resume();
           addMode = true;
@@ -195,11 +195,8 @@
           document.getElementById('drawInstruction').style.display = 'block';
           renderer.setClearColor(0xe8f0f1);
           document.getElementById('add').style.background = "#00CCFF";
-          document.getElementById('addLabel').style.color = "#00CCFF";
           document.getElementById('move').style.background = "#FF5E89";
-          document.getElementById('moveLabel').style.color = "#FF5E89";
           document.getElementById('delete').style.background = "#FF5E89";
-          document.getElementById('removeLabel').style.color = "#FF5E89";
           document.getElementById('audio-file').click();
         }
       }
@@ -209,18 +206,13 @@
         if(moveMode){
           moveMode = false;
           document.getElementById('move').style.background = "#FF5E89";
-          document.getElementById('moveLabel').style.color = "#FF5E89";
         }else{
           moveMode = true;
           deleteMode = false;
           addMode = false;
           document.getElementById('move').style.background = "#00CCFF";
-          document.getElementById('moveLabel').style.color = "#00CCFF";
           document.getElementById('delete').style.background = "#FF5E89";
-          document.getElementById('removeLabel').style.color = "#FF5E89";
           document.getElementById('add').style.background = "#FF5E89";
-          document.getElementById('addLabel').style.color = "#FF5E89";
-          document.getElementById('drawInstruction').style.display = 'none';
         }
 
       }
@@ -230,71 +222,71 @@
         if(deleteMode){
           deleteMode = false;
           document.getElementById('delete').style.background = "#FF5E89";
-          document.getElementById('removeLabel').style.color = "#FF5E89";
         }else{
           deleteMode = true;
           moveMode = false;
           addMode = false;
           document.getElementById('delete').style.background = "#00CCFF";
-          document.getElementById('removeLabel').style.color = "#00CCFF";
           document.getElementById('add').style.background = "#FF5E89";
-          document.getElementById('addLabel').style.color = "#FF5E89";
           document.getElementById('move').style.background = "#FF5E89";
-          document.getElementById('moveLabel').style.color = "#FF5E89";
-          document.getElementById('drawInstruction').style.display = 'none';
         }
 
       }
 
-      function reset(){
-        for(i in voices){
-          voices[i].stopVoice();
-        }
-        voices = [];
-        context.close();
-        context = new AudioContext();
+      function reset() {
 
-        reverb = context.createConvolver();
-        loadImpulse();
-        dryGain = context.createGain();
-        wetGain = context.createGain();
-        dryGain.gain.value = 1 - reverbSlider.value / 100;;
-        wetGain.gain.value = reverbSlider.value / 100;;
+          if (scheduler) {
+              scheduler.stop();
+              scheduler = null;
+          }
 
-        lowPassFilter = context.createBiquadFilter();
-        lowPassFilter.type = "lowpass";
-        lowPassFilter.frequency.value = logarithmicSlider(brightnessSlider.value);
+          for (i in voices) {
+              voices[i].stopVoice();
+          }
+          voices = [];
+          grainPool = null;
 
-        master = context.createGain();
-        master.connect(lowPassFilter);
-        lowPassFilter.connect(dryGain);
-        dryGain.connect(context.destination);
+          context.close();
+          context = new AudioContext({ latencyHint: 'playback' });
 
-        lowPassFilter.connect(wetGain);
-        wetGain.connect(reverb);
-        reverb.connect(context.destination);
+          master = context.createGain();
 
-        fileInput.addEventListener('change', function() {
-          let reader = new FileReader();
-          reader.onload = function(ev) {
-            context.decodeAudioData(ev.target.result, function(buffer) {
-              currentBuffer = buffer;
-              data = buffer.getChannelData(0);
-            });
-          };
-          reader.readAsArrayBuffer(this.files[0]);
-        }, false);
-      
-        deleteMode = false;
-        moveMode = false;
-        addMode = false;
-        document.getElementById('delete').style.background = "#FF5E89";
-        document.getElementById('removeLabel').style.color = "#FF5E89";
-        document.getElementById('add').style.background = "#FF5E89";
-        document.getElementById('addLabel').style.color = "#FF5E89";
-        document.getElementById('move').style.background = "#FF5E89";
-        document.getElementById('moveLabel').style.color = "#FF5E89";
-        document.getElementById('drawInstruction').style.display = 'none';
+          lowPassFilter = context.createBiquadFilter();
+          lowPassFilter.type = "lowpass";
+          lowPassFilter.frequency.value = logarithmicSlider(brightnessSlider.value);
+
+          limiter = context.createDynamicsCompressor();
+          limiter.threshold.value = -1;
+          limiter.knee.value = 1;
+          limiter.ratio.value = 20;
+          limiter.attack.value = 0.001;
+          limiter.release.value = 0.05;
+
+          reverb = context.createConvolver();
+          loadImpulse();
+          dryGain = context.createGain();
+          wetGain = context.createGain();
+          dryGain.gain.value = 1 - reverbSlider.value / 100;
+          wetGain.gain.value = reverbSlider.value / 100;
+
+          master.connect(lowPassFilter);
+          lowPassFilter.connect(dryGain);
+          lowPassFilter.connect(wetGain);
+          dryGain.connect(limiter);
+          wetGain.connect(reverb);
+          reverb.connect(limiter);
+          limiter.connect(context.destination);
+
+          fileInput.addEventListener('change', function() {
+              let reader = new FileReader();
+              reader.onload = function(ev) {
+                  context.decodeAudioData(ev.target.result, function(buffer) {
+                      currentBuffer = buffer;
+                      data = buffer.getChannelData(0);
+                  });
+              };
+              reader.readAsArrayBuffer(this.files[0]);
+          }, false);
       }
 
       function logarithmicSlider(position) {
@@ -309,68 +301,82 @@
 
       function init() {
 
-        container = document.createElement( 'div' );
-				document.body.appendChild( container );
+          container = document.createElement('div');
+          document.body.appendChild(container);
 
-        camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 100000 );
-        camera.position.set(0, 0, 2000);
+          camera = new THREE.OrthographicCamera(
+              window.innerWidth / -2, 
+              window.innerWidth / 2, 
+              window.innerHeight / 2, 
+              window.innerHeight / -2, 
+              -10000, 100000
+          );
+          camera.position.set(0, 0, 2000);
 
-				scene = new THREE.Scene();
-        scene.add(camera);
+          scene = new THREE.Scene();
+          scene.add(camera);
 
-        var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
-        var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-        floor = new THREE.Mesh( geometry, material );
-        waveformPath.setScene(scene);
+          var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
+          var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+          floor = new THREE.Mesh(geometry, material);
+          waveformPath.setScene(scene);
 
-        renderer = new THREE.WebGLRenderer({antialias: true});
-        renderer.setClearColor(0xf0f0f0);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
+          renderer = new THREE.WebGLRenderer({ antialias: true });
+          renderer.setClearColor(0xf0f0f0);
+          renderer.setPixelRatio(window.devicePixelRatio);
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          container.appendChild(renderer.domElement);
 
-        container.addEventListener( 'mousedown', onMouseDown, false );
-        container.addEventListener( 'mouseup', onMouseUp, false );
-        container.addEventListener( 'mousemove', onMouseMove, false );
-        container.addEventListener( 'touchstart', onTouchStart, false );
-        container.addEventListener( 'touchmove', onTouchMove, false );
-        container.addEventListener( 'touchend', onTouchEnd, false);
-        window.addEventListener( 'resize', onWindowResize, false );
+          container.addEventListener('mousedown', onMouseDown, false);
+          container.addEventListener('mouseup', onMouseUp, false);
+          container.addEventListener('mousemove', onMouseMove, false);
+          container.addEventListener('touchstart', onTouchStart, false);
+          container.addEventListener('touchmove', onTouchMove, false);
+          container.addEventListener('touchend', onTouchEnd, false);
+          window.addEventListener('resize', onWindowResize, false);
 
-        context = new AudioContext();
+          context = new AudioContext({ latencyHint: 'playback' });
 
-        reverb = context.createConvolver();
-        loadImpulse();
-        dryGain = context.createGain();
-        wetGain = context.createGain();
-        dryGain.gain.value = 1;
-        wetGain.gain.value = 0;
+          master = context.createGain();
 
-        lowPassFilter = context.createBiquadFilter();
-        lowPassFilter.type = "lowpass";
-        lowPassFilter.frequency.value = 20000;
+          lowPassFilter = context.createBiquadFilter();
+          lowPassFilter.type = "lowpass";
+          lowPassFilter.frequency.value = 20000;
 
-        master = context.createGain();
-        master.connect(lowPassFilter);
-        lowPassFilter.connect(dryGain);
-        dryGain.connect(context.destination);
+          limiter = context.createDynamicsCompressor();
+          limiter.threshold.value = -1;
+          limiter.knee.value = 1;
+          limiter.ratio.value = 20;
+          limiter.attack.value = 0.001;
+          limiter.release.value = 0.05;
 
-        lowPassFilter.connect(wetGain);
-        wetGain.connect(reverb);
-        reverb.connect(context.destination);
+          reverb = context.createConvolver();
+          loadImpulse();
+          dryGain = context.createGain();
+          wetGain = context.createGain();
+          dryGain.gain.value = 1;
+          wetGain.gain.value = 0;
 
-        fileInput.addEventListener('change', function() {
-          let reader = new FileReader();
-          reader.onload = function(ev) {
-            context.decodeAudioData(ev.target.result, function(buffer) {
-              currentBuffer = buffer;
-              data = buffer.getChannelData(0);
-            });
-          };
-          reader.readAsArrayBuffer(this.files[0]);
-        }, false);
+          master.connect(lowPassFilter);
+          lowPassFilter.connect(dryGain);
+          lowPassFilter.connect(wetGain);
+          dryGain.connect(limiter);
+          wetGain.connect(reverb);
+          reverb.connect(limiter);
+          limiter.connect(context.destination);
 
-        animate();
+          fileInput.addEventListener('change', function() {
+              let reader = new FileReader();
+              reader.onload = function(ev) {
+                  context.decodeAudioData(ev.target.result, function(buffer) {
+                      currentBuffer = buffer;
+                      data = buffer.getChannelData(0);
+                  });
+              };
+              reader.readAsArrayBuffer(this.files[0]);
+          }, false);
+
+          animate();
       }
 
       function drawWave(path){

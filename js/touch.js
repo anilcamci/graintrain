@@ -2,9 +2,6 @@ let touches = [];
 
 function onTouchStart(event){
 
-  event.preventDefault();
-  event.stopPropagation();
-
   if(context.state !== "running"){
     context = new AudioContext();
     master = context.createGain();
@@ -32,9 +29,10 @@ function onTouchStart(event){
       touches[touches.length - 1].interactionPoint = intersects[0].point;
       touches[touches.length - 1].interactionOffset = intersects[0].point;
       intersects = touches[touches.length - 1].raycaster.intersectObjects( scene.children, true );
-      touches[touches.length - 1].draggedObject = intersects[0].object.parent;
+      if ( intersects.length ) touches[touches.length - 1].draggedObject = intersects[0].object.parent;
     }
 
+    intersects = [];
     touchWave(touches[touches.length - 1]);
   }
 }
@@ -45,8 +43,7 @@ function onTouchEnd(event){
     for(var j = 0; j < touches.length; j++){
       if( event.changedTouches[i].identifier == touches[j].identifier){
         for(var k = 0; k < touches[j].previouslyIntersected.length; k++){
-          console.log(touches[j].previouslyIntersected[k]);
-          touches[j].previouslyIntersected[k].voice.stopVoice();
+          touches[j].previouslyIntersected[k].parent.voice.stopVoice();
 
           for( var l = -highlightRange; l < highlightRange + 1; l++){
             var previousID = Math.max(Math.min(touches[j].previouslyIntersected[k].index - l, touches[j].previouslyIntersected[k].parent.children.length - 1), 0);
@@ -69,9 +66,8 @@ function onTouchEnd(event){
 }
 
 function onTouchMove(event){
-
+  
   event.preventDefault();
-  event.stopPropagation();
 
   for(var i = 0; i < event.changedTouches.length; i++){
     for(var j = 0; j < touches.length; j++){
@@ -102,13 +98,15 @@ function touchWave(touch){
     const dy = touch.interactionPoint.y - touch.interactionOffset.y;
     touch.interactionOffset.x = touch.interactionPoint.x;
     touch.interactionOffset.y = touch.interactionPoint.y;
-    touch.draggedObject.position.x += dx;
-    touch.draggedObject.position.y += dy;
+    if(touch.draggedObject){ 
+      touch.draggedObject.position.x += dx;
+      touch.draggedObject.position.y += dy;
+    }
   }else if(!addMode){
 
     // Reset previously painted interactions
     for(var j = 0; j < touch.previouslyIntersected.length; j++){
-      touch.previouslyIntersected[j].voice.stopVoice();
+      //touch.previouslyIntersected[j].voice.stopVoice();
 
       for( var i = -highlightRange; i < highlightRange + 1; i++){
         var previousID = Math.max(Math.min(touch.previouslyIntersected[j].index - i, touch.previouslyIntersected[j].parent.children.length - 1), 0);
@@ -121,17 +119,24 @@ function touchWave(touch){
     // Paint the newly interacted objects
     for(var l = 0; l < intersects.length; l++){
 
-      let intersected = intersects[l].object;
+      intersected = intersects[l].object;
+      intersectedParents.push(intersected.parent);
 
       if( deleteMode ){
         scene.remove(intersected.parent);
         toggleDeleteMode();
-        intersected.voice.stopVoice();
+        if(intersected.parent.voice) intersected.parent.voice.stopVoice();
       }else{
-
-        intersected.voice = new voice();
-        voices.push(intersected.voice);
-        intersected.voice.playVoice(intersected);
+        if( intersected.parent.voice == null ){
+          intersected.parent.isPlaying = false;
+          intersected.parent.voice = new voice();
+          intersected.parent.voice.playVoice(intersected);
+          previouslyIntersectedParents.push(intersected.parent);
+        }
+        
+        // intersected.voice = new voice();
+        // voices.push(intersected.voice);
+        // intersected.voice.playVoice(intersected);
 
         for( var i = -highlightRange; i < highlightRange + 1; i++){
           var gradient = (highlightRange - Math.abs(i))/7;
@@ -140,8 +145,18 @@ function touchWave(touch){
           intersected.parent.children[ID].scale.z = 1.5 + gradient;
         }
 
-        touch.previouslyIntersected.push(intersected);
+        touch.previouslyIntersected[l] = intersected;
+
       }
     }
+
+    for (const element of previouslyIntersectedParents) {
+      if(intersectedParents.indexOf(element) == -1 && element.voice){ 
+        element.voice.stopVoice();
+        element.voice = null;
+        element.isPlaying = false;
+      }
+    }
+    intersectedParents = [];
   }
 }

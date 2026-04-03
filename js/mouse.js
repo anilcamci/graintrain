@@ -8,14 +8,14 @@ function onMouseDown(event){
 
     if( addMode ) waveformPath.beginAt(getInteractionPoint(scaledPointer));
 
-    if( moveMode && currentlyIntersecting){
+    if( moveMode && currentlyIntersecting ){
       draggedObject = intersected.parent;
       setInteractionOffset(getInteractionPoint(scaledPointer));
     }
 
     if( deleteMode && currentlyIntersecting ){
       scene.remove(intersected.parent);
-      intersected.voice.stopVoice();
+      if(intersected.parent.voice) intersected.parent.voice.stopVoice();
       previouslyIntersected = [];
       toggleDeleteMode();
     }
@@ -54,6 +54,7 @@ function interactWithWave(scaledPointer){
   var raycaster = new THREE.Raycaster();
   raycaster.setFromCamera( scaledPointer, camera );
   var intersects = raycaster.intersectObjects(scene.children, true);
+  
 
   if( moveMode && mousePressed && currentlyIntersecting){
     const dx = interactionPoint.x - interactionOffset.x;
@@ -68,36 +69,53 @@ function interactWithWave(scaledPointer){
 
     // Reset previously painted interactions
     for(var j = 0; j < previouslyIntersected.length; j++){
-      previouslyIntersected[j].voice.stopVoice();
-
       for( var i = -highlightRange; i < highlightRange + 1; i++){
         var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
         previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
         previouslyIntersected[j].parent.children[previousID].scale.z = 1;
       }
     }
-
-    // Paint the newly interacted objects
+    
     for(var l = 0; l < intersects.length; l++){
+      
       currentlyIntersecting = true;
       intersected = intersects[l].object;
-      intersected.voice = new voice();
-      voices.push(intersected.voice);
-      if(!deleteMode) intersected.voice.playVoice(intersected);
+      
+      intersectedParents.push(intersected.parent);
 
+      if(intersected.parent.voice == null){
+         intersected.parent.voice = new voice();
+         voices.push(intersected.parent.voice);
+      }
+      intersected.parent.voice.playVoice(intersected);
+      previouslyIntersectedParents.push(intersected.parent);
+
+      // Paint the newly interacted objects
       for( var i = -highlightRange; i < highlightRange + 1; i++){
         var gradient = (highlightRange - Math.abs(i))/7;
         var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
         intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
         intersected.parent.children[ID].scale.z = 1.1 + gradient;
       }
-
       previouslyIntersected[l] = intersected;
     }
-
-    //intersects = [];
-    if(intersects.length == 0) currentlyIntersecting = false;
+    
+    if(intersects.length == 0){ 
+      currentlyIntersecting = false;
+      voices = [];
+    }
   }
+
+  for (const element of previouslyIntersectedParents) {
+    if(intersectedParents.indexOf(element) == -1){ 
+      element.voice.stopVoice();
+      element.voice.isPlaying = false;
+      previouslyIntersectedParents.splice(previouslyIntersectedParents.indexOf(element), 1);
+    }
+  }
+
+  intersectedParents = [];
+  
 }
 
 function setInteractionOffset(interactionPoint) {
