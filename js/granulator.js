@@ -12,17 +12,30 @@ let lpf = 1;
 // GRAIN POOL
 // ============================================
 
-const POOL_SIZE = 60;
+const POOL_SIZE = 400;
 
 function GrainPool(audioContext, destination) {
     this.context = audioContext;
     this.destination = destination;
     this.pool = [];
     this.index = 0;
+    this.targetSize = POOL_SIZE;
 
-    for (var i = 0; i < POOL_SIZE; i++) {
+    for (var i = 0; i < 80; i++) {
         this.pool.push(new PooledGrain(this.context, this.destination));
     }
+
+    var self = this;
+    var batchSize = 40;
+    function growPool() {
+        if (self.pool.length < self.targetSize) {
+            for (var i = 0; i < batchSize && self.pool.length < self.targetSize; i++) {
+                self.pool.push(new PooledGrain(self.context, self.destination));
+            }
+            setTimeout(growPool, 50);
+        }
+    }
+    setTimeout(growPool, 50);
 }
 
 GrainPool.prototype.trigger = function(intersectedBlock) {
@@ -156,7 +169,7 @@ AudioScheduler.prototype.removeVoice = function(v) {
 };
 
 const MIN_GRAIN_INTERVAL = 0.008; // 8ms = 125 grains/sec max
-const MAX_CONCURRENT_GRAINS = 40;
+const MAX_CONCURRENT_GRAINS = 100;
 
 AudioScheduler.prototype._tick = function() {
     var now = this.context.currentTime;
