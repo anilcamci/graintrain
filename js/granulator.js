@@ -58,8 +58,9 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var duration = grainAttack + grainRelease;
 
     var unscaledDuration = baseSize * 2;
-    var dens = Math.pow(mapRange(density, 1, 0, 0, 1), 2);
-    var interval = Math.max(dens * 0.25, MIN_GRAIN_INTERVAL);
+    var dens = mapRange(density, 1, 0, 0, 1);
+    var interval = Math.max(dens * 0.08, MIN_GRAIN_INTERVAL);
+    var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
     var overlapCount = Math.max(1, unscaledDuration / interval);
     var grainAmp = (amp * 2) / Math.pow(overlapCount, 0.3);
 
@@ -175,8 +176,9 @@ AudioScheduler.prototype._tick = function() {
             grainPool.trigger(v.intersectedBlock);
             grainsScheduled++;
 
-            var dens = Math.pow(mapRange(density, 1, 0, 0, 1), 2);
-            var interval = Math.max(dens * 0.25, MIN_GRAIN_INTERVAL);
+            var dens = mapRange(density, 1, 0, 0, 1);
+            var interval = Math.max(dens * 0.08, MIN_GRAIN_INTERVAL);
+            var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
 
             v.nextGrainTime += interval;
 
