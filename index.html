@@ -19,7 +19,7 @@
 
     <div id="sliderArray">
       <div class="sliderContainer">
-        <div class="sliderLabel">PITCH</div>
+        <div class="sliderLabel">PITCH <span id="myText">1</span></div>
         <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">       
       </div>
 
@@ -127,11 +127,14 @@
 
 
       pitchSlider.oninput = function() {
-        if(pitchSlider.value < 50){
-          pitch = pitchSlider.value/100 + 0.5;
-        }else{
-          pitch = pitchSlider.value/50;
-        }
+          if(pitchSlider.value <= 45){
+              pitch = pitchSlider.value/100 + 0.5;
+          }else if(pitchSlider.value >= 55){
+              pitch = pitchSlider.value/50;
+          }else{
+              pitch = 1;
+          }
+          document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
       }
 
       sizeSlider.oninput = function() {
@@ -327,12 +330,12 @@
           renderer.setSize(window.innerWidth, window.innerHeight);
           container.appendChild(renderer.domElement);
 
-          container.addEventListener('mousedown', onMouseDown, false);
-          container.addEventListener('mouseup', onMouseUp, false);
-          container.addEventListener('mousemove', onMouseMove, false);
-          container.addEventListener('touchstart', onTouchStart, false);
-          container.addEventListener('touchmove', onTouchMove, false);
-          container.addEventListener('touchend', onTouchEnd, false);
+          renderer.domElement.addEventListener( 'mousedown', onMouseDown, false );
+          renderer.domElement.addEventListener( 'mouseup', onMouseUp, false );
+          renderer.domElement.addEventListener( 'mousemove', onMouseMove, false );
+          renderer.domElement.addEventListener( 'touchstart', onTouchStart, false );
+          renderer.domElement.addEventListener( 'touchmove', onTouchMove, false );
+          renderer.domElement.addEventListener( 'touchend', onTouchEnd, false );
           window.addEventListener('resize', onWindowResize, false);
 
           context = new AudioContext({ latencyHint: 'playback' });
