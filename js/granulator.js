@@ -50,18 +50,18 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var now = ctx.currentTime;
     var startTime = now + 0.002;
 
-    // Scale envelope inversely with pitch so it fits the 
-    // actual playback duration
+    var baseSize = (attack + release) * 0.25;
     var pitchScale = Math.max(pitch, 0.5);
-    var grainAttack = (attack * 0.5) / pitchScale;
-    var grainRelease = (release * 0.5) / pitchScale;
+    var scaledSize = baseSize / pitchScale;
+    var grainAttack = scaledSize;
+    var grainRelease = scaledSize;
     var duration = grainAttack + grainRelease;
 
-    var grainDuration = attack * 0.5 + release * 0.5;
+    var unscaledDuration = baseSize * 2;
     var dens = Math.pow(mapRange(density, 1, 0, 0, 1), 2);
     var interval = Math.max(dens * 0.25, MIN_GRAIN_INTERVAL);
-    var overlapCount = Math.max(1, grainDuration / interval);
-    var grainAmp = (amp * 2) / overlapCount;
+    var overlapCount = Math.max(1, unscaledDuration / interval);
+    var grainAmp = (amp * 2) / Math.pow(overlapCount, 0.3);
 
     var buffer = intersectedBlock.parent.buffer;
     var numChildren = intersectedBlock.parent.children.length;
@@ -89,12 +89,10 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     this.gain.gain.cancelScheduledValues(now);
     this.gain.gain.setValueAtTime(0.0, startTime);
     this.gain.gain.linearRampToValueAtTime(grainAmp, startTime + grainAttack);
-    this.gain.gain.setValueAtTime(grainAmp, startTime + grainAttack);
     this.gain.gain.linearRampToValueAtTime(0.0, startTime + duration);
-    this.gain.gain.setValueAtTime(0.0, startTime + duration + 0.001);
 
-    source.start(startTime, playhead, duration + 0.002);
-    source.stop(startTime + duration + 0.002);
+    source.start(startTime, playhead);
+    source.stop(startTime + duration + 0.01);
 
     var self = this;
     source.onended = function() {
@@ -167,8 +165,6 @@ AudioScheduler.prototype._tick = function() {
         var v = this.voices[i];
         if (!v.isPlaying) continue;
 
-        // If voice fell behind, jump to now instead of 
-        // catching up with a burst
         if (v.nextGrainTime < now - SCHEDULE_AHEAD) {
             v.nextGrainTime = now;
         }
@@ -181,9 +177,9 @@ AudioScheduler.prototype._tick = function() {
 
             var dens = Math.pow(mapRange(density, 1, 0, 0, 1), 2);
             var interval = Math.max(dens * 0.25, MIN_GRAIN_INTERVAL);
+
             v.nextGrainTime += interval;
 
-            // Safety: never schedule more than this many in one tick
             if (grainsScheduled >= MAX_CONCURRENT_GRAINS) {
                 v.nextGrainTime = horizon;
                 break;
