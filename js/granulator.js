@@ -50,15 +50,18 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var now = ctx.currentTime;
     var startTime = now + 0.002;
 
-    var grainAttack = attack * 0.5;
-    var grainRelease = release * 0.5;
+    // Scale envelope inversely with pitch so it fits the 
+    // actual playback duration
+    var pitchScale = Math.max(pitch, 0.5);
+    var grainAttack = (attack * 0.5) / pitchScale;
+    var grainRelease = (release * 0.5) / pitchScale;
     var duration = grainAttack + grainRelease;
 
-	var grainDuration = attack * 0.5 + release * 0.5;
-	var dens = Math.pow(mapRange(density, 1, 0, 0, 1), 2);
-	var interval = Math.max(dens * 0.25, MIN_GRAIN_INTERVAL);
-	var overlapCount = Math.max(1, grainDuration / interval);
-	var grainAmp = amp * (1 / overlapCount) * overlapCount;
+    var grainDuration = attack * 0.5 + release * 0.5;
+    var dens = Math.pow(mapRange(density, 1, 0, 0, 1), 2);
+    var interval = Math.max(dens * 0.25, MIN_GRAIN_INTERVAL);
+    var overlapCount = Math.max(1, grainDuration / interval);
+    var grainAmp = (amp * 2) / overlapCount;
 
     var buffer = intersectedBlock.parent.buffer;
     var numChildren = intersectedBlock.parent.children.length;
