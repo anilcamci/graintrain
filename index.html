@@ -319,64 +319,64 @@
           scene = new THREE.Scene();
           scene.add(camera);
           
-          // Add a grid to the background
-          var cellSize = 50;
-          var plusEvery = 5;
-          var markSize = 10;
-          var cols = Math.ceil(window.innerWidth / cellSize) + 1;
-          var rows = Math.ceil(window.innerHeight / cellSize) + 1;
+          // // Add a grid to the background
+          // var cellSize = 50;
+          // var plusEvery = 5;
+          // var markSize = 10;
+          // var cols = Math.ceil(window.innerWidth / cellSize) + 1;
+          // var rows = Math.ceil(window.innerHeight / cellSize) + 1;
 
-          var gridVertices = [];
-          var plusVertices = [];
+          // var gridVertices = [];
+          // var plusVertices = [];
 
-          // Vertical lines
-          for (var col = 0; col < cols; col++) {
-              var x = col * cellSize - window.innerWidth / 2;
-              gridVertices.push(x, -window.innerHeight / 2, 0);
-              gridVertices.push(x, window.innerHeight / 2, 0);
-          }
+          // // Vertical lines
+          // for (var col = 0; col < cols; col++) {
+          //     var x = col * cellSize - window.innerWidth / 2;
+          //     gridVertices.push(x, -window.innerHeight / 2, 0);
+          //     gridVertices.push(x, window.innerHeight / 2, 0);
+          // }
 
-          // Horizontal lines
-          for (var row = 0; row < rows; row++) {
-              var y = row * cellSize - window.innerHeight / 2;
-              gridVertices.push(-window.innerWidth / 2, y, 0);
-              gridVertices.push(window.innerWidth / 2, y, 0);
-          }
+          // // Horizontal lines
+          // for (var row = 0; row < rows; row++) {
+          //     var y = row * cellSize - window.innerHeight / 2;
+          //     gridVertices.push(-window.innerWidth / 2, y, 0);
+          //     gridVertices.push(window.innerWidth / 2, y, 0);
+          // }
 
-          // Plus signs
-          for (var row = 0; row < rows; row += plusEvery) {
-              for (var col = 0; col < cols; col += plusEvery) {
-                  var x = col * cellSize - window.innerWidth / 2;
-                  var y = row * cellSize - window.innerHeight / 2;
+          // // Plus signs
+          // for (var row = 0; row < rows; row += plusEvery) {
+          //     for (var col = 0; col < cols; col += plusEvery) {
+          //         var x = col * cellSize - window.innerWidth / 2;
+          //         var y = row * cellSize - window.innerHeight / 2;
 
-                  plusVertices.push(x - markSize, y, 0);
-                  plusVertices.push(x + markSize, y, 0);
+          //         plusVertices.push(x - markSize, y, 0);
+          //         plusVertices.push(x + markSize, y, 0);
 
-                  plusVertices.push(x, y - markSize, 0);
-                  plusVertices.push(x, y + markSize, 0);
-              }
-          }
+          //         plusVertices.push(x, y - markSize, 0);
+          //         plusVertices.push(x, y + markSize, 0);
+          //     }
+          // }
 
-          var gridGeo = new THREE.BufferGeometry();
-          gridGeo.addAttribute('position', new THREE.BufferAttribute(new Float32Array(gridVertices), 3));
+          // var gridGeo = new THREE.BufferGeometry();
+          // gridGeo.addAttribute('position', new THREE.BufferAttribute(new Float32Array(gridVertices), 3));
 
-          var gridLines = new THREE.LineSegments(gridGeo, new THREE.LineBasicMaterial({
-              color: 0x00CCFF,
-              opacity: 0.25,
-              transparent: true,
-              linewidth: 4
-          }));
-          scene.add(gridLines);
+          // var gridLines = new THREE.LineSegments(gridGeo, new THREE.LineBasicMaterial({
+          //     color: 0x00CCFF,
+          //     opacity: 0.25,
+          //     transparent: true,
+          //     linewidth: 4
+          // }));
+          // scene.add(gridLines);
 
-          var plusGeo = new THREE.BufferGeometry();
-          plusGeo.addAttribute('position', new THREE.BufferAttribute(new Float32Array(plusVertices), 3));
+          // var plusGeo = new THREE.BufferGeometry();
+          // plusGeo.addAttribute('position', new THREE.BufferAttribute(new Float32Array(plusVertices), 3));
 
-          var plusLines = new THREE.LineSegments(plusGeo, new THREE.LineBasicMaterial({
-              color: 0x00CCFF,
-              opacity: 0.75,
-              transparent: true
-          }));
-          scene.add(plusLines);
+          // var plusLines = new THREE.LineSegments(plusGeo, new THREE.LineBasicMaterial({
+          //     color: 0x00CCFF,
+          //     opacity: 0.75,
+          //     transparent: true
+          // }));
+          // scene.add(plusLines);
 
           var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
           var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
