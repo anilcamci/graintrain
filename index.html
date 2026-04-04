@@ -321,7 +321,7 @@
           
           // Add a grid to the background
           var cellSize = 50;
-          var plusEvery = 5;
+          var plusEvery = 3;
           var markSize = 10;
           var cols = Math.ceil(window.innerWidth / cellSize) + 1;
           var rows = Math.ceil(window.innerHeight / cellSize) + 1;
@@ -378,7 +378,7 @@
 
           var plusLines = new THREE.LineSegments(plusGeo, new THREE.LineBasicMaterial({
               color: 0x00CCFF,
-              opacity: 0.75,
+              opacity: 0.6,
               transparent: true
           }));
           scene.add(plusLines);
