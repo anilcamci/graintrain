@@ -77,7 +77,7 @@ function interactWithWave(scaledPointer){
     }
     
     for(var l = 0; l < intersects.length; l++){
-      
+      if(!intersects[l].object.parent.buffer) continue;
       currentlyIntersecting = true;
       intersected = intersects[l].object;
       

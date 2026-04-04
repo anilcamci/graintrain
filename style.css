@@ -169,6 +169,7 @@ body{
 
 .sliderLabel{
   display: inline-block;
+  white-space: nowrap;
   position: relative;
   left: 5px;
   margin: auto;

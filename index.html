@@ -39,8 +39,8 @@
       </div>
 
       <div class="sliderContainer">
-        <div class="sliderLabel">BRIGHTNESS</div>
-        <input type="range" min="0" max="100" value="100" class="slider" id="brightnessSlider">     
+        <div class="sliderLabel">FILTER</div>
+        <input type="range" min="0" max="100" value="0" class="slider" id="filterSlider">     
       </div>
 
       <div class="sliderContainer">
@@ -120,8 +120,8 @@
       release = sizeSlider.value / 200;
       var densitySlider = document.getElementById("densitySlider");
       density = densitySlider.value / 100;
-      var brightnessSlider = document.getElementById("brightnessSlider");
-      filterCutOff = logarithmicSlider(brightnessSlider.value);
+      var filterSlider = document.getElementById("filterSlider");
+      filterCutOff = logarithmicSlider(100 - filterSlider.value);
       var volumeSlider = document.getElementById("volumeSlider");
       amp = volumeSlider.value / 300;
 
@@ -150,8 +150,8 @@
         highlightRange = spreadSlider.value / 1;
       }
 
-      brightnessSlider.oninput = function() {
-        lowPassFilter.frequency.value = logarithmicSlider(brightnessSlider.value);
+      filterSlider.oninput = function() {
+        lowPassFilter.frequency.value = logarithmicSlider(100 - filterSlider.value);
       }
 
       reverbSlider.oninput = function() {
@@ -256,7 +256,7 @@
 
           lowPassFilter = context.createBiquadFilter();
           lowPassFilter.type = "lowpass";
-          lowPassFilter.frequency.value = logarithmicSlider(brightnessSlider.value);
+          lowPassFilter.frequency.value = logarithmicSlider(100 - filterSlider.value);
 
           limiter = context.createDynamicsCompressor();
           limiter.threshold.value = -1;
@@ -318,6 +318,15 @@
 
           scene = new THREE.Scene();
           scene.add(camera);
+          
+          var gridSize = Math.max(window.innerWidth, window.innerHeight) * 2;
+          var gridDivisions = 70;
+          const grid = new THREE.GridHelper(gridSize, gridDivisions);
+          grid.rotation.x = Math.PI / 2;
+          grid.material.opacity = 0.3;
+          grid.material.color.setHex(0x00CCFF);
+          grid.material.transparent = true;
+          scene.add(grid);
 
           var geometry = new THREE.PlaneGeometry(window.innerWidth * 10, window.innerHeight * 10);
           var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });

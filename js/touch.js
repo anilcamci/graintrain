@@ -168,7 +168,7 @@ function touchWave(touch){
         var currentParentUUIDs = [];
 
         for(var l = 0; l < intersects.length; l++){
-
+            if(!intersects[l].object.parent.buffer) continue;
             var intersected = intersects[l].object;
             var parentUUID = intersected.parent.uuid;
             currentParentUUIDs.push(parentUUID);
