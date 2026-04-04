@@ -152,7 +152,6 @@ function interactWithWave(scaledPointer){
   }
 
   intersectedParents = [];
-  
 }
 
 function setInteractionOffset(interactionPoint) {
