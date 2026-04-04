@@ -56,6 +56,7 @@
     </div>
 
     <input type="file" id="audio-file">
+    <input type="file" id="state-file" accept=".graintrain">
     <div class="buttonArray">
       <div class="buttonContainer">
         <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE AND DRAW A PATH</div>
@@ -77,10 +78,18 @@
         <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
       </div>
       
-      <div class="buttonContainer">
-        <!-- <div class="buttonLabel">PANIC</div> -->
+      <!-- <div class="buttonContainer">
         <div class="button" id="reset" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
+      </div> -->
+
+      <div class="buttonContainer">
+          <div class="button" id="save" onclick="saveState()"><img src='assets/save.png' height="30px" width="30px"></img></div>
       </div>
+
+      <div class="buttonContainer">
+          <div class="button" id="load" onclick="loadState()"><img src='assets/load.png' height="30px" width="30px"></img></div>
+      </div>
+
     </div>
 
     <script>
@@ -399,6 +408,14 @@
           reverb.connect(limiter);
           limiter.connect(context.destination);
 
+          document.addEventListener('visibilitychange', function(){
+              if(document.visibilityState === 'visible'){
+                  if(context.state === 'suspended'){
+                      context.resume();
+                  }
+              }
+          });
+
           fileInput.addEventListener('change', function() {
               let reader = new FileReader();
               reader.onload = function(ev) {
@@ -609,6 +626,249 @@
 
         renderer.render(scene, camera);
       }
+
+      function audioBufferToWav(buffer){
+          var numChannels = buffer.numberOfChannels;
+          var sampleRate = buffer.sampleRate;
+          var format = 1; // PCM
+          var bitDepth = 16;
+
+          var channels = [];
+          for(var i = 0; i < numChannels; i++){
+              channels.push(buffer.getChannelData(i));
+          }
+
+          var dataLength = channels[0].length * numChannels * (bitDepth / 8);
+          var headerLength = 44;
+          var totalLength = headerLength + dataLength;
+
+          var arrayBuffer = new ArrayBuffer(totalLength);
+          var view = new DataView(arrayBuffer);
+
+          // WAV header
+          writeString(view, 0, 'RIFF');
+          view.setUint32(4, totalLength - 8, true);
+          writeString(view, 8, 'WAVE');
+          writeString(view, 12, 'fmt ');
+          view.setUint32(16, 16, true);
+          view.setUint16(20, format, true);
+          view.setUint16(22, numChannels, true);
+          view.setUint32(24, sampleRate, true);
+          view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
+          view.setUint16(32, numChannels * (bitDepth / 8), true);
+          view.setUint16(34, bitDepth, true);
+          writeString(view, 36, 'data');
+          view.setUint32(40, dataLength, true);
+
+          var offset = 44;
+          for(var i = 0; i < channels[0].length; i++){
+              for(var ch = 0; ch < numChannels; ch++){
+                  var sample = Math.max(-1, Math.min(1, channels[ch][i]));
+                  sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                  view.setInt16(offset, sample, true);
+                  offset += 2;
+              }
+          }
+
+          return arrayBuffer;
+      }
+
+      function writeString(view, offset, string){
+          for(var i = 0; i < string.length; i++){
+              view.setUint8(offset + i, string.charCodeAt(i));
+          }
+      }
+
+      function arrayBufferToBase64(buffer){
+          var binary = '';
+          var bytes = new Uint8Array(buffer);
+          var chunkSize = 8192;
+          for(var i = 0; i < bytes.length; i += chunkSize){
+              var chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+              binary += String.fromCharCode.apply(null, chunk);
+          }
+          return btoa(binary);
+      }
+
+      function base64ToArrayBuffer(base64){
+          var binary = atob(base64);
+          var bytes = new Uint8Array(binary.length);
+          for(var i = 0; i < binary.length; i++){
+              bytes[i] = binary.charCodeAt(i);
+          }
+          return bytes.buffer;
+      }
+
+      function saveState(){
+
+          var stateData = {
+              globalParams: {
+                  pitch: pitch,
+                  attack: attack,
+                  release: release,
+                  density: density,
+                  spread: highlightRange,
+                  filter: filterSlider.value,
+                  reverb: reverbSlider.value,
+                  amp: amp
+              },
+              grainTrains: []
+          };
+
+          for(var i = 0; i < scene.children.length; i++){
+              var child = scene.children[i];
+              if(child.buffer && child.path){
+
+                  // Extract path points
+                  var pathPoints = [];
+                  var numPoints = 100;
+                  for(var j = 0; j <= numPoints; j++){
+                      var point = child.path.getPointAt(j / numPoints);
+                      pathPoints.push([point.x, point.y, point.z]);
+                  }
+
+                  // Encode audio buffer
+                  var wavData = audioBufferToWav(child.buffer);
+                  var base64Audio = arrayBufferToBase64(wavData);
+
+                  var trainData = {
+                      buffer: base64Audio,
+                      pathPoints: pathPoints,
+                      position: {
+                          x: child.position.x,
+                          y: child.position.y,
+                          z: child.position.z
+                      }
+                  };
+
+                  if(child.params){
+                      trainData.params = JSON.parse(JSON.stringify(child.params));
+                  }
+
+                  stateData.grainTrains.push(trainData);
+              }
+          }
+
+          var json = JSON.stringify(stateData);
+          var blob = new Blob([json], { type: 'application/json' });
+          var url = URL.createObjectURL(blob);
+
+          var link = document.createElement('a');
+          link.href = url;
+          link.download = 'session.graintrain';
+          link.click();
+
+          URL.revokeObjectURL(url);
+      }
+
+      function loadState(){
+          document.getElementById('state-file').click();
+      }
+
+      document.getElementById('state-file').addEventListener('change', function(){
+          var file = this.files[0];
+          if(!file) return;
+
+          var reader = new FileReader();
+          reader.onload = function(ev){
+              var stateData = JSON.parse(ev.target.result);
+
+              // Clear current state
+              for(var i = scene.children.length - 1; i >= 0; i--){
+                  var child = scene.children[i];
+                  if(child.buffer){
+                      if(child.voice){
+                          child.voice.stopVoice();
+                          child.voice.isPlaying = false;
+                      }
+                      scene.remove(child);
+                  }
+              }
+              voices = [];
+              if(scheduler){
+                  scheduler.stop();
+                  scheduler = null;
+              }
+              grainPool = null;
+
+              // Restore global params
+              var gp = stateData.globalParams;
+              pitch = gp.pitch;
+              attack = gp.attack;
+              release = gp.release;
+              density = gp.density;
+              highlightRange = gp.spread;
+              amp = gp.amp;
+
+              // Restore sliders
+              if(pitch <= 1){
+                  pitchSlider.value = (pitch - 0.5) * 100;
+              } else {
+                  pitchSlider.value = pitch * 50;
+              }
+              document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
+              sizeSlider.value = attack * 200;
+              densitySlider.value = density * 100;
+              spreadSlider.value = highlightRange;
+              filterSlider.value = gp.filter;
+              lowPassFilter.frequency.value = logarithmicSlider(100 - gp.filter);
+              reverbSlider.value = gp.reverb;
+              dryGain.gain.value = 1 - gp.reverb / 100;
+              wetGain.gain.value = gp.reverb / 100;
+              volumeSlider.value = amp * 300;
+
+              // Restore each GrainTrain
+              var loadCount = 0;
+              var totalTrains = stateData.grainTrains.length;
+
+              if(totalTrains === 0) return;
+
+              for(var t = 0; t < totalTrains; t++){
+                  (function(trainData){
+                      var wavArrayBuffer = base64ToArrayBuffer(trainData.buffer);
+
+                      context.decodeAudioData(wavArrayBuffer, function(buffer){
+                          currentBuffer = buffer;
+                          data = buffer.getChannelData(0);
+
+                          // Rebuild path from saved points
+                          var vectors = [];
+                          for(var p = 0; p < trainData.pathPoints.length; p++){
+                              var pt = trainData.pathPoints[p];
+                              vectors.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
+                          }
+                          var path = new THREE.CatmullRomCurve3(vectors);
+
+                          drawWave(path);
+
+                          // Restore position and params
+                          var wave = scene.children[scene.children.length - 1];
+                          wave.position.set(
+                              trainData.position.x,
+                              trainData.position.y,
+                              trainData.position.z
+                          );
+
+                          if(trainData.params){
+                              wave.params = trainData.params;
+                          }
+
+                          // Store path reference
+                          waveformPaths.push(path);
+
+                          loadCount++;
+                      }, function(error){
+                          console.log('Error decoding saved audio:', error);
+                          loadCount++;
+                      });
+                  })(stateData.grainTrains[t]);
+              }
+          };
+          reader.readAsText(file);
+
+          // Reset file input so same file can be loaded again
+          this.value = '';
+      }, false);
 
     </script>
     </div>
