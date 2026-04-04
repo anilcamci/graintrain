@@ -349,11 +349,17 @@
                   var x = col * cellSize - window.innerWidth / 2;
                   var y = row * cellSize - window.innerHeight / 2;
 
+                  // Horizontal arm + offset copy
                   plusVertices.push(x - markSize, y, 0);
                   plusVertices.push(x + markSize, y, 0);
+                  plusVertices.push(x - markSize, y + 0.5, 0);
+                  plusVertices.push(x + markSize, y + 0.5, 0);
 
+                  // Vertical arm + offset copy
                   plusVertices.push(x, y - markSize, 0);
                   plusVertices.push(x, y + markSize, 0);
+                  plusVertices.push(x + 0.5, y - markSize, 0);
+                  plusVertices.push(x + 0.5, y + markSize, 0);
               }
           }
 
@@ -363,8 +369,7 @@
           var gridLines = new THREE.LineSegments(gridGeo, new THREE.LineBasicMaterial({
               color: 0x00CCFF,
               opacity: 0.25,
-              transparent: true,
-              linewidth: 4
+              transparent: true
           }));
           scene.add(gridLines);
 
