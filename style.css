@@ -84,6 +84,12 @@ body{
 }
 
 @media screen and (max-width: 1000px) {
+    .instructionLabel{
+        min-width: fit-content;
+    }
+}
+
+@media screen and (max-width: 1000px) {
   #sliderArray {
     position: absolute;
     width: 100%;
@@ -142,8 +148,6 @@ body{
     overflow: visible;
   }
 }
-
-
 
 .slider:hover {
   opacity: 1;
