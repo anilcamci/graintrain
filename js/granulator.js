@@ -179,9 +179,6 @@ AudioScheduler.prototype._tick = function() {
         var v = this.voices[i];
         if (!v.isPlaying) continue;
 
-        // Mark this voice as active
-        v.lastActive = Date.now();
-
         if (v.nextGrainTime < now - SCHEDULE_AHEAD) {
             v.nextGrainTime = now;
         }
@@ -194,6 +191,7 @@ AudioScheduler.prototype._tick = function() {
 
             var dens = mapRange(density, 1, 0, 0, 1);
             var interval = Math.max(dens * 0.08, MIN_GRAIN_INTERVAL);
+            var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
 
             v.nextGrainTime += interval;
 
@@ -234,8 +232,6 @@ function voice() {
     this.isPlaying = false;
     this.intersectedBlock = null;
     this.nextGrainTime = 0;
-    this.lastActive = Date.now();
-
 }
 
 voice.prototype.playVoice = function(intersectedBlock) {
