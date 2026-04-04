@@ -177,7 +177,7 @@
 
       volumeSlider.oninput = function() {
         var normalized = volumeSlider.value / 100;
-        amp = Math.pow(normalized, 3) / 3;
+        amp = Math.pow(normalized, 2) / 3;
       }
 
       var loadImpulse = function(){
@@ -386,7 +386,6 @@
 
           lowPassFilter = context.createBiquadFilter();
           lowPassFilter.type = "lowpass";
-          lowPassFilter.Q = 0.5;
           lowPassFilter.frequency.value = 20000;
 
           limiter = context.createDynamicsCompressor();
