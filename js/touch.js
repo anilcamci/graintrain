@@ -62,12 +62,20 @@ function onTouchStart(event){
             waveformPath.beginAt(getInteractionPoint(scaledPointer));
         }
 
-        if(moveMode){
+        if(moveMode || duplicateMode){
             var intersects = trackedTouch.raycaster.intersectObject(floor);
             trackedTouch.interactionPoint = intersects[0].point;
             trackedTouch.interactionOffset = intersects[0].point;
             intersects = trackedTouch.raycaster.intersectObjects(scene.children, true);
-            if (intersects.length) trackedTouch.draggedObject = intersects[0].object.parent;
+            if (intersects.length) {
+                if(intersects[0].object.parent.buffer){
+                    if(duplicateMode){
+                        trackedTouch.draggedObject = duplicateWaveform(intersects[0].object.parent);
+                    } else {
+                        trackedTouch.draggedObject = intersects[0].object.parent;
+                    }
+                }
+            }
         }
 
         touchWave(trackedTouch);
@@ -106,6 +114,11 @@ function onTouchEnd(event){
                 break;
             }
         }
+
+        if(duplicateMode && touch.draggedObject){
+            touch.draggedObject = null;
+            toggleDuplicateMode();
+        }
     }
 
     if(addMode){
@@ -141,7 +154,7 @@ function touchWave(touch){
 
     var intersects = touch.raycaster.intersectObjects(scene.children, true);
 
-    if(moveMode){
+    if(moveMode || duplicateMode){
         const dx = touch.interactionPoint.x - touch.interactionOffset.x;
         const dy = touch.interactionPoint.y - touch.interactionOffset.y;
         touch.interactionOffset.x = touch.interactionPoint.x;

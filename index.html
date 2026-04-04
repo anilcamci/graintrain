@@ -69,6 +69,10 @@
       </div>
 
       <div class="buttonContainer">
+        <div class="button" id="duplicate" onclick="toggleDuplicateMode()"><img src='assets/duplicate.png' height="30px" width="30px"></img></div>
+      </div>
+
+      <div class="buttonContainer">
         <!-- <div class="buttonLabel">REMOVE</div> -->
         <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
       </div>
@@ -103,6 +107,7 @@
       var moveMode = false;
       var deleteMode = false;
       var addMode = false;
+      var duplicateMode = false;
 
       var mousePressed = false;
       var isTouchInterface = false;
@@ -196,10 +201,12 @@
           addMode = true;
           moveMode = false;
           deleteMode = false;
+          duplicateMode = false;
           document.getElementById('drawInstruction').style.display = 'block';
           renderer.setClearColor(0xe8f0f1);
           document.getElementById('add').style.background = "#00CCFF";
           document.getElementById('move').style.background = "#FF5E89";
+          document.getElementById('duplicate').style.background = "#FF5E89";
           document.getElementById('delete').style.background = "#FF5E89";
           document.getElementById('audio-file').click();
         }
@@ -214,11 +221,29 @@
           moveMode = true;
           deleteMode = false;
           addMode = false;
+          duplicateMode = false;
           document.getElementById('move').style.background = "#00CCFF";
+          document.getElementById('duplicate').style.background = "#FF5E89";
           document.getElementById('delete').style.background = "#FF5E89";
           document.getElementById('add').style.background = "#FF5E89";
         }
+      }
 
+      function toggleDuplicateMode(){
+
+          if(duplicateMode){
+              duplicateMode = false;
+              document.getElementById('duplicate').style.background = "#FF5E89";
+          } else {
+              duplicateMode = true;
+              moveMode = false;
+              deleteMode = false;
+              addMode = false;
+              document.getElementById('duplicate').style.background = "#00CCFF";
+              document.getElementById('add').style.background = "#FF5E89";
+              document.getElementById('move').style.background = "#FF5E89";
+              document.getElementById('delete').style.background = "#FF5E89";
+          }
       }
 
       function toggleDeleteMode(){
@@ -230,9 +255,11 @@
           deleteMode = true;
           moveMode = false;
           addMode = false;
+          duplicateMode = false;
           document.getElementById('delete').style.background = "#00CCFF";
           document.getElementById('add').style.background = "#FF5E89";
           document.getElementById('move').style.background = "#FF5E89";
+          document.getElementById('duplicate').style.background = "#FF5E89";
         }
 
       }
@@ -480,6 +507,31 @@
           wave.buffer = currentBuffer;
           wave.path = path;
           scene.add(wave);
+      }
+
+      function duplicateWaveform(original){
+
+          var clone = new THREE.Object3D();
+
+          for(var i = 0; i < original.children.length; i++){
+              var origChild = original.children[i];
+              var boxGeometry = origChild.geometry.clone();
+              var boxMaterial = origChild.material.clone();
+              var block = new THREE.Mesh(boxGeometry, boxMaterial);
+              block.index = origChild.index;
+              block.position.copy(origChild.position);
+              block.rotation.copy(origChild.rotation);
+              block.scale.copy(origChild.scale);
+              clone.add(block);
+          }
+
+          clone.buffer = original.buffer;
+          clone.path = original.path;
+          clone.voice = null;
+          clone.position.copy(original.position);
+
+          scene.add(clone);
+          return clone;
       }
 
       function getScaledPointer(interactor){

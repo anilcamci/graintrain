@@ -1,40 +1,51 @@
 function onMouseDown(event){
-  if(!isTouchInterface){
-    document.getElementById('globalContainer').style.pointerEvents = 'none';
+    if(!isTouchInterface){
+        document.getElementById('globalContainer').style.pointerEvents = 'none';
 
-    mousePressed = true;
+        mousePressed = true;
 
-    let scaledPointer = getScaledPointer(event);
+        let scaledPointer = getScaledPointer(event);
 
-    if( addMode ) waveformPath.beginAt(getInteractionPoint(scaledPointer));
+        if( addMode ) waveformPath.beginAt(getInteractionPoint(scaledPointer));
 
-    if( moveMode && currentlyIntersecting ){
-      draggedObject = intersected.parent;
-      setInteractionOffset(getInteractionPoint(scaledPointer));
+        if( moveMode && currentlyIntersecting ){
+            draggedObject = intersected.parent;
+            setInteractionOffset(getInteractionPoint(scaledPointer));
+        }
+
+        if( duplicateMode && currentlyIntersecting ){
+            var clone = duplicateWaveform(intersected.parent);
+            draggedObject = clone;
+            setInteractionOffset(getInteractionPoint(scaledPointer));
+        }
+
+        if( deleteMode && currentlyIntersecting ){
+            scene.remove(intersected.parent);
+            if(intersected.parent.voice) intersected.parent.voice.stopVoice();
+            previouslyIntersected = [];
+            toggleDeleteMode();
+        }
     }
-
-    if( deleteMode && currentlyIntersecting ){
-      scene.remove(intersected.parent);
-      if(intersected.parent.voice) intersected.parent.voice.stopVoice();
-      previouslyIntersected = [];
-      toggleDeleteMode();
-    }
-  }
 }
 
 function onMouseUp(event){
-  if(!isTouchInterface){
-    document.getElementById('globalContainer').style.pointerEvents = 'auto';
+    if(!isTouchInterface){
+        document.getElementById('globalContainer').style.pointerEvents = 'auto';
 
-    mousePressed = false;
+        mousePressed = false;
 
-    if(addMode){
-      var obj = waveformPath.createObject();
-      waveformPaths.push(obj.spline);
-      drawWave(obj.spline);
-      toggleAddMode();
+        if(addMode){
+            var obj = waveformPath.createObject();
+            waveformPaths.push(obj.spline);
+            drawWave(obj.spline);
+            toggleAddMode();
+        }
+
+        if(duplicateMode && draggedObject){
+            draggedObject = null;
+            toggleDuplicateMode();
+        }
     }
-  }
 }
 
 function onMouseMove(event){
@@ -56,7 +67,7 @@ function interactWithWave(scaledPointer){
   var intersects = raycaster.intersectObjects(scene.children, true);
   
 
-  if( moveMode && mousePressed && currentlyIntersecting){
+  if( (moveMode || duplicateMode) && mousePressed && currentlyIntersecting){
     const dx = interactionPoint.x - interactionOffset.x;
     const dy = interactionPoint.y - interactionOffset.y;
     interactionOffset.x = interactionPoint.x;

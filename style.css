@@ -28,7 +28,7 @@ body{
   border: 0px;
   position: relative;
   float: left;
-  width: calc(100% / 4);
+  width: calc(100% / 5);
   display: flex;
   flex-direction: column;
   align-items: center;
