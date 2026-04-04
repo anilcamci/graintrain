@@ -57,6 +57,7 @@
 
     <input type="file" id="audio-file">
     <input type="file" id="state-file" accept=".graintrain">
+    
     <div class="buttonArray">
       <div class="buttonContainer">
         <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE AND DRAW A PATH</div>
@@ -762,12 +763,15 @@
       }
 
       function loadState(){
-          document.getElementById('state-file').click();
+        context.resume();
+        document.getElementById('state-file').click();
       }
 
       document.getElementById('state-file').addEventListener('change', function(){
           var file = this.files[0];
           if(!file) return;
+
+          context.resume();
 
           var reader = new FileReader();
           reader.onload = function(ev){
