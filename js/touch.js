@@ -167,111 +167,94 @@ function touchWave(touch){
 
         // Reset previously painted interactions
         for(var j = 0; j < touch.previouslyIntersected.length; j++){
+            if(!touch.previouslyIntersected[j]) continue;
+            var parent = touch.previouslyIntersected[j].parent;
+            if(!parent) continue;
             for(var i = -highlightRange; i < highlightRange + 1; i++){
                 var previousID = Math.max(Math.min(
                     touch.previouslyIntersected[j].index - i,
-                    touch.previouslyIntersected[j].parent.children.length - 1
+                    parent.children.length - 1
                 ), 0);
-                touch.previouslyIntersected[j].parent.children[previousID].material.color.setHex(0x00ccff);
-                touch.previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+                parent.children[previousID].material.color.setHex(0x00ccff);
+                parent.children[previousID].scale.z = 1;
             }
         }
         touch.previouslyIntersected = [];
 
-        var currentParentUUIDs = [];
+        // Group intersections by parent, collecting all hit indices
+        var parentHits = {};
 
         for(var l = 0; l < intersects.length; l++){
+
             if(!intersects[l].object.parent.buffer) continue;
+
             var intersected = intersects[l].object;
             var parentUUID = intersected.parent.uuid;
-            currentParentUUIDs.push(parentUUID);
 
-            if(deleteMode){
-                scene.remove(intersected.parent);
-                toggleDeleteMode();
-                if(touch.voices[parentUUID]){
-                    touch.voices[parentUUID].stopVoice();
-                    touch.voices[parentUUID].isPlaying = false;
-                    delete touch.voices[parentUUID];
-                }
-            } else {
-                // If this touch doesn't have a voice for this parent, create one
-                if(!touch.voices[parentUUID]){
-                    touch.voices[parentUUID] = new voice();
-                    touch.voices[parentUUID].playVoice(intersected);
+            lastInteractedWave = intersected.parent;
+
+            if(!parentHits[parentUUID]){
+                parentHits[parentUUID] = {
+                    parent: intersected.parent,
+                    hits: []
+                };
+            }
+            parentHits[parentUUID].hits.push(intersected);
+
+            for(var i = -highlightRange; i < highlightRange + 1; i++){
+                var gradient = (highlightRange - Math.abs(i)) / 7;
+                var ID = Math.max(Math.min(
+                    intersected.index - i,
+                    intersected.parent.children.length - 1
+                ), 0);
+                intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
+                intersected.parent.children[ID].scale.z = 1.5 + gradient;
+            }
+
+            touch.previouslyIntersected.push(intersected);
+        }
+
+        // For each parent, assign voices to each hit region
+        var currentVoiceKeys = [];
+
+        for(var uuid in parentHits){
+            var hits = parentHits[uuid].hits;
+
+            // Sort hits by index to get stable ordering
+            hits.sort(function(a, b){ return a.index - b.index; });
+
+            // Group nearby hits (within highlightRange) into single regions
+            var regions = [];
+            var currentRegion = [hits[0]];
+
+            for(var h = 1; h < hits.length; h++){
+                if(hits[h].index - currentRegion[currentRegion.length - 1].index <= highlightRange * 2){
+                    currentRegion.push(hits[h]);
                 } else {
-                    var currentVoiceKeys = [];
-
-                    for(var l = 0; l < intersects.length; l++){
-
-                        if(!intersects[l].object.parent.buffer) continue;
-
-                        var intersected = intersects[l].object;
-                        var parentUUID = intersected.parent.uuid;
-                        var voiceKey = parentUUID + '_' + l;
-                        currentParentUUIDs.push(parentUUID);
-                        currentVoiceKeys.push(voiceKey);
-
-                        if(deleteMode){
-                            scene.remove(intersected.parent);
-                            toggleDeleteMode();
-                            // Stop all voices for this parent
-                            for(var key in touch.voices){
-                                if(key.indexOf(parentUUID) === 0){
-                                    touch.voices[key].stopVoice();
-                                    touch.voices[key].isPlaying = false;
-                                    delete touch.voices[key];
-                                }
-                            }
-                        } else {
-                            if(!touch.voices[voiceKey]){
-                                touch.voices[voiceKey] = new voice();
-                                touch.voices[voiceKey].playVoice(intersected);
-                            } else {
-                                touch.voices[voiceKey].intersectedBlock = intersected;
-                            }
-
-                            for(var i = -highlightRange; i < highlightRange + 1; i++){
-                                var gradient = (highlightRange - Math.abs(i)) / 7;
-                                var ID = Math.max(Math.min(
-                                    intersected.index - i,
-                                    intersected.parent.children.length - 1
-                                ), 0);
-                                intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
-                                intersected.parent.children[ID].scale.z = 1.5 + gradient;
-                            }
-
-                            touch.previouslyIntersected.push(intersected);
-                        }
-                    }
-
-                    // Stop voices no longer active
-                    for(var key in touch.voices){
-                        if(currentVoiceKeys.indexOf(key) === -1){
-                            touch.voices[key].stopVoice();
-                            touch.voices[key].isPlaying = false;
-                            delete touch.voices[key];
-                        }
-                    }
+                    regions.push(currentRegion);
+                    currentRegion = [hits[h]];
                 }
+            }
+            regions.push(currentRegion);
 
-                for(var i = -highlightRange; i < highlightRange + 1; i++){
-                    var gradient = (highlightRange - Math.abs(i)) / 7;
-                    var ID = Math.max(Math.min(
-                        intersected.index - i,
-                        intersected.parent.children.length - 1
-                    ), 0);
-                    intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
-                    intersected.parent.children[ID].scale.z = 1.5 + gradient;
+            // Each region gets a voice keyed by parent UUID and region index
+            for(var r = 0; r < regions.length; r++){
+                var voiceKey = uuid + '_r' + r;
+                var regionCenter = regions[r][Math.floor(regions[r].length / 2)];
+                currentVoiceKeys.push(voiceKey);
+
+                if(!touch.voices[voiceKey]){
+                    touch.voices[voiceKey] = new voice();
+                    touch.voices[voiceKey].playVoice(regionCenter);
+                } else {
+                    touch.voices[voiceKey].intersectedBlock = regionCenter;
                 }
-
-                touch.previouslyIntersected[l] = intersected;
             }
         }
 
-        // Stop voices for parents this touch is no longer intersecting
+        // Stop voices no longer active
         for(var key in touch.voices){
-            if(currentParentUUIDs.indexOf(key) === -1){
+            if(currentVoiceKeys.indexOf(key) === -1){
                 touch.voices[key].stopVoice();
                 touch.voices[key].isPlaying = false;
                 delete touch.voices[key];
