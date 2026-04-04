@@ -185,11 +185,25 @@ function touchWave(touch){
         var parentHits = {};
 
         for(var l = 0; l < intersects.length; l++){
-
             if(!intersects[l].object.parent.buffer) continue;
 
             var intersected = intersects[l].object;
             var parentUUID = intersected.parent.uuid;
+
+            // Handle delete mode immediately and return
+            if(deleteMode){
+                // Stop any active voices for this touch on this parent
+                for(var key in touch.voices){
+                    if(key.indexOf(parentUUID) === 0){
+                        touch.voices[key].stopVoice();
+                        touch.voices[key].isPlaying = false;
+                        delete touch.voices[key];
+                    }
+                }
+                scene.remove(intersected.parent);
+                toggleDeleteMode();
+                return;
+            }
 
             lastInteractedWave = intersected.parent;
 
