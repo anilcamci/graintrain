@@ -1,5 +1,3 @@
-// granulator.js
-
 let attack = 0.40;
 let release = 0.40;
 let density = 0.5;
@@ -7,10 +5,6 @@ let spread = 0.2;
 let pitch = 1;
 let amp = 0.3;
 let lpf = 1;
-
-// ============================================
-// GRAIN POOL
-// ============================================
 
 const POOL_SIZE = 400;
 
@@ -43,10 +37,6 @@ GrainPool.prototype.trigger = function(intersectedBlock) {
     this.index = (this.index + 1) % POOL_SIZE;
     g.trigger(intersectedBlock);
 };
-
-// ============================================
-// POOLED GRAIN
-// ============================================
 
 function PooledGrain(audioContext, destination) {
     this.context = audioContext;
@@ -119,9 +109,7 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     };
 };
 
-// ============================================
-// AUDIO-CLOCK SCHEDULER
-// ============================================
+// Audio Clock Scheduler
 // Uses a look-ahead approach: the main thread wakes up
 // periodically and schedules grains into the future using
 // the audio clock. Even if the main thread is late, grains
@@ -208,10 +196,8 @@ AudioScheduler.prototype._tick = function() {
     }, SCHEDULER_TICK);
 };
 
-// ============================================
-// GLOBALS
-// ============================================
 
+// Globals
 var grainPool = null;
 var scheduler = null;
 
@@ -224,10 +210,8 @@ function initGrainPool() {
     }
 }
 
-// ============================================
-// VOICE
-// ============================================
 
+// Voice
 function voice() {
     this.isPlaying = false;
     this.intersectedBlock = null;
