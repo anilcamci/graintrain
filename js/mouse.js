@@ -74,55 +74,81 @@ function interactWithWave(scaledPointer){
     interactionOffset.y = interactionPoint.y;
     draggedObject.position.x += dx;
     draggedObject.position.y += dy;
-  }else if(!addMode){
+  } else if(!addMode){
 
-    draggedObjectIndex = null;
+      draggedObjectIndex = null;
 
-    // Reset previously painted interactions
-    for(var j = 0; j < previouslyIntersected.length; j++){
-      for( var i = -highlightRange; i < highlightRange + 1; i++){
-        var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
-        previouslyIntersected[j].parent.children[previousID].material.color.setHex( 0x00ccff );
-        previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+      for(var j = 0; j < previouslyIntersected.length; j++){
+          for(var i = -highlightRange; i < highlightRange + 1; i++){
+              var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
+              previouslyIntersected[j].parent.children[previousID].material.color.setHex(0x00ccff);
+              previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+          }
       }
-    }
-    
-    for(var l = 0; l < intersects.length; l++){
-      if(!intersects[l].object.parent.buffer) continue;
-      currentlyIntersecting = true;
-      intersected = intersects[l].object;
-      
-      intersectedParents.push(intersected.parent);
 
-      if(intersected.parent.voice == null){
-         intersected.parent.voice = new voice();
-         voices.push(intersected.parent.voice);
-      }
-      intersected.parent.voice.playVoice(intersected);
-      previouslyIntersectedParents.push(intersected.parent);
+      var currentVoiceKeys = [];
 
-      // Paint the newly interacted objects
-      for( var i = -highlightRange; i < highlightRange + 1; i++){
-        var gradient = (highlightRange - Math.abs(i))/7;
-        var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
-        intersected.parent.children[ID].material.color.setRGB( gradient*2, gradient*0.8, 0.655 );
-        intersected.parent.children[ID].scale.z = 1.1 + gradient;
+      for(var l = 0; l < intersects.length; l++){
+
+          if(!intersects[l].object.parent.buffer) continue;
+
+          currentlyIntersecting = true;
+          intersected = intersects[l].object;
+
+          lastInteractedWave = intersected.parent;
+
+          var parentUUID = intersected.parent.uuid;
+          var voiceKey = parentUUID + '_' + l;
+          intersectedParents.push(intersected.parent);
+          currentVoiceKeys.push(voiceKey);
+
+          if(intersected.parent.voice == null){
+              intersected.parent.voice = {};
+          }
+          if(!intersected.parent.voice[voiceKey]){
+              intersected.parent.voice[voiceKey] = new voice();
+              voices.push(intersected.parent.voice[voiceKey]);
+          }
+          intersected.parent.voice[voiceKey].playVoice(intersected);
+          previouslyIntersectedParents.push(intersected.parent);
+
+          for(var i = -highlightRange; i < highlightRange + 1; i++){
+              var gradient = (highlightRange - Math.abs(i)) / 7;
+              var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
+              intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
+              intersected.parent.children[ID].scale.z = 1.1 + gradient;
+          }
+          previouslyIntersected[l] = intersected;
       }
-      previouslyIntersected[l] = intersected;
-    }
-    
-    if(intersects.length == 0){ 
-      currentlyIntersecting = false;
-      voices = [];
-    }
+
+      if(intersects.length == 0){
+          currentlyIntersecting = false;
+          voices = [];
+      }
   }
 
-  for (const element of previouslyIntersectedParents) {
-    if(intersectedParents.indexOf(element) == -1){ 
-      element.voice.stopVoice();
-      element.voice.isPlaying = false;
-      previouslyIntersectedParents.splice(previouslyIntersectedParents.indexOf(element), 1);
-    }
+  for(const element of previouslyIntersectedParents){
+      if(intersectedParents.indexOf(element) == -1){
+          if(element.voice){
+              for(var key in element.voice){
+                  element.voice[key].stopVoice();
+                  element.voice[key].isPlaying = false;
+              }
+              element.voice = null;
+          }
+          previouslyIntersectedParents.splice(previouslyIntersectedParents.indexOf(element), 1);
+      } else {
+          // Stop voices for keys no longer active on this parent
+          if(element.voice){
+              for(var key in element.voice){
+                  if(currentVoiceKeys.indexOf(key) === -1){
+                      element.voice[key].stopVoice();
+                      element.voice[key].isPlaying = false;
+                      delete element.voice[key];
+                  }
+              }
+          }
+      }
   }
 
   intersectedParents = [];

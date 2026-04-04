@@ -200,8 +200,59 @@ function touchWave(touch){
                     touch.voices[parentUUID] = new voice();
                     touch.voices[parentUUID].playVoice(intersected);
                 } else {
-                    // Update grain position
-                    touch.voices[parentUUID].intersectedBlock = intersected;
+                    var currentVoiceKeys = [];
+
+                    for(var l = 0; l < intersects.length; l++){
+
+                        if(!intersects[l].object.parent.buffer) continue;
+
+                        var intersected = intersects[l].object;
+                        var parentUUID = intersected.parent.uuid;
+                        var voiceKey = parentUUID + '_' + l;
+                        currentParentUUIDs.push(parentUUID);
+                        currentVoiceKeys.push(voiceKey);
+
+                        if(deleteMode){
+                            scene.remove(intersected.parent);
+                            toggleDeleteMode();
+                            // Stop all voices for this parent
+                            for(var key in touch.voices){
+                                if(key.indexOf(parentUUID) === 0){
+                                    touch.voices[key].stopVoice();
+                                    touch.voices[key].isPlaying = false;
+                                    delete touch.voices[key];
+                                }
+                            }
+                        } else {
+                            if(!touch.voices[voiceKey]){
+                                touch.voices[voiceKey] = new voice();
+                                touch.voices[voiceKey].playVoice(intersected);
+                            } else {
+                                touch.voices[voiceKey].intersectedBlock = intersected;
+                            }
+
+                            for(var i = -highlightRange; i < highlightRange + 1; i++){
+                                var gradient = (highlightRange - Math.abs(i)) / 7;
+                                var ID = Math.max(Math.min(
+                                    intersected.index - i,
+                                    intersected.parent.children.length - 1
+                                ), 0);
+                                intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
+                                intersected.parent.children[ID].scale.z = 1.5 + gradient;
+                            }
+
+                            touch.previouslyIntersected.push(intersected);
+                        }
+                    }
+
+                    // Stop voices no longer active
+                    for(var key in touch.voices){
+                        if(currentVoiceKeys.indexOf(key) === -1){
+                            touch.voices[key].stopVoice();
+                            touch.voices[key].isPlaying = false;
+                            delete touch.voices[key];
+                        }
+                    }
                 }
 
                 for(var i = -highlightRange; i < highlightRange + 1; i++){
