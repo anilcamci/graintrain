@@ -410,6 +410,32 @@
               reader.readAsArrayBuffer(this.files[0]);
           }, false);
 
+          setInterval(function(){
+              if(touches.length === 0) return;
+              
+              var now = Date.now();
+              for(var i = touches.length - 1; i >= 0; i--){
+                  var touch = touches[i];
+                  var allOrphaned = true;
+
+                  for(var key in touch.voices){
+                      if(touch.voices[key] && touch.voices[key].isPlaying && 
+                        touch.voices[key].lastActive && 
+                        now - touch.voices[key].lastActive < 2000){
+                          allOrphaned = false;
+                          break;
+                      }
+                  }
+
+                  // Only clean up if the touch has voices but none are 
+                  // being actively scheduled — meaning the touch was lost
+                  if(allOrphaned && Object.keys(touch.voices).length > 0){
+                      cleanupTouch(touches[i]);
+                      touches.splice(i, 1);
+                  }
+              }
+          }, 1000);
+
           animate();
       }
 
