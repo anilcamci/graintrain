@@ -239,8 +239,10 @@ function touchWave(touch){
 
             // Each region gets a voice keyed by parent UUID and region index
             for(var r = 0; r < regions.length; r++){
-                var voiceKey = uuid + '_r' + r;
                 var regionCenter = regions[r][Math.floor(regions[r].length / 2)];
+                // Round to nearest chunk so small movements don't change the key
+                var stableIndex = Math.round(regionCenter.index / highlightRange) * highlightRange;
+                var voiceKey = uuid + '_' + stableIndex;
                 currentVoiceKeys.push(voiceKey);
 
                 if(!touch.voices[voiceKey]){
