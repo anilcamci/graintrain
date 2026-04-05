@@ -275,20 +275,10 @@
 
       }
 
-      function reset() {
+      function rebuildAudioContext(){
 
-          if (scheduler) {
-              scheduler.stop();
-              scheduler = null;
-          }
+          var oldContext = context;
 
-          for (i in voices) {
-              voices[i].stopVoice();
-          }
-          voices = [];
-          grainPool = null;
-
-          context.close();
           context = new AudioContext({ latencyHint: 'playback' });
 
           master = context.createGain();
@@ -319,16 +309,26 @@
           reverb.connect(limiter);
           limiter.connect(context.destination);
 
-          fileInput.addEventListener('change', function() {
-              let reader = new FileReader();
-              reader.onload = function(ev) {
-                  context.decodeAudioData(ev.target.result, function(buffer) {
-                      currentBuffer = buffer;
-                      data = buffer.getChannelData(0);
-                  });
-              };
-              reader.readAsArrayBuffer(this.files[0]);
-          }, false);
+          // Reset grain pool and scheduler to use new context
+          if(scheduler){
+              scheduler.stop();
+              scheduler = null;
+          }
+          grainPool = null;
+
+          // Stop all active voices
+          for(var i = 0; i < touches.length; i++){
+              for(var key in touches[i].voices){
+                  touches[i].voices[key].isPlaying = false;
+              }
+              touches[i].voices = {};
+          }
+          voices = [];
+
+          // Close old context
+          try {
+              oldContext.close();
+          } catch(e) {}
       }
 
       function logarithmicSlider(position) {
@@ -339,6 +339,15 @@
         var maxValue = Math.log(20000);
         var scale = (maxValue-minValue) / (maxPosition-minPosition);
         return Math.exp(minValue + scale*(position-minPosition));
+      }
+
+      function isSafariWebKit(){
+        const ua = navigator.userAgent;
+        const isWebKit = /AppleWebKit/i.test(ua);
+        const isSafari = /Safari/i.test(ua);
+        const isChrome = /CriOS|Chrome/i.test(ua);
+        const isFirefox = /FxiOS|Firefox/i.test(ua);
+        return isWebKit && isSafari && !isChrome && !isFirefox;
       }
 
       function init() {
@@ -429,6 +438,17 @@
               reader.readAsArrayBuffer(this.files[0]);
           }, false);
 
+          if (isSafariWebKit()){
+            document.addEventListener('visibilitychange', function(){
+              if (document.visibilityState === 'visible'){
+                setTimeout(function(){
+                  if (context.state === 'suspended') context.resume();
+                  else rebuildAudioContext();
+                }, 300);
+              }
+            });
+          }
+
           animate();
       }
 
@@ -503,6 +523,7 @@
           var depth = 0;
           var numberOfNodes = path.getLength() / 10 * Math.sqrt(camera.zoom);
           var step = Math.ceil(data.length / numberOfNodes);
+          var blockSpacing = path.getLength() / numberOfNodes;
 
           for (var i = 0; i < numberOfNodes - 1; i++) {
               var min = 1.0;

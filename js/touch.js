@@ -222,7 +222,7 @@ function touchWave(touch){
                     intersected.parent.children.length - 1
                 ), 0);
                 intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
-                intersected.parent.children[ID].scale.z = 1.5 + gradient;
+                intersected.parent.children[ID].scale.z = 1.2 + gradient;
             }
 
             touch.previouslyIntersected.push(intersected);
