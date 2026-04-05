@@ -71,7 +71,8 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var numChildren = intersectedBlock.parent.children.length;
     var offset = intersectedBlock.index * (buffer.duration / numChildren);
 
-    var spreadAmount = highlightRange * 10 / numChildren;
+    var blockDuration = buffer.duration / numChildren;
+    var spreadAmount = highlightRange * blockDuration;
     var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
     var randomOffset = plusOrMinus * Math.random() * spreadAmount;
     var playhead = Math.min(Math.max(offset + randomOffset, 0), buffer.duration);
@@ -109,14 +110,8 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     };
 };
 
-// Audio Clock Scheduler
-// Uses a look-ahead approach: the main thread wakes up
-// periodically and schedules grains into the future using
-// the audio clock. Even if the main thread is late, grains
-// are pre-scheduled with precise audio-clock timing.
-
-const SCHEDULE_AHEAD = 0.05;  // Schedule 50ms into the future
-const SCHEDULER_TICK = 25;     // Main thread wakes every 25ms
+const SCHEDULE_AHEAD = 0.05;
+const SCHEDULER_TICK = 25;
 
 function AudioScheduler(audioContext) {
     this.context = audioContext;
