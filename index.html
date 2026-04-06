@@ -438,13 +438,12 @@
               document.addEventListener('visibilitychange', function(){
                   if(document.visibilityState === 'visible'){
                       setTimeout(function(){
-                          if(context.state === 'suspended') context.resume();
-                          else rebuildAudioContext();
+                          rebuildAudioContext();
                       }, 300);
                   }
               });
           }
-
+          
           animate();
       }
 
