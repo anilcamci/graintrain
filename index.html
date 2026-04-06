@@ -142,6 +142,7 @@
       amp = volumeSlider.value / 300;
 
       var isSafari = false;
+      var needsAudioRebuild = false;
 
       pitchSlider.oninput = function() {
           if(pitchSlider.value <= 45){
@@ -437,9 +438,7 @@
           if(isSafari){
               document.addEventListener('visibilitychange', function(){
                   if(document.visibilityState === 'visible'){
-                      setTimeout(function(){
-                          rebuildAudioContext();
-                      }, 300);
+                      needsAudioRebuild = true;
                   }
               });
           }
