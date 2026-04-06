@@ -2,12 +2,6 @@ let touches = [];
 
 function onTouchStart(event){
     event.preventDefault();
-
-    if(needsAudioRebuild){
-        rebuildAudioContext();
-        needsAudioRebuild = false;
-    }
-
     if(context.state !== "running"){
         context = new AudioContext({ latencyHint: 'playback' });
         
