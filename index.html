@@ -3,6 +3,7 @@
   <head>
     <title>GrainTrain</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="icon" href="data:,">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <script src="js/three.min.js"></script>
@@ -11,7 +12,6 @@
     <script src="js/granulator.js"></script>
     <script src="js/mouse.js"></script>
     <script src="js/touch.js"></script>
-    <script src="js/gainprocessor.js"></script>
   </head>
 
   <body>
@@ -141,6 +141,7 @@
       var volumeSlider = document.getElementById("volumeSlider");
       amp = volumeSlider.value / 300;
 
+      var isSafari = false;
 
       pitchSlider.oninput = function() {
           if(pitchSlider.value <= 45){
@@ -341,15 +342,6 @@
         return Math.exp(minValue + scale*(position-minPosition));
       }
 
-      function isSafariWebKit(){
-        const ua = navigator.userAgent;
-        const isWebKit = /AppleWebKit/i.test(ua);
-        const isSafari = /Safari/i.test(ua);
-        const isChrome = /CriOS|Chrome/i.test(ua);
-        const isFirefox = /FxiOS|Firefox/i.test(ua);
-        return isWebKit && isSafari && !isChrome && !isFirefox;
-      }
-
       function init() {
 
           container = document.createElement('div');
@@ -438,15 +430,19 @@
               reader.readAsArrayBuffer(this.files[0]);
           }, false);
 
-          if (isSafariWebKit()){
-            document.addEventListener('visibilitychange', function(){
-              if (document.visibilityState === 'visible'){
-                setTimeout(function(){
-                  if (context.state === 'suspended') context.resume();
-                  else rebuildAudioContext();
-                }, 300);
-              }
-            });
+          var ua = navigator.userAgent;
+          isSafari = /AppleWebKit/i.test(ua) && /Safari/i.test(ua) && 
+                    !/CriOS|Chrome/i.test(ua) && !/FxiOS|Firefox/i.test(ua);
+
+          if(isSafari){
+              document.addEventListener('visibilitychange', function(){
+                  if(document.visibilityState === 'visible'){
+                      setTimeout(function(){
+                          if(context.state === 'suspended') context.resume();
+                          else rebuildAudioContext();
+                      }, 300);
+                  }
+              });
           }
 
           animate();
