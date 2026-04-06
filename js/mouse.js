@@ -1,10 +1,6 @@
 function onMouseDown(event){
     if(!isTouchInterface){
-        if(needsAudioRebuild){
-            rebuildAudioContext();
-            needsAudioRebuild = false;
-        }
-
+        
         document.getElementById('globalContainer').style.pointerEvents = 'none';
 
         mousePressed = true;
