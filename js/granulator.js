@@ -53,16 +53,22 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var now = ctx.currentTime;
     var startTime = now + 0.002;
 
-    var baseSize = (attack + release) * 0.25;
-    var pitchScale = Math.max(pitch, 0.5);
+    var params = intersectedBlock.parent.params;
+    var localPitch = params ? Math.max(0.5, Math.min(2, pitch * params.pitchOffset)) : pitch;
+    var localAttack = params ? Math.max(0.005, Math.min(0.5, attack + params.attackOffset)) : attack;
+    var localRelease = params ? Math.max(0.005, Math.min(0.5, release + params.releaseOffset)) : release;
+    var localDensity = params ? Math.max(0, Math.min(1, density + params.densityOffset)) : density;
+    var localSpread = params ? Math.max(1, Math.min(10, highlightRange + params.spreadOffset)) : highlightRange;
+
+    var baseSize = (localAttack + localRelease) * 0.25;
+    var pitchScale = Math.max(localPitch, 0.5);
     var scaledSize = baseSize / pitchScale;
     var grainAttack = scaledSize;
     var grainRelease = scaledSize;
     var duration = grainAttack + grainRelease;
 
     var unscaledDuration = baseSize * 2;
-    var dens = mapRange(density, 1, 0, 0, 1);
-    var interval = Math.max(dens * 0.08, MIN_GRAIN_INTERVAL);
+    var dens = mapRange(localDensity, 1, 0, 0, 1);
     var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
     var overlapCount = Math.max(1, unscaledDuration / interval);
     var grainAmp = (amp * 2) / Math.pow(overlapCount, 0.3);
@@ -72,7 +78,7 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var offset = intersectedBlock.index * (buffer.duration / numChildren);
 
     var blockDuration = buffer.duration / numChildren;
-    var spreadAmount = highlightRange * blockDuration;
+    var spreadAmount = localSpread * blockDuration;
     var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
     var randomOffset = plusOrMinus * Math.random() * spreadAmount;
     var playhead = Math.min(Math.max(offset + randomOffset, 0), buffer.duration);
@@ -87,7 +93,7 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
 
     var source = ctx.createBufferSource();
     source.buffer = buffer;
-    source.playbackRate.value = pitch;
+    source.playbackRate.value = localPitch;
     source.connect(this.gain);
     this.activeSource = source;
 
@@ -172,8 +178,9 @@ AudioScheduler.prototype._tick = function() {
             grainPool.trigger(v.intersectedBlock);
             grainsScheduled++;
 
-            var dens = mapRange(density, 1, 0, 0, 1);
-            var interval = Math.max(dens * 0.08, MIN_GRAIN_INTERVAL);
+            var params = v.intersectedBlock.parent.params;
+            var localDensity = params ? Math.max(0, Math.min(1, density + params.densityOffset)) : density;
+            var dens = mapRange(localDensity, 1, 0, 0, 1);
             var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
 
             v.nextGrainTime += interval;

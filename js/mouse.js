@@ -97,6 +97,10 @@ function interactWithWave(scaledPointer){
           intersected = intersects[l].object;
 
           lastInteractedWave = intersected.parent;
+          if(localMode && sliderOwner === null && lastInteractedWave.params){
+              sliderOwner = lastInteractedWave;
+              loadParamsToSliders(sliderOwner.params);
+          }
 
           var parentUUID = intersected.parent.uuid;
           var voiceKey = parentUUID + '_' + l;
@@ -125,6 +129,7 @@ function interactWithWave(scaledPointer){
       if(intersects.length == 0){
           currentlyIntersecting = false;
           voices = [];
+          if(localMode) sliderOwner = null;
       }
   }
 

@@ -18,23 +18,27 @@
     <div id = "globalContainer">
 
     <div id="sliderArray">
+      <div id="scopeButtonContainer">
+        <div class="button" id="scopeButton" onclick="toggleParamScope()"><img src='assets/global.png' id="scopeIcon" height="24px" width="24px"></img></div>
+      </div>
+
       <div class="sliderContainer">
-        <div class="sliderLabel">PITCH <span id="myText">1</span></div>
+        <div class="sliderLabel" id="pitchLabel">PITCH <span id="myText">1</span></div>
         <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">       
       </div>
 
       <div class="sliderContainer">
-        <div class="sliderLabel">SIZE</div>
+        <div class="sliderLabel" id="sizeLabel">SIZE</div>
         <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">        
       </div>
 
       <div class="sliderContainer">
-        <div class="sliderLabel">DENSITY</div>
+        <div class="sliderLabel" id="densityLabel">DENSITY</div>
         <input type="range" min="0" max="100" value="50" class="slider" id="densitySlider">
       </div>
 
       <div class="sliderContainer">
-        <div class="sliderLabel">SPREAD</div>
+        <div class="sliderLabel" id="spreadLabel">SPREAD</div>
         <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">        
       </div>
 
@@ -129,6 +133,11 @@
       var reverb, dryGain, wetGain;
       var limiter;
 
+      var localMode = false;
+      var lastInteractedWave = null;
+      var sliderOwner = null;
+      var localSliderIDs = ['pitchLabel', 'sizeLabel', 'densityLabel', 'spreadLabel'];
+
       var pitchSlider = document.getElementById("pitchSlider");
       pitch = pitchSlider.value / 50;
       var sizeSlider = document.getElementById("sizeSlider");
@@ -144,27 +153,66 @@
       var isSafari = false;
 
       pitchSlider.oninput = function() {
+          var newPitch;
           if(pitchSlider.value <= 45){
-              pitch = pitchSlider.value/100 + 0.5;
-          }else if(pitchSlider.value >= 55){
-              pitch = pitchSlider.value/50;
-          }else{
-              pitch = 1;
+              newPitch = pitchSlider.value / 100 + 0.5;
+          } else if(pitchSlider.value >= 55){
+              newPitch = pitchSlider.value / 50;
+          } else {
+              newPitch = 1;
           }
-          document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
+
+          if(localMode){
+              var activeParents = getActiveTouchedParents();
+              for(var i = 0; i < activeParents.length; i++){
+                  activeParents[i].params.pitchOffset = newPitch / pitch;
+              }
+          } else {
+              pitch = newPitch;
+          }
+          document.getElementById("myText").innerHTML = Number(newPitch.toString().match(/^\d+(?:\.\d{0,2})?/));
       }
 
       sizeSlider.oninput = function() {
-        attack = sizeSlider.value / 200;
-        release = sizeSlider.value / 200;
+          var newAttack = sizeSlider.value / 200;
+          var newRelease = sizeSlider.value / 200;
+
+          if(localMode){
+              var activeParents = getActiveTouchedParents();
+              for(var i = 0; i < activeParents.length; i++){
+                  activeParents[i].params.attackOffset = newAttack - attack;
+                  activeParents[i].params.releaseOffset = newRelease - release;
+              }
+          } else {
+              attack = newAttack;
+              release = newRelease;
+          }
       }
 
       densitySlider.oninput = function() {
-        density = densitySlider.value / 100;
+          var newDensity = densitySlider.value / 100;
+
+          if(localMode){
+              var activeParents = getActiveTouchedParents();
+              for(var i = 0; i < activeParents.length; i++){
+                  activeParents[i].params.densityOffset = newDensity - density;
+              }
+          } else {
+              density = newDensity;
+          }
       }
 
       spreadSlider.oninput = function() {
-        highlightRange = spreadSlider.value / 1;
+          var newSpread = spreadSlider.value / 1;
+
+          if(localMode){
+              var activeParents = getActiveTouchedParents();
+              for(var i = 0; i < activeParents.length; i++){
+                  activeParents[i].params.spreadOffset = newSpread - highlightRange;
+              }
+          } else {
+              highlightRange = newSpread;
+          }
       }
 
       filterSlider.oninput = function() {
@@ -200,6 +248,110 @@
 
       init();
       render();
+
+      function toggleParamScope(){
+
+          if(localMode){
+              localMode = false;
+              sliderOwner = null;
+              document.getElementById('scopeIcon').src = 'assets/global.png';
+              document.getElementById('scopeButton').style.background = "#00CCFF";
+
+              loadGlobalToSliders();
+
+              for(var i = 0; i < localSliderIDs.length; i++){
+                  document.getElementById(localSliderIDs[i]).classList.remove('local');
+              }
+
+              var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider'];
+              for(var i = 0; i < localSliders.length; i++){
+                  document.getElementById(localSliders[i]).classList.remove('localSlider');
+              }
+          } else {
+              if(lastInteractedWave && lastInteractedWave.params){
+                  localMode = true;
+                  sliderOwner = lastInteractedWave;
+                  document.getElementById('scopeIcon').src = 'assets/local.png';
+                  document.getElementById('scopeButton').style.background = "#FF5E89";
+
+                  loadParamsToSliders(sliderOwner.params);
+
+                  for(var i = 0; i < localSliderIDs.length; i++){
+                      document.getElementById(localSliderIDs[i]).classList.add('local');
+                  }
+
+                  var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider'];
+                  for(var i = 0; i < localSliders.length; i++){
+                      document.getElementById(localSliders[i]).classList.add('localSlider');
+                  }
+              }
+          }
+      }
+
+      function loadParamsToSliders(params){
+          var actualPitch = Math.max(0.5, Math.min(2, pitch * params.pitchOffset));
+          if(actualPitch <= 1){
+              pitchSlider.value = (actualPitch - 0.5) * 100;
+          } else {
+              pitchSlider.value = actualPitch * 50;
+          }
+          document.getElementById("myText").innerHTML = Number(actualPitch.toString().match(/^\d+(?:\.\d{0,2})?/));
+
+          var actualAttack = Math.max(0.005, Math.min(0.5, attack + params.attackOffset));
+          sizeSlider.value = actualAttack * 200;
+
+          var actualDensity = Math.max(0, Math.min(1, density + params.densityOffset));
+          densitySlider.value = actualDensity * 100;
+
+          var actualSpread = Math.max(1, Math.min(10, highlightRange + params.spreadOffset));
+          spreadSlider.value = actualSpread;
+      }
+
+      function loadGlobalToSliders(){
+          if(pitch <= 1){
+              pitchSlider.value = (pitch - 0.5) * 100;
+          } else {
+              pitchSlider.value = pitch * 50;
+          }
+          document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
+          sizeSlider.value = attack * 200;
+          densitySlider.value = density * 100;
+          spreadSlider.value = highlightRange;
+      }
+
+      function getActiveTouchedParents(){
+          var parents = [];
+          var seen = {};
+
+          // From touch interactions
+          for(var i = 0; i < touches.length; i++){
+              for(var key in touches[i].voices){
+                  if(touches[i].voices[key].isPlaying){
+                      var parent = touches[i].voices[key].intersectedBlock.parent;
+                      if(!seen[parent.uuid]){
+                          seen[parent.uuid] = true;
+                          parents.push(parent);
+                      }
+                  }
+              }
+          }
+
+          // From mouse interactions
+          for(var j = 0; j < previouslyIntersectedParents.length; j++){
+              var parent = previouslyIntersectedParents[j];
+              if(parent.buffer && !seen[parent.uuid]){
+                  seen[parent.uuid] = true;
+                  parents.push(parent);
+              }
+          }
+
+          // Fallback to last interacted if nothing currently active
+          if(parents.length === 0 && lastInteractedWave && lastInteractedWave.params){
+              parents.push(lastInteractedWave);
+          }
+
+          return parents;
+      }
 
       function toggleAddMode(){
 
@@ -346,6 +498,7 @@
 
           container = document.createElement('div');
           document.body.appendChild(container);
+          document.getElementById('scopeButton').style.background = "#00CCFF";
 
           camera = new THREE.OrthographicCamera(
               window.innerWidth / -2, 
@@ -542,6 +695,13 @@
 
           wave.buffer = currentBuffer;
           wave.path = path;
+          wave.params = {
+              pitchOffset: 1,
+              attackOffset: 0,
+              releaseOffset: 0,
+              densityOffset: 0,
+              spreadOffset: 0
+          };
           scene.add(wave);
       }
 
@@ -565,6 +725,7 @@
           clone.path = original.path;
           clone.voice = null;
           clone.position.copy(original.position);
+          clone.params = JSON.parse(JSON.stringify(original.params));
 
           scene.add(clone);
           return clone;
@@ -616,14 +777,14 @@
                       buffer: child.buffer,
                       path: child.path,
                       voice: child.voice,
-                      position: child.position.clone()
+                      position: child.position.clone(),
+                      params: child.params ? JSON.parse(JSON.stringify(child.params)) : null
                   });
                   scene.remove(child);
                   i--;
               }
           }
 
-          // Redraw each waveform
           for (var j = 0; j < waveforms.length; j++) {
               currentBuffer = waveforms[j].buffer;
               data = waveforms[j].buffer.getChannelData(0);
@@ -631,6 +792,7 @@
               var newWave = scene.children[scene.children.length - 1];
               newWave.voice = waveforms[j].voice;
               newWave.position.copy(waveforms[j].position);
+              if(waveforms[j].params) newWave.params = waveforms[j].params;
           }
       }
 

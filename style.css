@@ -97,12 +97,12 @@ body{
   }
 
   .sliderContainer{
-    border: 0px;
-    transform: rotate(-90deg);
-    position: relative;
-    margin: auto;
-    float: left;
-    width: calc(100vw / 7);
+      border: 0px;
+      transform: rotate(-90deg);
+      position: relative;
+      margin: auto;
+      float: left;
+      width: calc((100vw - 40px) / 7);
   }
 
   .slider {
@@ -128,11 +128,11 @@ body{
   }
 
   .sliderContainer{
-    border: 0px;
-    position: relative;
-    margin: auto;
-    float: left;
-    width: calc(100vw / 7);
+      border: 0px;
+      position: relative;
+      margin: auto;
+      float: left;
+      width: calc((100vw - 40px) / 7);
   }
 
   .slider {
@@ -187,4 +187,55 @@ body{
   font-weight: bold;
   font-size: 14px;
   color:#00CCFF;
+}
+
+#scopeButtonContainer{
+    position: relative;
+    float: left;
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#scopeButtonContainer::before{
+    content: 'X';
+    font-family: helvetica;
+    font-weight: bold;
+    font-size: 14px;
+    visibility: hidden;
+    display: block;
+    margin-bottom: 2px;
+}
+
+#scopeButton{
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    border-radius: 50%;
+    background-color: #FF5E89;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#scopeButton img{
+    padding: 0;
+    height: 20px;
+    width: 20px;
+}
+
+.sliderLabel.local{
+    color: #FF5E89;
+}
+
+.slider.localSlider {
+    background: #FF5E89;
+}
+
+.slider.localSlider {
+    background: #FFB0C4;
 }

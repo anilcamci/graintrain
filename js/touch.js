@@ -112,6 +112,10 @@ function onTouchEnd(event){
                 }
 
                 touches.splice(j, 1);
+                if(touches.length === 0 && localMode){
+                    sliderOwner = null;
+                }
+                
                 break;
             }
         }
@@ -207,6 +211,10 @@ function touchWave(touch){
             }
 
             lastInteractedWave = intersected.parent;
+            if(localMode && sliderOwner === null && lastInteractedWave.params){
+                sliderOwner = lastInteractedWave;
+                loadParamsToSliders(sliderOwner.params);
+            }
 
             if(!parentHits[parentUUID]){
                 parentHits[parentUUID] = {
