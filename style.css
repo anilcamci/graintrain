@@ -210,19 +210,6 @@ body{
     margin-bottom: 2px;
 }
 
-/* #scopeButton{
-    width: 25px;
-    height: 25px;
-    line-height: 25px;
-    border-radius: 50%;
-    background-color: #FF5E89;
-    cursor: pointer;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-} */
-
 
 .sliderLabel.local{
     color: #FF5E89;
@@ -234,6 +221,23 @@ body{
 
 .slider.localSlider {
     background: #FFB0C4;
+}
+
+.sliderMarkerContainer{
+    position: relative;
+    width: 100%;
+}
+
+.globalMarker{
+    display: none;
+    position: absolute;
+    transform: translateX(-50%);
+    background: #FF5E89;
+    width: 8px;
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.6;
 }
 
 .buttonArray{

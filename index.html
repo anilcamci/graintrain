@@ -19,25 +19,37 @@
 
     <div id="sliderArray">
 
-      <div class="sliderContainer">
+    <div class="sliderContainer">
         <div class="sliderLabel" id="pitchLabel">PITCH <span id="myText">1</span></div>
-        <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">       
-      </div>
+        <div class="sliderMarkerContainer">
+            <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">
+            <div class="globalMarker" id="pitchMarker"></div>
+        </div>
+    </div>
 
-      <div class="sliderContainer">
+    <div class="sliderContainer">
         <div class="sliderLabel" id="sizeLabel">SIZE</div>
-        <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">        
-      </div>
+        <div class="sliderMarkerContainer">
+            <input type="range" min="1" max="100" value="50" class="slider" id="sizeSlider">
+            <div class="globalMarker" id="sizeMarker"></div>
+        </div>
+    </div>
 
-      <div class="sliderContainer">
+    <div class="sliderContainer">
         <div class="sliderLabel" id="densityLabel">DENSITY</div>
-        <input type="range" min="0" max="100" value="50" class="slider" id="densitySlider">
-      </div>
+        <div class="sliderMarkerContainer">
+            <input type="range" min="0" max="100" value="50" class="slider" id="densitySlider">
+            <div class="globalMarker" id="densityMarker"></div>
+        </div>
+    </div>
 
-      <div class="sliderContainer">
+    <div class="sliderContainer">
         <div class="sliderLabel" id="spreadLabel">SPREAD</div>
-        <input type="range" min="1" max="10" value="4" class="slider" id="spreadSlider">        
-      </div>
+        <div class="sliderMarkerContainer">
+            <input type="range" min="1" max="10" step="0.1" value="4" class="slider" id="spreadSlider">
+            <div class="globalMarker" id="spreadMarker"></div>
+        </div>
+    </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel">FILTER</div>
@@ -137,6 +149,7 @@
       var localMode = false;
       var lastInteractedWave = null;
       var sliderOwner = null;
+      var scopeLastClick = 0;
       var localSliderIDs = ['pitchLabel', 'sizeLabel', 'densityLabel', 'spreadLabel'];
 
       var pitchSlider = document.getElementById("pitchSlider");
@@ -170,6 +183,7 @@
               }
           } else {
               pitch = newPitch;
+              updateGlobalMarkers();
           }
           document.getElementById("myText").innerHTML = Number(newPitch.toString().match(/^\d+(?:\.\d{0,2})?/));
       }
@@ -187,6 +201,7 @@
           } else {
               attack = newAttack;
               release = newRelease;
+              updateGlobalMarkers();
           }
       }
 
@@ -200,6 +215,7 @@
               }
           } else {
               density = newDensity;
+              updateGlobalMarkers();
           }
       }
 
@@ -213,6 +229,7 @@
               }
           } else {
               highlightRange = newSpread;
+              updateGlobalMarkers();
           }
       }
 
@@ -251,6 +268,20 @@
       render();
 
       function toggleParamScope(){
+          var now = Date.now();
+
+          if(now - scopeLastClick < 600 && localMode && sliderOwner && sliderOwner.params){
+              sliderOwner.params.pitchOffset = 1;
+              sliderOwner.params.attackOffset = 0;
+              sliderOwner.params.releaseOffset = 0;
+              sliderOwner.params.densityOffset = 0;
+              sliderOwner.params.spreadOffset = 0;
+              loadParamsToSliders(sliderOwner.params);
+              updateGlobalMarkers();
+              scopeLastClick = 0;
+              return;
+          }
+          scopeLastClick = now;
 
           if(localMode){
               localMode = false;
@@ -258,6 +289,7 @@
               document.getElementById('scopeLabel').innerHTML = 'GLOBAL<br>CONTROL';
 
               loadGlobalToSliders();
+              updateGlobalMarkers();
 
               for(var i = 0; i < localSliderIDs.length; i++){
                   document.getElementById(localSliderIDs[i]).classList.remove('local');
@@ -275,6 +307,8 @@
                   sliderOwner = lastInteractedWave;
                   loadParamsToSliders(sliderOwner.params);
               }
+
+              updateGlobalMarkers();
 
               for(var i = 0; i < localSliderIDs.length; i++){
                   document.getElementById(localSliderIDs[i]).classList.add('local');
@@ -316,6 +350,51 @@
           sizeSlider.value = attack * 200;
           densitySlider.value = density * 100;
           spreadSlider.value = highlightRange;
+      }
+
+      function updateGlobalMarkers(){
+          if(!localMode){
+              document.getElementById('pitchMarker').style.display = 'none';
+              document.getElementById('sizeMarker').style.display = 'none';
+              document.getElementById('densityMarker').style.display = 'none';
+              document.getElementById('spreadMarker').style.display = 'none';
+              return;
+          }
+
+          positionMarker('pitchSlider', 'pitchMarker', getGlobalPitchSliderValue());
+          positionMarker('sizeSlider', 'sizeMarker', attack * 200);
+          positionMarker('densitySlider', 'densityMarker', density * 100);
+          positionMarker('spreadSlider', 'spreadMarker', highlightRange);
+      }
+
+      function getGlobalPitchSliderValue(){
+          if(pitch <= 1){
+              return (pitch - 0.5) * 100;
+          } else {
+              return pitch * 50;
+          }
+      }
+
+      function positionMarker(sliderID, markerID, globalValue){
+          var slider = document.getElementById(sliderID);
+          var marker = document.getElementById(markerID);
+          var min = parseFloat(slider.min);
+          var max = parseFloat(slider.max);
+          var percent = (globalValue - min) / (max - min);
+          percent = Math.max(0, Math.min(1, percent));
+
+          var sliderRect = slider.getBoundingClientRect();
+          var containerRect = slider.parentElement.getBoundingClientRect();
+
+          var thumbHalf = 12.5;
+          var trackStart = sliderRect.left - containerRect.left + thumbHalf;
+          var trackWidth = sliderRect.width - 25;
+          var position = trackStart + percent * trackWidth;
+
+          marker.style.display = 'block';
+          marker.style.left = position + 'px';
+          marker.style.top = (sliderRect.top - containerRect.top) + 'px';
+          marker.style.height = sliderRect.height + 'px';
       }
 
       function getActiveTouchedParents(){
@@ -792,6 +871,8 @@
               newWave.position.copy(waveforms[j].position);
               if(waveforms[j].params) newWave.params = waveforms[j].params;
           }
+          
+          if(localMode) updateGlobalMarkers();
       }
 
       function animate() {

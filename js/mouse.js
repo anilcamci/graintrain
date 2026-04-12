@@ -103,10 +103,16 @@ function interactWithWave(scaledPointer){
       draggedObjectIndex = null;
 
       for(var j = 0; j < previouslyIntersected.length; j++){
-          for(var i = -highlightRange; i < highlightRange + 1; i++){
+          if(!previouslyIntersected[j] || !previouslyIntersected[j].parent) continue;
+          var prevSpread = previouslyIntersected[j].parent.params ? 
+              Math.ceil(Math.max(1, highlightRange + previouslyIntersected[j].parent.params.spreadOffset)) : 
+              Math.ceil(highlightRange);
+          for(var i = -prevSpread; i < prevSpread + 1; i++){
               var previousID = Math.max(Math.min(previouslyIntersected[j].index - i, previouslyIntersected[j].parent.children.length - 1), 0);
-              previouslyIntersected[j].parent.children[previousID].material.color.setHex(0x00ccff);
-              previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+              if(previouslyIntersected[j].parent.children[previousID]){
+                  previouslyIntersected[j].parent.children[previousID].material.color.setHex(0x00ccff);
+                  previouslyIntersected[j].parent.children[previousID].scale.z = 1;
+              }
           }
       }
 
@@ -138,11 +144,21 @@ function interactWithWave(scaledPointer){
           intersected.parent.voice[voiceKey].playVoice(intersected);
           previouslyIntersectedParents.push(intersected.parent);
 
-          for(var i = -highlightRange; i < highlightRange + 1; i++){
-              var gradient = (highlightRange - Math.abs(i)) / 7;
+          var localSpread = intersected.parent.params ? 
+              Math.max(1, highlightRange + intersected.parent.params.spreadOffset) : 
+              highlightRange;
+
+          var localSpread = intersected.parent.params ? 
+              Math.ceil(Math.max(1, highlightRange + intersected.parent.params.spreadOffset)) : 
+              Math.ceil(highlightRange);
+
+          for(var i = -localSpread; i < localSpread + 1; i++){
+              var gradient = (localSpread - Math.abs(i)) / 7;
               var ID = Math.max(Math.min(intersected.index - i, intersected.parent.children.length - 1), 0);
-              intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
-              intersected.parent.children[ID].scale.z = 1.2 + gradient;
+              if(intersected.parent.children[ID]){
+                  intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
+                  intersected.parent.children[ID].scale.z = 1.2 + gradient;
+              }
           }
           previouslyIntersected[l] = intersected;
       }

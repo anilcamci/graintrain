@@ -172,16 +172,23 @@ function touchWave(touch){
 
         // Reset previously painted interactions
         for(var j = 0; j < touch.previouslyIntersected.length; j++){
-            if(!touch.previouslyIntersected[j]) continue;
+            if(!touch.previouslyIntersected[j] || !touch.previouslyIntersected[j].parent) continue;
             var parent = touch.previouslyIntersected[j].parent;
-            if(!parent) continue;
-            for(var i = -highlightRange; i < highlightRange + 1; i++){
+
+            var prevSpread = parent.params ?
+                Math.ceil(Math.max(1, highlightRange + parent.params.spreadOffset)) :
+                Math.ceil(highlightRange);
+
+            for(var i = -prevSpread; i < prevSpread + 1; i++){
                 var previousID = Math.max(Math.min(
                     touch.previouslyIntersected[j].index - i,
                     parent.children.length - 1
                 ), 0);
-                parent.children[previousID].material.color.setHex(0x00ccff);
-                parent.children[previousID].scale.z = 1;
+
+                if(parent.children[previousID]){
+                    parent.children[previousID].material.color.setHex(0x00ccff);
+                    parent.children[previousID].scale.z = 1;
+                }
             }
         }
         touch.previouslyIntersected = [];
@@ -224,14 +231,21 @@ function touchWave(touch){
             }
             parentHits[parentUUID].hits.push(intersected);
 
-            for(var i = -highlightRange; i < highlightRange + 1; i++){
-                var gradient = (highlightRange - Math.abs(i)) / 7;
+            var localSpread = intersected.parent.params ?
+                Math.ceil(Math.max(1, highlightRange + intersected.parent.params.spreadOffset)) :
+                Math.ceil(highlightRange);
+
+            for(var i = -localSpread; i < localSpread + 1; i++){
+                var gradient = (localSpread - Math.abs(i)) / 7;
                 var ID = Math.max(Math.min(
                     intersected.index - i,
                     intersected.parent.children.length - 1
                 ), 0);
-                intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
-                intersected.parent.children[ID].scale.z = 1.2 + gradient;
+
+                if(intersected.parent.children[ID]){
+                    intersected.parent.children[ID].material.color.setRGB(gradient * 2, gradient * 0.8, 0.655);
+                    intersected.parent.children[ID].scale.z = 1.2 + gradient;
+                }
             }
 
             touch.previouslyIntersected.push(intersected);
