@@ -95,7 +95,7 @@
 
       <div class="buttonContainer">
           <div class="buttonLabel" id="scopeLabel">GLOBAL<br>CONTROL</div>
-          <div class="button" id="scopeButton" onclick="toggleParamScope()"><img src='assets/scope.png' height="30px" width="30px"></img></div>
+          <div class="button" id="scopeButton"><img src='assets/scope.png' height="30px" width="30px"></img></div>
       </div>
 
       <div class="buttonContainer">
@@ -680,6 +680,19 @@
                   }
               });
           }
+
+          var scopeBtn = document.getElementById('scopeButton');
+
+          scopeBtn.addEventListener('touchstart', function(e){
+              e.preventDefault();   // prevents the follow-up synthetic click
+              e.stopPropagation();  // prevents canvas handler
+              toggleParamScope();
+          }, { passive: false });
+
+          scopeBtn.addEventListener('click', function(e){
+              e.preventDefault();
+              toggleParamScope();
+          });
 
           animate();
       }
