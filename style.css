@@ -265,9 +265,3 @@ body{
 .buttonContainer:hover .buttonLabel{
     opacity: 1;
 }
-
-@media screen and (max-width: 1000px) {
-    .buttonLabel{
-        display: none;
-    }
-}
