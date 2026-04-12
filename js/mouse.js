@@ -119,7 +119,9 @@ function interactWithWave(scaledPointer){
           currentlyIntersecting = true;
           intersected = intersects[l].object;
 
-          lastInteractedWave = intersected.parent;
+          if(mousePressed){
+            lastInteractedWave = intersected.parent;
+          }
 
           var parentUUID = intersected.parent.uuid;
           var voiceKey = parentUUID + '_' + l;
