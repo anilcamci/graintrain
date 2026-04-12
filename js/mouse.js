@@ -7,6 +7,21 @@ function onMouseDown(event){
 
         let scaledPointer = getScaledPointer(event);
 
+        // Set local scope owner on click
+        if(localMode){
+            var raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(scaledPointer, camera);
+            var intersects = raycaster.intersectObjects(scene.children, true);
+            for(var i = 0; i < intersects.length; i++){
+                if(intersects[i].object.parent.buffer){
+                    lastInteractedWave = intersects[i].object.parent;
+                    sliderOwner = lastInteractedWave;
+                    loadParamsToSliders(sliderOwner.params);
+                    break;
+                }
+            }
+        }
+
         if( addMode ) waveformPath.beginAt(getInteractionPoint(scaledPointer));
 
         if( moveMode && currentlyIntersecting ){
@@ -21,10 +36,18 @@ function onMouseDown(event){
         }
 
         if( deleteMode && currentlyIntersecting ){
-            scene.remove(intersected.parent);
-            if(intersected.parent.voice) intersected.parent.voice.stopVoice();
-            previouslyIntersected = [];
-            toggleDeleteMode();
+          scene.remove(intersected.parent);
+          if(intersected.parent.voice){
+              if(typeof intersected.parent.voice === 'object'){
+                  for(var key in intersected.parent.voice){
+                      if(intersected.parent.voice[key].stopVoice){
+                          intersected.parent.voice[key].stopVoice();
+                      }
+                  }
+              }
+          }
+          previouslyIntersected = [];
+          toggleDeleteMode();
         }
     }
 }
@@ -97,10 +120,6 @@ function interactWithWave(scaledPointer){
           intersected = intersects[l].object;
 
           lastInteractedWave = intersected.parent;
-          if(localMode && sliderOwner === null && lastInteractedWave.params){
-              sliderOwner = lastInteractedWave;
-              loadParamsToSliders(sliderOwner.params);
-          }
 
           var parentUUID = intersected.parent.uuid;
           var voiceKey = parentUUID + '_' + l;
@@ -129,7 +148,6 @@ function interactWithWave(scaledPointer){
       if(intersects.length == 0){
           currentlyIntersecting = false;
           voices = [];
-          if(localMode) sliderOwner = null;
       }
   }
 

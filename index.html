@@ -18,9 +18,6 @@
     <div id = "globalContainer">
 
     <div id="sliderArray">
-      <div id="scopeButtonContainer">
-        <div class="button" id="scopeButton" onclick="toggleParamScope()"><img src='assets/global.png' id="scopeIcon" height="24px" width="24px"></img></div>
-      </div>
 
       <div class="sliderContainer">
         <div class="sliderLabel" id="pitchLabel">PITCH <span id="myText">1</span></div>
@@ -64,34 +61,38 @@
     
     <div class="buttonArray">
       <div class="buttonContainer">
-        <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE AND DRAW A PATH</div>
-        <!-- <div class="buttonLabel">ADD</div> -->
-        <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
-      </div>
-      
-      <div class="buttonContainer">
-        <!-- <div class="buttonLabel">MOVE</div> -->
-        <div class="button" id="move" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
+          <div class="buttonLabel">ADD</div>
+          <div id="drawInstruction" class="instructionLabel">SELECT A SOUND FILE AND DRAW A PATH</div>
+          <div class="button" id="add" onclick="toggleAddMode()"><img src='assets/add.png' height="30px" width="30px"></img></div>
       </div>
 
       <div class="buttonContainer">
-        <div class="button" id="duplicate" onclick="toggleDuplicateMode()"><img src='assets/duplicate.png' height="30px" width="30px"></img></div>
+          <div class="buttonLabel">MOVE</div>
+          <div class="button" id="move" onclick="toggleMoveMode()"><img src='assets/move.png' height="30px" width="30px"></img></div>
       </div>
 
       <div class="buttonContainer">
-        <!-- <div class="buttonLabel">REMOVE</div> -->
-        <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
+          <div class="buttonLabel">DUPLICATE</div>
+          <div class="button" id="duplicate" onclick="toggleDuplicateMode()"><img src='assets/duplicate.png' height="30px" width="30px"></img></div>
       </div>
-      
-      <!-- <div class="buttonContainer">
-        <div class="button" id="reset" onclick="reset()"><img src='assets/panic.png' height="30px" width="30px"></img></div>
-      </div> -->
 
       <div class="buttonContainer">
+          <div class="buttonLabel">DELETE</div>
+          <div class="button" id="delete" onclick="toggleDeleteMode()"><img src='assets/remove.png' height="30px" width="30px"></img></div>
+      </div>
+
+      <div class="buttonContainer">
+          <div class="buttonLabel" id="scopeLabel">GLOBAL<br>CONTROL</div>
+          <div class="button" id="scopeButton" onclick="toggleParamScope()"><img src='assets/scope.png' height="30px" width="30px"></img></div>
+      </div>
+
+      <div class="buttonContainer">
+          <div class="buttonLabel">SAVE</div>
           <div class="button" id="save" onclick="saveState()"><img src='assets/save.png' height="30px" width="30px"></img></div>
       </div>
 
       <div class="buttonContainer">
+          <div class="buttonLabel">LOAD</div>
           <div class="button" id="load" onclick="loadState()"><img src='assets/load.png' height="30px" width="30px"></img></div>
       </div>
 
@@ -254,8 +255,7 @@
           if(localMode){
               localMode = false;
               sliderOwner = null;
-              document.getElementById('scopeIcon').src = 'assets/global.png';
-              document.getElementById('scopeButton').style.background = "#00CCFF";
+              document.getElementById('scopeLabel').innerHTML = 'GLOBAL<br>CONTROL';
 
               loadGlobalToSliders();
 
@@ -268,22 +268,21 @@
                   document.getElementById(localSliders[i]).classList.remove('localSlider');
               }
           } else {
+              localMode = true;
+              document.getElementById('scopeLabel').innerHTML = 'LOCAL<br>CONTROL';
+
               if(lastInteractedWave && lastInteractedWave.params){
-                  localMode = true;
                   sliderOwner = lastInteractedWave;
-                  document.getElementById('scopeIcon').src = 'assets/local.png';
-                  document.getElementById('scopeButton').style.background = "#FF5E89";
-
                   loadParamsToSliders(sliderOwner.params);
+              }
 
-                  for(var i = 0; i < localSliderIDs.length; i++){
-                      document.getElementById(localSliderIDs[i]).classList.add('local');
-                  }
+              for(var i = 0; i < localSliderIDs.length; i++){
+                  document.getElementById(localSliderIDs[i]).classList.add('local');
+              }
 
-                  var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider'];
-                  for(var i = 0; i < localSliders.length; i++){
-                      document.getElementById(localSliders[i]).classList.add('localSlider');
-                  }
+              var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider'];
+              for(var i = 0; i < localSliders.length; i++){
+                  document.getElementById(localSliders[i]).classList.add('localSlider');
               }
           }
       }
@@ -498,7 +497,6 @@
 
           container = document.createElement('div');
           document.body.appendChild(container);
-          document.getElementById('scopeButton').style.background = "#00CCFF";
 
           camera = new THREE.OrthographicCamera(
               window.innerWidth / -2, 

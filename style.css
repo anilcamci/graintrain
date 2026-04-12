@@ -34,7 +34,8 @@ body{
 .buttonContainer{
   border: 0px;
   position: relative;
-  width: calc(100% / 6);
+  float: left;
+  width: calc(100% / 7);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -102,7 +103,7 @@ body{
       position: relative;
       margin: auto;
       float: left;
-      width: calc((100vw - 40px) / 7);
+      width: calc(100vw / 7);
   }
 
   .slider {
@@ -132,7 +133,7 @@ body{
       position: relative;
       margin: auto;
       float: left;
-      width: calc((100vw - 40px) / 7);
+      width: calc(100vw / 7);
   }
 
   .slider {
@@ -209,7 +210,7 @@ body{
     margin-bottom: 2px;
 }
 
-#scopeButton{
+/* #scopeButton{
     width: 25px;
     height: 25px;
     line-height: 25px;
@@ -220,13 +221,8 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-}
+} */
 
-#scopeButton img{
-    padding: 0;
-    height: 20px;
-    width: 20px;
-}
 
 .sliderLabel.local{
     color: #FF5E89;
@@ -238,4 +234,36 @@ body{
 
 .slider.localSlider {
     background: #FFB0C4;
+}
+
+.buttonArray{
+    position: absolute;
+    width: 100%;
+    bottom: 2%;
+}
+
+.buttonLabel{
+    font-family: helvetica;
+    font-weight: bold;
+    font-size: 0.8rem;
+    color: #FF5E89;
+    text-align: center;
+    opacity: 0;
+    padding-bottom: 4px;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    height: 2.0rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.buttonContainer:hover .buttonLabel{
+    opacity: 1;
+}
+
+@media screen and (max-width: 1000px) {
+    .buttonLabel{
+        display: none;
+    }
 }
