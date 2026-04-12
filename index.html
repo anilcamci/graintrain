@@ -390,18 +390,18 @@
           var percent = (globalValue - min) / (max - min);
           percent = Math.max(0, Math.min(1, percent));
 
-          var sliderRect = slider.getBoundingClientRect();
-          var containerRect = slider.parentElement.getBoundingClientRect();
-
+          // Always position in the slider's own coordinate space
+          // (before any CSS rotation)
           var thumbHalf = 12.5;
-          var trackStart = sliderRect.left - containerRect.left + thumbHalf;
-          var trackWidth = sliderRect.width - 25;
-          var position = trackStart + percent * trackWidth;
+          var trackWidth = slider.offsetWidth - 25;
+          var position = thumbHalf + percent * trackWidth;
 
           marker.style.display = 'block';
           marker.style.left = position + 'px';
-          marker.style.top = (sliderRect.top - containerRect.top) + 'px';
-          marker.style.height = sliderRect.height + 'px';
+          marker.style.top = '0px';
+          marker.style.height = slider.offsetHeight + 'px';
+          marker.style.width = '8px';
+          marker.style.transform = 'translateX(-50%)';
       }
 
       function getActiveTouchedParents(){
