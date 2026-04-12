@@ -51,6 +51,7 @@ function onTouchStart(event){
             identifier: event.changedTouches[i].identifier,
             raycaster: raycaster,
             previouslyIntersected: [],
+            paintedSpreadByUUID: {},
             voices: {},           // keyed by parent.uuid
             interactionPoint: null,
             interactionOffset: null,
@@ -101,15 +102,32 @@ function onTouchEnd(event){
 
                 // Reset visual highlighting
                 for(var k = 0; k < touch.previouslyIntersected.length; k++){
-                    for(var l = -highlightRange; l < highlightRange + 1; l++){
+                    var hit = touch.previouslyIntersected[k];
+                    if(!hit || !hit.parent) continue;
+
+                    var parent = hit.parent;
+                    var uuid = parent.uuid;
+
+                    var prevSpread = (touch.paintedSpreadByUUID && touch.paintedSpreadByUUID[uuid]) ?
+                        touch.paintedSpreadByUUID[uuid] :
+                        Math.ceil(highlightRange);
+
+                    for(var l = -prevSpread; l < prevSpread + 1; l++){
                         var previousID = Math.max(Math.min(
-                            touch.previouslyIntersected[k].index - l,
-                            touch.previouslyIntersected[k].parent.children.length - 1
+                            hit.index - l,
+                            parent.children.length - 1
                         ), 0);
-                        touch.previouslyIntersected[k].parent.children[previousID].material.color.setHex(0x00ccff);
-                        touch.previouslyIntersected[k].parent.children[previousID].scale.z = 1;
+
+                        if(parent.children[previousID]){
+                            parent.children[previousID].material.color.setHex(0x00ccff);
+                            parent.children[previousID].scale.z = 1;
+                        }
                     }
                 }
+
+                // Clear per-touch paint state
+                touch.previouslyIntersected = [];
+                touch.paintedSpreadByUUID = {};
 
                 touches.splice(j, 1);
                 if(touches.length === 0 && localMode){
@@ -175,9 +193,9 @@ function touchWave(touch){
             if(!touch.previouslyIntersected[j] || !touch.previouslyIntersected[j].parent) continue;
             var parent = touch.previouslyIntersected[j].parent;
 
-            var prevSpread = parent.params ?
-                Math.ceil(Math.max(1, highlightRange + parent.params.spreadOffset)) :
-                Math.ceil(highlightRange);
+            var prevSpread = touch.paintedSpreadByUUID && touch.paintedSpreadByUUID[parent.uuid] ?
+                touch.paintedSpreadByUUID[parent.uuid] :
+                (parent.params ? Math.ceil(Math.max(1, highlightRange + parent.params.spreadOffset)) : Math.ceil(highlightRange));
 
             for(var i = -prevSpread; i < prevSpread + 1; i++){
                 var previousID = Math.max(Math.min(
@@ -234,6 +252,7 @@ function touchWave(touch){
             var localSpread = intersected.parent.params ?
                 Math.ceil(Math.max(1, highlightRange + intersected.parent.params.spreadOffset)) :
                 Math.ceil(highlightRange);
+            touch.paintedSpreadByUUID[intersected.parent.uuid] = localSpread;
 
             for(var i = -localSpread; i < localSpread + 1; i++){
                 var gradient = (localSpread - Math.abs(i)) / 7;
