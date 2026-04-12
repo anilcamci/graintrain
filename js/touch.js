@@ -1,6 +1,7 @@
 let touches = [];
 
 function onTouchStart(event){
+    if (event.target.closest('.buttonArray') || event.target.closest('#sliderArray')) return;
     event.preventDefault();
     
     if(context.state !== "running"){
@@ -85,6 +86,7 @@ function onTouchStart(event){
 }
 
 function onTouchEnd(event){
+    if (event.target.closest('.buttonArray') || event.target.closest('#sliderArray')) return;
     event.preventDefault();
     for(var i = 0; i < event.changedTouches.length; i++){
         for(var j = 0; j < touches.length; j++){
@@ -153,6 +155,7 @@ function onTouchEnd(event){
 }
 
 function onTouchMove(event){
+    if (event.target.closest('.buttonArray') || event.target.closest('#sliderArray')) return;
     event.preventDefault();
     for(var i = 0; i < event.changedTouches.length; i++){
         for(var j = 0; j < touches.length; j++){

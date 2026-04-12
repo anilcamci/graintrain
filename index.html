@@ -149,7 +149,6 @@
       var localMode = false;
       var lastInteractedWave = null;
       var sliderOwner = null;
-      var scopeLastClick = 0;
       var localSliderIDs = ['pitchLabel', 'sizeLabel', 'densityLabel', 'spreadLabel'];
 
       var pitchSlider = document.getElementById("pitchSlider");
@@ -268,24 +267,31 @@
       render();
 
       function toggleParamScope(){
-          var now = Date.now();
 
-          if(now - scopeLastClick < 600 && localMode && sliderOwner && sliderOwner.params){
-              sliderOwner.params.pitchOffset = 1;
-              sliderOwner.params.attackOffset = 0;
-              sliderOwner.params.releaseOffset = 0;
-              sliderOwner.params.densityOffset = 0;
-              sliderOwner.params.spreadOffset = 0;
-              loadParamsToSliders(sliderOwner.params);
-              updateGlobalMarkers();
-              scopeLastClick = 0;
-              return;
+          // cancel other modes
+          if(addMode){
+              addMode = false;
+              document.getElementById('drawInstruction').style.display = 'none';
+              renderer.setClearColor(0xf0f0f0);
+              document.getElementById('add').style.background = "#FF5E89";
           }
-          scopeLastClick = now;
+          if(moveMode){
+              moveMode = false;
+              document.getElementById('move').style.background = "#FF5E89";
+          }
+          if(duplicateMode){
+              duplicateMode = false;
+              document.getElementById('duplicate').style.background = "#FF5E89";
+          }
+          if(deleteMode){
+              deleteMode = false;
+              document.getElementById('delete').style.background = "#FF5E89";
+          }
 
           if(localMode){
               localMode = false;
               sliderOwner = null;
+
               document.getElementById('scopeLabel').innerHTML = 'GLOBAL<br>CONTROL';
 
               loadGlobalToSliders();
@@ -301,6 +307,7 @@
               }
           } else {
               localMode = true;
+
               document.getElementById('scopeLabel').innerHTML = 'LOCAL<br>CONTROL';
 
               if(lastInteractedWave && lastInteractedWave.params){
@@ -673,6 +680,11 @@
                   }
               });
           }
+
+          document.getElementById('scopeButton').addEventListener('touchstart', function(e){
+              e.stopPropagation();
+              toggleParamScope();
+          }, { passive: true });
 
           animate();
       }
