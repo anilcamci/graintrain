@@ -1148,16 +1148,21 @@
 			function saveState(){
 
 					var stateData = {
-							globalParams: {
-									pitch: pitch,
-									attack: attack,
-									release: release,
-									density: density,
-									spread: highlightRange,
-									filter: filterSlider.value,
-									reverb: reverbSlider.value,
-									amp: amp
-							},
+              globalParams: {
+                  pitch: pitch,
+                  attack: attack,
+                  release: release,
+                  density: density,
+                  spread: highlightRange,
+                  filter: parseFloat(filterSlider.value),
+                  reverb: parseFloat(reverbSlider.value),
+
+                  // save slider-space global volume explicitly
+                  globalVolumeSliderValue: parseFloat(volumeSlider.value),
+
+                  // keep amp too (optional, but fine for backward compatibility)
+                  amp: amp
+              },
 							buffers: {},
 							grainTrains: []
 					};
@@ -1235,124 +1240,179 @@
 				context.resume();
 
 				var reader = new FileReader();
-				reader.onload = function(ev){
-						var stateData = JSON.parse(ev.target.result);
+        reader.onload = function(ev){
+            var stateData = JSON.parse(ev.target.result);
 
-						// Clear current state
-						for(var i = scene.children.length - 1; i >= 0; i--){
-								var child = scene.children[i];
-								if(child.buffer){
-										if(child.voice){
-												if(typeof child.voice === 'object'){
-														for(var key in child.voice){
-																child.voice[key].stopVoice();
-																child.voice[key].isPlaying = false;
-														}
-												}
-										}
-										scene.remove(child);
-								}
-						}
-						voices = [];
-						if(scheduler){
-								scheduler.stop();
-								scheduler = null;
-						}
-						grainPool = null;
+            // Clear current state (remove waves)
+            for (var i = scene.children.length - 1; i >= 0; i--) {
+                var child = scene.children[i];
+                if (child && child.buffer) {
+                    // stop any voices if present
+                    if (child.voice && typeof child.voice === 'object') {
+                        for (var key in child.voice) {
+                            if (child.voice[key] && child.voice[key].stopVoice) {
+                                child.voice[key].stopVoice();
+                                child.voice[key].isPlaying = false;
+                            }
+                        }
+                    }
+                    scene.remove(child);
+                }
+            }
 
-						// Restore global params
-						var gp = stateData.globalParams;
-						pitch = gp.pitch;
-						attack = gp.attack;
-						release = gp.release;
-						density = gp.density;
-						highlightRange = gp.spread;
-						amp = gp.amp;
+            voices = [];
+            if (scheduler) {
+                scheduler.stop();
+                scheduler = null;
+            }
+            grainPool = null;
 
-						if(pitch <= 1){
-								pitchSlider.value = (pitch - 0.5) * 100;
-						} else {
-								pitchSlider.value = pitch * 50;
-						}
-						document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
-						sizeSlider.value = attack * 200;
-						densitySlider.value = density * 100;
-						spreadSlider.value = highlightRange;
-						filterSlider.value = gp.filter;
-						lowPassFilter.frequency.value = logarithmicSlider(100 - gp.filter);
-						reverbSlider.value = gp.reverb;
-						dryGain.gain.value = 1 - gp.reverb / 100;
-						wetGain.gain.value = gp.reverb / 100;
-						volumeSlider.value = Math.sqrt(amp * 3) * 100;
+            // --- Restore globals + sliders ---
+            var gp = stateData.globalParams;
 
-						// Decode all unique buffers first, then build GrainTrains
-						var decodedBuffers = {};
-						var bufferIDs = Object.keys(stateData.buffers);
-						var decodeCount = 0;
+            // Existing global synthesis params
+            pitch = gp.pitch;
+            attack = gp.attack;
+            release = gp.release;
+            density = gp.density;
+            highlightRange = gp.spread;
 
-						if(bufferIDs.length === 0) return;
+            // Restore slider UI to match globals
+            if (pitch <= 1) {
+                pitchSlider.value = (pitch - 0.5) * 100;
+            } else {
+                pitchSlider.value = pitch * 50;
+            }
+            document.getElementById("myText").innerHTML =
+                Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
 
-						for(var b = 0; b < bufferIDs.length; b++){
-								(function(bufferID){
-										var wavArrayBuffer = base64ToArrayBuffer(stateData.buffers[bufferID]);
+            sizeSlider.value = attack * 200;
+            densitySlider.value = density * 100;
+            spreadSlider.value = highlightRange;
 
-										context.decodeAudioData(wavArrayBuffer, function(buffer){
-												decodedBuffers[bufferID] = buffer;
-												decodeCount++;
+            // These are slider-space globals now
+            filterSlider.value = gp.filter;
+            reverbSlider.value = gp.reverb;
 
-												// Once all buffers decoded, build all GrainTrains
-												if(decodeCount === bufferIDs.length){
-														buildGrainTrains(stateData, decodedBuffers);
-												}
-										}, function(error){
-												console.log('Error decoding buffer:', bufferID, error);
-												decodeCount++;
-												if(decodeCount === bufferIDs.length){
-														buildGrainTrains(stateData, decodedBuffers);
-												}
-										});
-								})(bufferIDs[b]);
-						}
-				};
+            // Volume: prefer a saved slider value if you have it, otherwise derive from gp.amp
+            if (gp.globalVolumeSliderValue !== undefined && gp.globalVolumeSliderValue !== null) {
+                volumeSlider.value = gp.globalVolumeSliderValue;
+            } else if (gp.amp !== undefined && gp.amp !== null) {
+                volumeSlider.value = Math.sqrt(gp.amp * 3) * 100;
+            } else {
+                // fallback
+                volumeSlider.value = 71;
+            }
+
+            // Sync global slider-space state vars
+            globalFilterValue = parseFloat(filterSlider.value);
+            globalReverbValue = parseFloat(reverbSlider.value);
+            globalVolumeSliderValue = parseFloat(volumeSlider.value);
+
+            // Recompute amp from slider-space global volume (canonical)
+            amp = Math.pow((globalVolumeSliderValue / 100), 2) / 3;
+
+            // --- Decode all unique buffers first, then build GrainTrains ---
+            var decodedBuffers = {};
+            var bufferIDs = Object.keys(stateData.buffers || {});
+            var decodeCount = 0;
+
+            if (bufferIDs.length === 0) return;
+
+            for (var b = 0; b < bufferIDs.length; b++) {
+                (function(bufferID){
+                    var wavArrayBuffer = base64ToArrayBuffer(stateData.buffers[bufferID]);
+
+                    context.decodeAudioData(
+                        wavArrayBuffer,
+                        function(buffer){
+                            decodedBuffers[bufferID] = buffer;
+                            decodeCount++;
+                            if (decodeCount === bufferIDs.length) {
+                                buildGrainTrains(stateData, decodedBuffers);
+                            }
+                        },
+                        function(error){
+                            console.log('Error decoding buffer:', bufferID, error);
+                            decodeCount++;
+                            if (decodeCount === bufferIDs.length) {
+                                buildGrainTrains(stateData, decodedBuffers);
+                            }
+                        }
+                    );
+                })(bufferIDs[b]);
+            }
+        };
 				reader.readAsText(file);
 
 				this.value = '';
 			}, false);
 
-			function buildGrainTrains(stateData, decodedBuffers){
+      function buildGrainTrains(stateData, decodedBuffers){
 
-				for(var t = 0; t < stateData.grainTrains.length; t++){
-						var trainData = stateData.grainTrains[t];
-						var buffer = decodedBuffers[trainData.bufferID];
+          function applyTrainFXFromGlobals(wave){
+              if(!wave || !wave.params) return;
 
-						if(!buffer) continue;
+              // FILTER (slider-space)
+              if(wave.trainFilter){
+                  var fOff = wave.params.filterOffset || 0;
+                  var f = Math.max(0, Math.min(100, globalFilterValue + fOff));
+                  wave.trainFilter.frequency.value = logarithmicSlider(100 - f);
+              }
 
-						currentBuffer = buffer;
-						data = buffer.getChannelData(0);
+              // REVERB (slider-space)
+              if(wave.trainDry && wave.trainWet){
+                  var rOff = wave.params.reverbOffset || 0;
+                  var r = Math.max(0, Math.min(100, globalReverbValue + rOff));
+                  wave.trainDry.gain.value = 1 - r / 100;
+                  wave.trainWet.gain.value = r / 100;
+              }
 
-						var vectors = [];
-						for(var p = 0; p < trainData.pathPoints.length; p++){
-								var pt = trainData.pathPoints[p];
-								vectors.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
-						}
-						var path = new THREE.CatmullRomCurve3(vectors);
+              // VOLUME (slider-space -> amp -> ratio)
+              if(wave.trainVolume){
+                  var vOff = wave.params.volumeOffset || 0;
+                  var v = Math.max(0, Math.min(100, globalVolumeSliderValue + vOff));
+                  var actualAmp = Math.pow((v / 100), 2) / 3;
+                  wave.trainVolume.gain.value = amp > 0 ? (actualAmp / amp) : 1;
+              }
+          }
 
-						drawWave(path);
+          for (var t = 0; t < (stateData.grainTrains || []).length; t++) {
+              var trainData = stateData.grainTrains[t];
+              var buffer = decodedBuffers[trainData.bufferID];
 
-						var wave = scene.children[scene.children.length - 1];
-						wave.position.set(
-								trainData.position.x,
-								trainData.position.y,
-								trainData.position.z
-						);
+              if (!buffer) continue;
 
-						if(trainData.params){
-								wave.params = trainData.params;
-						}
+              currentBuffer = buffer;
+              data = buffer.getChannelData(0);
 
-						waveformPaths.push(path);
-				}
-			}
+              // rebuild path
+              var vectors = [];
+              for (var p = 0; p < trainData.pathPoints.length; p++) {
+                  var pt = trainData.pathPoints[p];
+                  vectors.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
+              }
+              var path = new THREE.CatmullRomCurve3(vectors);
+
+              // drawWave will create the per-train audio nodes (bus/filter/volume/dry/wet)
+              drawWave(path);
+
+              var wave = scene.children[scene.children.length - 1];
+
+              // restore transform
+              wave.position.set(trainData.position.x, trainData.position.y, trainData.position.z);
+
+              // restore params (offsets etc.)
+              if (trainData.params) {
+                  wave.params = trainData.params;
+              }
+
+              // apply saved offsets onto the per-train nodes
+              applyTrainFXFromGlobals(wave);
+
+              waveformPaths.push(path);
+          }
+      }
 
     </script>
     </div>

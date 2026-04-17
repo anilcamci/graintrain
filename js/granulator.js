@@ -53,7 +53,6 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var startTime = now + 0.002;
 
     var trainBus = intersectedBlock.parent.bus || master;
-    console.log('bus exists:', !!intersectedBlock.parent.bus, 'using master:', trainBus === master);
     if(this.currentBus !== trainBus){
         try { this.gain.disconnect(); } catch(e) {}
         this.gain.connect(trainBus);
@@ -79,8 +78,6 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
     var overlapCount = Math.max(1, unscaledDuration / interval);
     var grainAmp = (amp * 2) / Math.pow(overlapCount, 0.3);
-    console.log('grainAmp:', grainAmp, 'overlapCount:', overlapCount);
-
 
     var buffer = intersectedBlock.parent.buffer;
     var numChildren = intersectedBlock.parent.children.length;
