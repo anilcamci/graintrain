@@ -3,7 +3,6 @@ let release = 0.40;
 let density = 0.5;
 let spread = 0.2;
 let pitch = 1;
-let amp = 0.3;
 let lpf = 1;
 
 const POOL_SIZE = 400;
@@ -42,16 +41,24 @@ function PooledGrain(audioContext, destination) {
     this.context = audioContext;
     this.destination = destination;
     this.activeSource = null;
+    this.currentBus = null;
 
     this.gain = this.context.createGain();
     this.gain.gain.value = 0;
-    this.gain.connect(this.destination);
 }
 
 PooledGrain.prototype.trigger = function(intersectedBlock) {
     var ctx = this.context;
     var now = ctx.currentTime;
     var startTime = now + 0.002;
+
+    var trainBus = intersectedBlock.parent.bus || master;
+    console.log('bus exists:', !!intersectedBlock.parent.bus, 'using master:', trainBus === master);
+    if(this.currentBus !== trainBus){
+        try { this.gain.disconnect(); } catch(e) {}
+        this.gain.connect(trainBus);
+        this.currentBus = trainBus;
+    }
 
     var params = intersectedBlock.parent.params;
     var localPitch = params ? Math.max(0.5, Math.min(2, pitch * params.pitchOffset)) : pitch;
@@ -72,6 +79,8 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
     var overlapCount = Math.max(1, unscaledDuration / interval);
     var grainAmp = (amp * 2) / Math.pow(overlapCount, 0.3);
+    console.log('grainAmp:', grainAmp, 'overlapCount:', overlapCount);
+
 
     var buffer = intersectedBlock.parent.buffer;
     var numChildren = intersectedBlock.parent.children.length;

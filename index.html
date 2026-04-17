@@ -51,20 +51,29 @@
         </div>
     </div>
 
-      <div class="sliderContainer">
-        <div class="sliderLabel">FILTER</div>
-        <input type="range" min="0" max="100" value="0" class="slider" id="filterSlider">     
-      </div>
+    <div class="sliderContainer">
+        <div class="sliderLabel" id="filterLabel">FILTER</div>
+        <div class="sliderMarkerContainer">
+            <input type="range" min="0" max="100" value="0" class="slider" id="filterSlider">
+            <div class="globalMarker" id="filterMarker"></div>
+        </div>
+    </div>
 
-      <div class="sliderContainer">
-        <div class="sliderLabel">REVERB</div>
-        <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider">        
-      </div>
+    <div class="sliderContainer">
+        <div class="sliderLabel" id="reverbLabel">REVERB</div>
+        <div class="sliderMarkerContainer">
+            <input type="range" min="0" max="100" value="0" class="slider" id="reverbSlider">
+            <div class="globalMarker" id="reverbMarker"></div>
+        </div>
+    </div>
 
-      <div class="sliderContainer">
-        <div class="sliderLabel">VOLUME</div>
-        <input type="range" min="0" max="100" value="50" class="slider" id="volumeSlider">        
-      </div>
+    <div class="sliderContainer">
+        <div class="sliderLabel" id="volumeLabel">VOLUME</div>
+        <div class="sliderMarkerContainer">
+            <input type="range" min="0" max="100" value="71" class="slider" id="volumeSlider">
+            <div class="globalMarker" id="volumeMarker"></div>
+        </div>
+    </div>
 
     </div>
 
@@ -149,7 +158,7 @@
       var localMode = false;
       var lastInteractedWave = null;
       var sliderOwner = null;
-      var localSliderIDs = ['pitchLabel', 'sizeLabel', 'densityLabel', 'spreadLabel'];
+      var localSliderIDs = ['pitchLabel', 'sizeLabel', 'densityLabel', 'spreadLabel', 'filterLabel', 'reverbLabel', 'volumeLabel'];
 
       var pitchSlider = document.getElementById("pitchSlider");
       pitch = pitchSlider.value / 50;
@@ -160,8 +169,13 @@
       density = densitySlider.value / 100;
       var filterSlider = document.getElementById("filterSlider");
       filterCutOff = logarithmicSlider(100 - filterSlider.value);
+
       var volumeSlider = document.getElementById("volumeSlider");
-      amp = volumeSlider.value / 300;
+      var globalFilterValue = parseFloat(filterSlider.value);
+      var globalReverbValue = parseFloat(reverbSlider.value);
+      var globalVolumeSliderValue = parseFloat(volumeSlider.value);
+      var normalized = globalVolumeSliderValue / 100;
+      amp = Math.pow(normalized, 2) / 3;
 
       var isSafari = false;
 
@@ -233,17 +247,84 @@
       }
 
       filterSlider.oninput = function() {
-        lowPassFilter.frequency.value = logarithmicSlider(100 - filterSlider.value);
-      }
+          var v = parseFloat(filterSlider.value); // 0..100
+
+          if(localMode){
+              var activeParents = getActiveTouchedParents();
+              for(var i = 0; i < activeParents.length; i++){
+                  // offset in slider space
+                  activeParents[i].params.filterOffset = v - globalFilterValue;
+
+                  var actual = Math.max(0, Math.min(100, globalFilterValue + activeParents[i].params.filterOffset));
+                  activeParents[i].trainFilter.frequency.value = logarithmicSlider(100 - actual);
+              }
+          } else {
+              globalFilterValue = v;
+
+              // update all trains
+              for(var i = 0; i < scene.children.length; i++){
+                  var w = scene.children[i];
+                  if(w.trainFilter && w.params){
+                      var actual = Math.max(0, Math.min(100, globalFilterValue + w.params.filterOffset));
+                      w.trainFilter.frequency.value = logarithmicSlider(100 - actual);
+                  }
+              }
+          }
+
+          // keep markers in sync if you’re showing them
+          updateGlobalMarkers();
+      };
 
       reverbSlider.oninput = function() {
-        dryGain.gain.value = 1 - reverbSlider.value / 100;
-        wetGain.gain.value = reverbSlider.value / 100;
+          var reverbValue = reverbSlider.value;
+
+          if(localMode){
+              var activeParents = getActiveTouchedParents();
+              for(var i = 0; i < activeParents.length; i++){
+                  activeParents[i].params.reverbOffset = reverbValue - globalReverbValue;
+                  var actualReverb = Math.max(0, Math.min(100, globalReverbValue + activeParents[i].params.reverbOffset));
+                  activeParents[i].trainDry.gain.value = 1 - actualReverb / 100;
+                  activeParents[i].trainWet.gain.value = actualReverb / 100;
+              }
+          } else {
+              globalReverbValue = reverbValue;
+              for(var i = 0; i < scene.children.length; i++){
+                  var child = scene.children[i];
+                  if(child.trainDry){
+                      var actualReverb = Math.max(0, Math.min(100, globalReverbValue + (child.params ? child.params.reverbOffset : 0)));
+                      child.trainDry.gain.value = 1 - actualReverb / 100;
+                      child.trainWet.gain.value = actualReverb / 100;
+                  }
+              }
+          }
       }
 
       volumeSlider.oninput = function() {
-        var normalized = volumeSlider.value / 100;
-        amp = Math.pow(normalized, 2) / 3;
+          if(localMode){
+              var activeParents = getActiveTouchedParents();
+              for(var i = 0; i < activeParents.length; i++){
+                  activeParents[i].params.volumeOffset = parseFloat(volumeSlider.value) - globalVolumeSliderValue;
+                  var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + activeParents[i].params.volumeOffset));
+                  var normalizedActual = actualSliderValue / 100;
+                  var actualAmp = Math.pow(normalizedActual, 2) / 3;
+                  var normalizedGlobal = globalVolumeSliderValue / 100;
+                  var globalAmp = Math.pow(normalizedGlobal, 2) / 3;
+                  activeParents[i].trainVolume.gain.value = globalAmp > 0 ? actualAmp / globalAmp : 1;
+              }
+          } else {
+              globalVolumeSliderValue = parseFloat(volumeSlider.value);
+              var normalized = globalVolumeSliderValue / 100;
+              amp = Math.pow(normalized, 2) / 3;
+              for(var i = 0; i < scene.children.length; i++){
+                  var child = scene.children[i];
+                  if(child.trainVolume && child.params){
+                      var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + child.params.volumeOffset));
+                      var normalizedActual = actualSliderValue / 100;
+                      var actualAmp = Math.pow(normalizedActual, 2) / 3;
+                      child.trainVolume.gain.value = amp > 0 ? actualAmp / amp : 1;
+                  }
+              }
+          }
       }
 
       var loadImpulse = function(){
@@ -301,7 +382,7 @@
                   document.getElementById(localSliderIDs[i]).classList.remove('local');
               }
 
-              var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider'];
+              var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider', 'filterSlider', 'reverbSlider', 'volumeSlider'];
               for(var i = 0; i < localSliders.length; i++){
                   document.getElementById(localSliders[i]).classList.remove('localSlider');
               }
@@ -321,7 +402,7 @@
                   document.getElementById(localSliderIDs[i]).classList.add('local');
               }
 
-              var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider'];
+              var localSliders = ['pitchSlider', 'sizeSlider', 'densitySlider', 'spreadSlider', 'filterSlider', 'reverbSlider', 'volumeSlider'];
               for(var i = 0; i < localSliders.length; i++){
                   document.getElementById(localSliders[i]).classList.add('localSlider');
               }
@@ -345,6 +426,17 @@
 
           var actualSpread = Math.max(1, Math.min(10, highlightRange + params.spreadOffset));
           spreadSlider.value = actualSpread;
+
+          var actualFilter = Math.max(0, Math.min(100, globalFilterValue + params.filterOffset));
+          filterSlider.value = actualFilter;
+
+          var actualReverb = Math.max(0, Math.min(100, globalReverbValue + params.reverbOffset));
+          reverbSlider.value = actualReverb;
+
+          var actualAmp = Math.max(0, amp + params.volumeOffset);
+          volumeSlider.value = Math.sqrt(actualAmp * 3) * 100;
+          var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + params.volumeOffset));
+          volumeSlider.value = actualSliderValue;
       }
 
       function loadGlobalToSliders(){
@@ -357,6 +449,10 @@
           sizeSlider.value = attack * 200;
           densitySlider.value = density * 100;
           spreadSlider.value = highlightRange;
+          filterSlider.value = globalFilterValue;
+          reverbSlider.value = globalReverbValue;
+          var normalized = volumeSlider.value / 100;
+          volumeSlider.value = globalVolumeSliderValue;
       }
 
       function updateGlobalMarkers(){
@@ -365,6 +461,9 @@
               document.getElementById('sizeMarker').style.display = 'none';
               document.getElementById('densityMarker').style.display = 'none';
               document.getElementById('spreadMarker').style.display = 'none';
+              document.getElementById('filterMarker').style.display = 'none';
+              document.getElementById('reverbMarker').style.display = 'none';
+              document.getElementById('volumeMarker').style.display = 'none';
               return;
           }
 
@@ -372,6 +471,9 @@
           positionMarker('sizeSlider', 'sizeMarker', attack * 200);
           positionMarker('densitySlider', 'densityMarker', density * 100);
           positionMarker('spreadSlider', 'spreadMarker', highlightRange);
+          positionMarker('filterSlider', 'filterMarker', globalFilterValue);
+          positionMarker('reverbSlider', 'reverbMarker', globalReverbValue);
+          positionMarker('volumeSlider', 'volumeMarker', globalVolumeSliderValue);
       }
 
       function getGlobalPitchSliderValue(){
@@ -521,10 +623,6 @@
 
           master = context.createGain();
 
-          lowPassFilter = context.createBiquadFilter();
-          lowPassFilter.type = "lowpass";
-          lowPassFilter.frequency.value = logarithmicSlider(100 - filterSlider.value);
-
           limiter = context.createDynamicsCompressor();
           limiter.threshold.value = -1;
           limiter.knee.value = 1;
@@ -534,27 +632,17 @@
 
           reverb = context.createConvolver();
           loadImpulse();
-          dryGain = context.createGain();
-          wetGain = context.createGain();
-          dryGain.gain.value = 1 - reverbSlider.value / 100;
-          wetGain.gain.value = reverbSlider.value / 100;
 
-          master.connect(lowPassFilter);
-          lowPassFilter.connect(dryGain);
-          lowPassFilter.connect(wetGain);
-          dryGain.connect(limiter);
-          wetGain.connect(reverb);
-          reverb.connect(limiter);
+          master.connect(limiter);
           limiter.connect(context.destination);
+          reverb.connect(limiter);
 
-          // Reset grain pool and scheduler to use new context
           if(scheduler){
               scheduler.stop();
               scheduler = null;
           }
           grainPool = null;
 
-          // Stop all active voices
           for(var i = 0; i < touches.length; i++){
               for(var key in touches[i].voices){
                   touches[i].voices[key].isPlaying = false;
@@ -563,7 +651,41 @@
           }
           voices = [];
 
-          // Close old context
+          // Rebuild per-train audio buses for existing trains
+          for(var i = 0; i < scene.children.length; i++){
+              var child = scene.children[i];
+              if(child.buffer){
+                  var trainBus = context.createGain();
+                  var trainFilter = context.createBiquadFilter();
+                  trainFilter.type = "lowpass";
+                  var actualFilter = Math.max(0, Math.min(100, globalFilterValue + (child.params ? child.params.filterOffset : 0)));
+                  trainFilter.frequency.value = logarithmicSlider(100 - actualFilter);
+                  var trainVolume = context.createGain();
+                  var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + (child.params ? child.params.volumeOffset : 0)));
+                  var normalizedActual = actualSliderValue / 100;
+                  var actualAmp = Math.pow(normalizedActual, 2) / 3;
+                  trainVolume.gain.value = amp > 0 ? actualAmp / amp : 1;
+                  var trainDry = context.createGain();
+                  var trainWet = context.createGain();
+                  var actualReverb = Math.max(0, Math.min(100, globalReverbValue + (child.params ? child.params.reverbOffset : 0)));
+                  trainDry.gain.value = 1 - actualReverb / 100;
+                  trainWet.gain.value = actualReverb / 100;
+
+                  trainBus.connect(trainFilter);
+                  trainFilter.connect(trainVolume);
+                  trainVolume.connect(trainDry);
+                  trainVolume.connect(trainWet);
+                  trainDry.connect(limiter);
+                  trainWet.connect(reverb);
+
+                  child.bus = trainBus;
+                  child.trainFilter = trainFilter;
+                  child.trainVolume = trainVolume;
+                  child.trainDry = trainDry;
+                  child.trainWet = trainWet;
+              }
+          }
+
           try {
               oldContext.close();
           } catch(e) {}
@@ -622,10 +744,6 @@
 
           master = context.createGain();
 
-          lowPassFilter = context.createBiquadFilter();
-          lowPassFilter.type = "lowpass";
-          lowPassFilter.frequency.value = 20000;
-
           limiter = context.createDynamicsCompressor();
           limiter.threshold.value = -1;
           limiter.knee.value = 1;
@@ -635,18 +753,10 @@
 
           reverb = context.createConvolver();
           loadImpulse();
-          dryGain = context.createGain();
-          wetGain = context.createGain();
-          dryGain.gain.value = 1;
-          wetGain.gain.value = 0;
 
-          master.connect(lowPassFilter);
-          lowPassFilter.connect(dryGain);
-          lowPassFilter.connect(wetGain);
-          dryGain.connect(limiter);
-          wetGain.connect(reverb);
-          reverb.connect(limiter);
+          master.connect(limiter);
           limiter.connect(context.destination);
+          reverb.connect(limiter);
 
           document.addEventListener('visibilitychange', function(){
               if(document.visibilityState === 'visible'){
@@ -790,6 +900,35 @@
               wave.add(block);
           }
 
+          // Per-train audio bus
+          var trainBus = context.createGain();
+
+          var trainFilter = context.createBiquadFilter();
+          trainFilter.type = "lowpass";
+          trainFilter.frequency.value = logarithmicSlider(100 - globalFilterValue);
+
+          var trainVolume = context.createGain();
+          // per-train volume is a ratio on top of global amp (default = 1)
+          trainVolume.gain.value = 1.0;
+
+          var trainDry = context.createGain();
+          var trainWet = context.createGain();
+          trainDry.gain.value = 1 - globalReverbValue / 100;
+          trainWet.gain.value = globalReverbValue / 100;
+
+          trainBus.connect(trainFilter);
+          trainFilter.connect(trainVolume);
+          trainVolume.connect(trainDry);
+          trainVolume.connect(trainWet);
+          trainDry.connect(limiter);
+          trainWet.connect(reverb);
+
+          wave.bus = trainBus;
+          wave.trainFilter = trainFilter;
+          wave.trainVolume = trainVolume;
+          wave.trainDry = trainDry;
+          wave.trainWet = trainWet;
+
           wave.buffer = currentBuffer;
           wave.path = path;
           wave.params = {
@@ -797,7 +936,10 @@
               attackOffset: 0,
               releaseOffset: 0,
               densityOffset: 0,
-              spreadOffset: 0
+              spreadOffset: 0,
+              filterOffset: 0,
+              reverbOffset: 0,
+              volumeOffset: 0
           };
           scene.add(wave);
       }
@@ -817,6 +959,31 @@
               block.scale.copy(origChild.scale);
               clone.add(block);
           }
+
+          // Create new audio bus for clone
+          var trainBus = context.createGain();
+          var trainFilter = context.createBiquadFilter();
+          trainFilter.type = "lowpass";
+          trainFilter.frequency.value = original.trainFilter.frequency.value;
+          var trainVolume = context.createGain();
+          trainVolume.gain.value = original.trainVolume.gain.value;
+          var trainDry = context.createGain();
+          var trainWet = context.createGain();
+          trainDry.gain.value = original.trainDry.gain.value;
+          trainWet.gain.value = original.trainWet.gain.value;
+
+          trainBus.connect(trainFilter);
+          trainFilter.connect(trainVolume);
+          trainVolume.connect(trainDry);
+          trainVolume.connect(trainWet);
+          trainDry.connect(limiter);
+          trainWet.connect(reverb);
+
+          clone.bus = trainBus;
+          clone.trainFilter = trainFilter;
+          clone.trainVolume = trainVolume;
+          clone.trainDry = trainDry;
+          clone.trainWet = trainWet;
 
           clone.buffer = original.buffer;
           clone.path = original.path;
