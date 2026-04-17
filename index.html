@@ -175,7 +175,7 @@
       var globalReverbValue = parseFloat(reverbSlider.value);
       var globalVolumeSliderValue = parseFloat(volumeSlider.value);
       var normalized = globalVolumeSliderValue / 100;
-      amp = Math.pow(normalized, 2) / 3;
+      var amp = Math.pow(normalized, 2) / 3;
 
       var isSafari = false;
 
