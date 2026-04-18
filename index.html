@@ -161,7 +161,8 @@
       var localSliderIDs = ['pitchLabel', 'sizeLabel', 'densityLabel', 'spreadLabel', 'filterLabel', 'reverbLabel', 'volumeLabel'];
 
       var pitchSlider = document.getElementById("pitchSlider");
-      pitch = pitchSlider.value / 50;
+      pitch = 1;
+      document.getElementById("myText").innerHTML = '';
       var sizeSlider = document.getElementById("sizeSlider");
       attack = sizeSlider.value / 200;
       release = sizeSlider.value / 200;
@@ -444,6 +445,7 @@
           }
 
           var display = semitones > 0 ? '+' + semitones : '' + semitones;
+          if(semitones == 0) display = '';
           document.getElementById("myText").innerHTML = display;
 
           var actualAttack = Math.max(0.005, Math.min(0.5, attack + params.attackOffset));
@@ -477,7 +479,9 @@
           }
 
           var display = semitones > 0 ? '+' + semitones : '' + semitones;
+          if(semitones == 0) display = '';
           document.getElementById("myText").innerHTML = display;
+
           sizeSlider.value = attack * 200;
           densitySlider.value = density * 100;
           spreadSlider.value = highlightRange;
