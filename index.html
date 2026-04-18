@@ -20,7 +20,7 @@
     <div id="sliderArray">
 
     <div class="sliderContainer">
-        <div class="sliderLabel" id="pitchLabel">PITCH <span id="myText">1</span></div>
+        <div class="sliderLabel" id="pitchLabel">PITCH <span id="myText"></span></div>
         <div class="sliderMarkerContainer">
             <input type="range" min="0" max="100" value="50" class="slider" id="pitchSlider">
             <div class="globalMarker" id="pitchMarker"></div>
@@ -180,14 +180,20 @@
       var isSafari = false;
 
       pitchSlider.oninput = function() {
-          var newPitch;
+          var semitones;
+
           if(pitchSlider.value <= 45){
-              newPitch = pitchSlider.value / 100 + 0.5;
+              // Bottom half: -12 to -1
+              semitones = Math.round(((pitchSlider.value / 45) * 12) - 12);
           } else if(pitchSlider.value >= 55){
-              newPitch = pitchSlider.value / 50;
+              // Top half: +1 to +12
+              semitones = Math.round(((pitchSlider.value - 55) / 45) * 12);
           } else {
-              newPitch = 1;
+              // Dead zone: no shift
+              semitones = 0;
           }
+
+          var newPitch = Math.pow(2, semitones / 12);
 
           if(localMode){
               var activeParents = getActiveTouchedParents();
@@ -196,9 +202,12 @@
               }
           } else {
               pitch = newPitch;
-              updateGlobalMarkers();
           }
-          document.getElementById("myText").innerHTML = Number(newPitch.toString().match(/^\d+(?:\.\d{0,2})?/));
+
+          // Display semitones
+          var display = semitones > 0 ? '+' + semitones : '' + semitones;
+          if(semitones == 0) display = '';
+          document.getElementById("myText").innerHTML = display;
       }
 
       sizeSlider.oninput = function() {
@@ -403,12 +412,16 @@
 
       function loadParamsToSliders(params){
           var actualPitch = Math.max(0.5, Math.min(2, pitch * params.pitchOffset));
-          if(actualPitch <= 1){
-              pitchSlider.value = (actualPitch - 0.5) * 100;
+          var semitones = Math.round(12 * Math.log2(actualPitch));
+
+          if(semitones <= 0){
+              pitchSlider.value = ((semitones + 12) / 12) * 45;
           } else {
-              pitchSlider.value = actualPitch * 50;
+              pitchSlider.value = 55 + (semitones / 12) * 45;
           }
-          document.getElementById("myText").innerHTML = Number(actualPitch.toString().match(/^\d+(?:\.\d{0,2})?/));
+
+          var display = semitones > 0 ? '+' + semitones : '' + semitones;
+          document.getElementById("myText").innerHTML = display;
 
           var actualAttack = Math.max(0.005, Math.min(0.5, attack + params.attackOffset));
           sizeSlider.value = actualAttack * 200;
@@ -432,12 +445,16 @@
       }
 
       function loadGlobalToSliders(){
-          if(pitch <= 1){
-              pitchSlider.value = (pitch - 0.5) * 100;
+          var semitones = Math.round(12 * Math.log2(pitch));
+
+          if(semitones <= 0){
+              pitchSlider.value = ((semitones + 12) / 12) * 45;
           } else {
-              pitchSlider.value = pitch * 50;
+              pitchSlider.value = 55 + (semitones / 12) * 45;
           }
-          document.getElementById("myText").innerHTML = Number(pitch.toString().match(/^\d+(?:\.\d{0,2})?/));
+
+          var display = semitones > 0 ? '+' + semitones : '' + semitones;
+          document.getElementById("myText").innerHTML = display;
           sizeSlider.value = attack * 200;
           densitySlider.value = density * 100;
           spreadSlider.value = highlightRange;
