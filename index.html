@@ -178,6 +178,7 @@
       var normalized = globalVolumeSliderValue / 100;
       var amp = Math.pow(normalized, 2) / 3;
 
+      var globalPitchSemitones = 0;
       var pitchLerpTarget = 1;
       var pitchLerpTimer = null;
 
@@ -199,9 +200,9 @@
 
           if(pitchLerpTimer === null){
               pitchLerpTimer = setInterval(function(){
-                  var current = localMode && sliderOwner ? 
+                  var current = localMode && sliderOwner ?
                       pitch * sliderOwner.params.pitchOffset : pitch;
-                  
+
                   var diff = pitchLerpTarget - current;
 
                   if(Math.abs(diff) < 0.001){
@@ -222,6 +223,8 @@
                   }
               }, 16);
           }
+
+          if(!localMode) globalPitchSemitones = semitones;
 
           var display = semitones > 0 ? '+' + semitones : '' + semitones;
           if(semitones == 0) display = '';
@@ -437,8 +440,11 @@
       function loadParamsToSliders(params){
           var actualPitch = Math.max(0.5, Math.min(2, pitch * params.pitchOffset));
           var semitones = Math.round(12 * Math.log2(actualPitch));
+          semitones = Math.max(-12, Math.min(12, semitones));
 
-          if(semitones <= 0){
+          if(semitones == 0){
+              pitchSlider.value = 50;
+          } else if(semitones < 0){
               pitchSlider.value = ((semitones + 12) / 12) * 45;
           } else {
               pitchSlider.value = 55 + (semitones / 12) * 45;
@@ -463,23 +469,21 @@
           var actualReverb = Math.max(0, Math.min(100, globalReverbValue + params.reverbOffset));
           reverbSlider.value = actualReverb;
 
-          var actualAmp = Math.max(0, amp + params.volumeOffset);
-          volumeSlider.value = Math.sqrt(actualAmp * 3) * 100;
-          var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + params.volumeOffset));
-          volumeSlider.value = actualSliderValue;
+          var actualVolSlider = Math.max(0, Math.min(100, globalVolumeSliderValue + params.volumeOffset));
+          volumeSlider.value = actualVolSlider;
       }
 
       function loadGlobalToSliders(){
-          var semitones = Math.round(12 * Math.log2(pitch));
-
-          if(semitones <= 0){
-              pitchSlider.value = ((semitones + 12) / 12) * 45;
+          if(globalPitchSemitones == 0){
+              pitchSlider.value = 50;
+          } else if(globalPitchSemitones < 0){
+              pitchSlider.value = ((globalPitchSemitones + 12) / 12) * 45;
           } else {
-              pitchSlider.value = 55 + (semitones / 12) * 45;
+              pitchSlider.value = 55 + (globalPitchSemitones / 12) * 45;
           }
 
-          var display = semitones > 0 ? '+' + semitones : '' + semitones;
-          if(semitones == 0) display = '';
+          var display = globalPitchSemitones > 0 ? '+' + globalPitchSemitones : '' + globalPitchSemitones;
+          if(globalPitchSemitones == 0) display = '';
           document.getElementById("myText").innerHTML = display;
 
           sizeSlider.value = attack * 200;
@@ -487,7 +491,6 @@
           spreadSlider.value = highlightRange;
           filterSlider.value = globalFilterValue;
           reverbSlider.value = globalReverbValue;
-          var normalized = volumeSlider.value / 100;
           volumeSlider.value = globalVolumeSliderValue;
       }
 
