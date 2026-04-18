@@ -299,15 +299,17 @@
       };
 
       reverbSlider.oninput = function() {
-          var reverbValue = reverbSlider.value;
+          var reverbValue = parseFloat(reverbSlider.value);
 
           if(localMode){
               var activeParents = getActiveTouchedParents();
               for(var i = 0; i < activeParents.length; i++){
                   activeParents[i].params.reverbOffset = reverbValue - globalReverbValue;
                   var actualReverb = Math.max(0, Math.min(100, globalReverbValue + activeParents[i].params.reverbOffset));
-                  activeParents[i].trainDry.gain.value = 1 - actualReverb / 100;
-                  activeParents[i].trainWet.gain.value = actualReverb / 100;
+                  var normalized = actualReverb / 100;
+                  var wet = Math.pow(normalized, 3);
+                  activeParents[i].trainDry.gain.value = 1 - wet;
+                  activeParents[i].trainWet.gain.value = wet;
               }
           } else {
               globalReverbValue = reverbValue;
@@ -315,8 +317,10 @@
                   var child = scene.children[i];
                   if(child.trainDry){
                       var actualReverb = Math.max(0, Math.min(100, globalReverbValue + (child.params ? child.params.reverbOffset : 0)));
-                      child.trainDry.gain.value = 1 - actualReverb / 100;
-                      child.trainWet.gain.value = actualReverb / 100;
+                      var normalized = actualReverb / 100;
+                      var wet = Math.pow(normalized, 3);
+                      child.trainDry.gain.value = 1 - wet;
+                      child.trainWet.gain.value = wet;
                   }
               }
           }
@@ -931,8 +935,10 @@
 
           var trainDry = context.createGain();
           var trainWet = context.createGain();
-          trainDry.gain.value = 1 - globalReverbValue / 100;
-          trainWet.gain.value = globalReverbValue / 100;
+          var normalizedReverb = globalReverbValue / 100;
+          var wet = Math.pow(normalizedReverb, 3);
+          trainDry.gain.value = 1 - wet;
+          trainWet.gain.value = wet;
 
           trainBus.connect(trainFilter);
           trainFilter.connect(trainVolume);
@@ -1363,8 +1369,10 @@
               if(wave.trainDry && wave.trainWet){
                   var rOff = wave.params.reverbOffset || 0;
                   var r = Math.max(0, Math.min(100, globalReverbValue + rOff));
-                  wave.trainDry.gain.value = 1 - r / 100;
-                  wave.trainWet.gain.value = r / 100;
+                  var normalized = r / 100;
+                  var wet = Math.pow(normalized, 3);
+                  wave.trainDry.gain.value = 1 - wet;
+                  wave.trainWet.gain.value = wet;
               }
 
               if(wave.trainVolume){
