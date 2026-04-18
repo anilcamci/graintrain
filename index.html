@@ -307,7 +307,7 @@
                   activeParents[i].params.reverbOffset = reverbValue - globalReverbValue;
                   var actualReverb = Math.max(0, Math.min(100, globalReverbValue + activeParents[i].params.reverbOffset));
                   var normalized = actualReverb / 100;
-                  var wet = Math.pow(normalized, 3);
+                  var wet = Math.pow(normalized, 2);
                   activeParents[i].trainDry.gain.value = 1 - wet;
                   activeParents[i].trainWet.gain.value = wet;
               }
@@ -318,7 +318,7 @@
                   if(child.trainDry){
                       var actualReverb = Math.max(0, Math.min(100, globalReverbValue + (child.params ? child.params.reverbOffset : 0)));
                       var normalized = actualReverb / 100;
-                      var wet = Math.pow(normalized, 3);
+                      var wet = Math.pow(normalized, 2);
                       child.trainDry.gain.value = 1 - wet;
                       child.trainWet.gain.value = wet;
                   }
@@ -936,7 +936,7 @@
           var trainDry = context.createGain();
           var trainWet = context.createGain();
           var normalizedReverb = globalReverbValue / 100;
-          var wet = Math.pow(normalizedReverb, 3);
+          var wet = Math.pow(normalizedReverb, 2);
           trainDry.gain.value = 1 - wet;
           trainWet.gain.value = wet;
 
@@ -1370,7 +1370,7 @@
                   var rOff = wave.params.reverbOffset || 0;
                   var r = Math.max(0, Math.min(100, globalReverbValue + rOff));
                   var normalized = r / 100;
-                  var wet = Math.pow(normalized, 3);
+                  var wet = Math.pow(normalized, 2);
                   wave.trainDry.gain.value = 1 - wet;
                   wave.trainWet.gain.value = wet;
               }
