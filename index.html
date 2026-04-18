@@ -177,34 +177,51 @@
       var normalized = globalVolumeSliderValue / 100;
       var amp = Math.pow(normalized, 2) / 3;
 
+      var pitchLerpTarget = 1;
+      var pitchLerpTimer = null;
+
       var isSafari = false;
 
       pitchSlider.oninput = function() {
           var semitones;
 
           if(pitchSlider.value <= 45){
-              // Bottom half: -12 to -1
               semitones = Math.round(((pitchSlider.value / 45) * 12) - 12);
           } else if(pitchSlider.value >= 55){
-              // Top half: +1 to +12
               semitones = Math.round(((pitchSlider.value - 55) / 45) * 12);
           } else {
-              // Dead zone: no shift
               semitones = 0;
           }
 
           var newPitch = Math.pow(2, semitones / 12);
+          pitchLerpTarget = newPitch;
 
-          if(localMode){
-              var activeParents = getActiveTouchedParents();
-              for(var i = 0; i < activeParents.length; i++){
-                  activeParents[i].params.pitchOffset = newPitch / pitch;
-              }
-          } else {
-              pitch = newPitch;
+          if(pitchLerpTimer === null){
+              pitchLerpTimer = setInterval(function(){
+                  var current = localMode && sliderOwner ? 
+                      pitch * sliderOwner.params.pitchOffset : pitch;
+                  
+                  var diff = pitchLerpTarget - current;
+
+                  if(Math.abs(diff) < 0.001){
+                      current = pitchLerpTarget;
+                      clearInterval(pitchLerpTimer);
+                      pitchLerpTimer = null;
+                  } else {
+                      current += diff * 0.15;
+                  }
+
+                  if(localMode){
+                      var activeParents = getActiveTouchedParents();
+                      for(var i = 0; i < activeParents.length; i++){
+                          activeParents[i].params.pitchOffset = current / pitch;
+                      }
+                  } else {
+                      pitch = current;
+                  }
+              }, 16);
           }
 
-          // Display semitones
           var display = semitones > 0 ? '+' + semitones : '' + semitones;
           if(semitones == 0) display = '';
           document.getElementById("myText").innerHTML = display;
