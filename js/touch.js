@@ -9,10 +9,6 @@ function onTouchStart(event){
         
         master = context.createGain();
 
-        lowPassFilter = context.createBiquadFilter();
-        lowPassFilter.type = "lowpass";
-        lowPassFilter.frequency.value = logarithmicSlider(brightnessSlider.value);
-
         limiter = context.createDynamicsCompressor();
         limiter.threshold.value = -1;
         limiter.knee.value = 1;
@@ -22,18 +18,10 @@ function onTouchStart(event){
 
         reverb = context.createConvolver();
         loadImpulse();
-        dryGain = context.createGain();
-        wetGain = context.createGain();
-        dryGain.gain.value = 1 - reverbSlider.value / 100;
-        wetGain.gain.value = reverbSlider.value / 100;
 
-        master.connect(lowPassFilter);
-        lowPassFilter.connect(dryGain);
-        lowPassFilter.connect(wetGain);
-        dryGain.connect(limiter);
-        wetGain.connect(reverb);
-        reverb.connect(limiter);
+        master.connect(limiter);
         limiter.connect(context.destination);
+        reverb.connect(limiter);
 
         grainPool = null;
         scheduler = null;
