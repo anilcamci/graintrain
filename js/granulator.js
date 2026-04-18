@@ -77,7 +77,7 @@ PooledGrain.prototype.trigger = function(intersectedBlock) {
     var dens = mapRange(localDensity, 1, 0, 0, 1);
     var interval = Math.max(dens * 0.1, MIN_GRAIN_INTERVAL);
     var overlapCount = Math.max(1, unscaledDuration / interval);
-    var grainAmp = (amp * 2) / Math.pow(overlapCount, 0.3);
+    var grainAmp = (0.33 * 2) / Math.pow(overlapCount, 0.3);
 
     var buffer = intersectedBlock.parent.buffer;
     var numChildren = intersectedBlock.parent.children.length;

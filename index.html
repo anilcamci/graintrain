@@ -301,24 +301,20 @@
               var activeParents = getActiveTouchedParents();
               for(var i = 0; i < activeParents.length; i++){
                   activeParents[i].params.volumeOffset = parseFloat(volumeSlider.value) - globalVolumeSliderValue;
-                  var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + activeParents[i].params.volumeOffset));
-                  var normalizedActual = actualSliderValue / 100;
-                  var actualAmp = Math.pow(normalizedActual, 2) / 3;
-                  var normalizedGlobal = globalVolumeSliderValue / 100;
-                  var globalAmp = Math.pow(normalizedGlobal, 2) / 3;
-                  activeParents[i].trainVolume.gain.value = globalAmp > 0 ? actualAmp / globalAmp : 1;
+                  var actualSlider = Math.max(0, Math.min(100, globalVolumeSliderValue + activeParents[i].params.volumeOffset));
+                  var actualAmp = Math.pow((actualSlider / 100), 2) / 3;
+                  activeParents[i].trainVolume.gain.value = actualAmp;
               }
           } else {
               globalVolumeSliderValue = parseFloat(volumeSlider.value);
-              var normalized = globalVolumeSliderValue / 100;
-              amp = Math.pow(normalized, 2) / 3;
+              amp = Math.pow((globalVolumeSliderValue / 100), 2) / 3;
+
               for(var i = 0; i < scene.children.length; i++){
                   var child = scene.children[i];
                   if(child.trainVolume && child.params){
-                      var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + child.params.volumeOffset));
-                      var normalizedActual = actualSliderValue / 100;
-                      var actualAmp = Math.pow(normalizedActual, 2) / 3;
-                      child.trainVolume.gain.value = amp > 0 ? actualAmp / amp : 1;
+                      var actualSlider = Math.max(0, Math.min(100, globalVolumeSliderValue + (child.params.volumeOffset || 0)));
+                      var actualAmp = Math.pow((actualSlider / 100), 2) / 3;
+                      child.trainVolume.gain.value = actualAmp;
                   }
               }
           }
@@ -652,9 +648,8 @@
                   trainFilter.frequency.value = logarithmicSlider(100 - actualFilter);
                   var trainVolume = context.createGain();
                   var actualSliderValue = Math.max(0, Math.min(100, globalVolumeSliderValue + (child.params ? child.params.volumeOffset : 0)));
-                  var normalizedActual = actualSliderValue / 100;
-                  var actualAmp = Math.pow(normalizedActual, 2) / 3;
-                  trainVolume.gain.value = amp > 0 ? actualAmp / amp : 1;
+                  var actualAmp = Math.pow((actualSliderValue / 100), 2) / 3;
+                  child.trainVolume.gain.value = actualAmp;
                   var trainDry = context.createGain();
                   var trainWet = context.createGain();
                   var actualReverb = Math.max(0, Math.min(100, globalReverbValue + (child.params ? child.params.reverbOffset : 0)));
@@ -898,7 +893,7 @@
           trainFilter.frequency.value = logarithmicSlider(100 - globalFilterValue);
 
           var trainVolume = context.createGain();
-          trainVolume.gain.value = 1.0;
+          trainVolume.gain.value = Math.pow((globalVolumeSliderValue / 100), 2) / 3;
 
           var trainDry = context.createGain();
           var trainWet = context.createGain();
@@ -1342,7 +1337,7 @@
                   var vOff = wave.params.volumeOffset || 0;
                   var v = Math.max(0, Math.min(100, globalVolumeSliderValue + vOff));
                   var actualAmp = Math.pow((v / 100), 2) / 3;
-                  wave.trainVolume.gain.value = amp > 0 ? (actualAmp / amp) : 1;
+                  wave.trainVolume.gain.value = actualAmp;
               }
           }
 
