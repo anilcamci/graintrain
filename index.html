@@ -198,39 +198,48 @@
           var newPitch = Math.pow(2, semitones / 12);
           pitchLerpTarget = newPitch;
 
-          if(pitchLerpTimer === null){
-              pitchLerpTimer = setInterval(function(){
-                  var current = localMode && sliderOwner ?
-                      pitch * sliderOwner.params.pitchOffset : pitch;
+          // Capture targets NOW, not on each tick
+          var lerpTargets = localMode ? getActiveTouchedParents() : null;
 
-                  var diff = pitchLerpTarget - current;
-
-                  if(Math.abs(diff) < 0.001){
-                      current = pitchLerpTarget;
-                      clearInterval(pitchLerpTimer);
-                      pitchLerpTimer = null;
-                  } else {
-                      current += diff * 0.15;
-                  }
-
-                  if(localMode){
-                      var activeParents = getActiveTouchedParents();
-                      for(var i = 0; i < activeParents.length; i++){
-                          activeParents[i].params.pitchOffset = current / pitch;
-                      }
-                  } else {
-                      pitch = current;
-                  }
-              }, 16);
+          if(pitchLerpTimer !== null){
+              clearInterval(pitchLerpTimer);
+              pitchLerpTimer = null;
           }
 
-          if(localMode){
+          pitchLerpTimer = setInterval(function(){
+              var current;
+              if(lerpTargets && lerpTargets.length > 0){
+                  current = pitch * lerpTargets[0].params.pitchOffset;
+              } else {
+                  current = pitch;
+              }
+
+              var diff = pitchLerpTarget - current;
+
+              if(Math.abs(diff) < 0.001){
+                  current = pitchLerpTarget;
+                  clearInterval(pitchLerpTimer);
+                  pitchLerpTimer = null;
+              } else {
+                  current += diff * 0.15;
+              }
+
+              if(lerpTargets){
+                  for(var i = 0; i < lerpTargets.length; i++){
+                      lerpTargets[i].params.pitchOffset = current / pitch;
+                  }
+              } else {
+                  pitch = current;
+              }
+          }, 16);
+
+          if(!localMode){
+              globalPitchSliderValue = parseFloat(pitchSlider.value);
+          } else {
               var activeParents = getActiveTouchedParents();
               for(var i = 0; i < activeParents.length; i++){
                   activeParents[i].params.pitchSliderOffset = parseFloat(pitchSlider.value) - globalPitchSliderValue;
               }
-          } else {
-              globalPitchSliderValue = parseFloat(pitchSlider.value);
           }
 
           var display = semitones > 0 ? '+' + semitones : '' + semitones;
