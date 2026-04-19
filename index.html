@@ -78,7 +78,7 @@
     </div>
 
     <input type="file" id="audio-file">
-    <input type="file" id="state-file" accept=".graintrain">
+    <input type="file" id="state-file" accept=".graintrain, .json">
     
     <div class="buttonArray">
       <div class="buttonContainer">
@@ -1253,7 +1253,7 @@
 					}
 
 					var json = JSON.stringify(stateData);
-					var blob = new Blob([json], { type: 'application/json' });
+					var blob = new Blob([json], { type: 'application/octet-stream' });
 					var url = URL.createObjectURL(blob);
 
 					var link = document.createElement('a');
