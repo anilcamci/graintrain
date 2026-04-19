@@ -1253,7 +1253,7 @@
 					}
 
 					var json = JSON.stringify(stateData);
-					var blob = new Blob([json], { type: 'application/octet-stream' });
+					var blob = new Blob([json], { type: 'application/json' });
 					var url = URL.createObjectURL(blob);
 
 					var link = document.createElement('a');
